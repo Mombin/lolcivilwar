@@ -4,3 +4,7 @@ spring:
     driver-class-name: org.postgresql.Driver
     username: postgres
     password: bitbot12#$
+
+logging:
+  file:
+    path: classpath:/logback-local.xml

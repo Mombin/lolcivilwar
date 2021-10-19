@@ -1,0 +1,6 @@
+spring:
+  datasource:
+    url: "jdbc:postgresql://mcedu.co.kr:5432/lol_dev"
+    driver-class-name: org.postgresql.Driver
+    username: postgres
+    password: bitbot12#$

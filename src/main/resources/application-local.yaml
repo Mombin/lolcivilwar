@@ -1,18 +1,12 @@
 spring:
-  profiles:
-    active: local
-
----
-spring:
   datasource:
-    url: "jdbc:postgresql://localhost:5432/lol"
+    url: "jdbc:postgresql://mcedu.co.kr:5432/lol_dev"
     driver-class-name: org.postgresql.Driver
     username: postgres
     password: bitbot12#$
   config:
     activate:
-      on-profile: prod
-
+      on-profile: local
 
 logging:
   file:

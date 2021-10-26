@@ -9,10 +9,11 @@ spring:
     driver-class-name: org.postgresql.Driver
     username: postgres
     password: bitbot12#$
+  jwt:
+    secret: prod_yache
   config:
     activate:
       on-profile: prod
-
 
 logging:
   file:

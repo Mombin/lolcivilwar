@@ -10,10 +10,7 @@ import javax.annotation.PostConstruct;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.Date;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 @Slf4j
@@ -84,7 +81,12 @@ public class JwtTokenProvider {
      */
     public String parseTokenCookie(HttpServletRequest request, TokenType tokenType){
         final AtomicReference<String> token = new AtomicReference<>("");
-        Arrays.stream(request.getCookies()).forEach(it -> {
+        Cookie[] cookies = request.getCookies();
+        if (Objects.isNull(cookies)) {
+            return "";
+        }
+
+        Arrays.stream(cookies).forEach(it -> {
             if (tokenType.getCookieName().equals(it.getName())) {
                 token.set(it.getValue());
             }

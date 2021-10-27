@@ -104,4 +104,15 @@ public class JwtTokenProvider {
         cookie.setMaxAge(0);
         response.addCookie(cookie);
     }
+
+    /**
+     * 토큰에 있는 userSeq 가져오기
+     * @param token 토큰
+     * @return userSeq, 없을 경우 0
+     */
+    public long getUserSeq(String token) {
+        Claims claims = Jwts.parser().setSigningKey(encodedSecretKey).parseClaimsJws(token).getBody();
+        Long userSeq = claims.get("userSeq", Long.class);
+        return Optional.ofNullable(userSeq).orElse(0L);
+    }
 }

@@ -6,6 +6,8 @@ spring:
     password: bitbot12#$
   jwt:
     secret: local_yache
+  thymeleaf:
+    cache: false
   config:
     activate:
       on-profile: local
@@ -20,4 +22,4 @@ logging:
     path: classpath:/logback-local.xml
 
 security:
-  ignore-url: /static/**, /login, /api/test/*, /favicon.ico
+  ignore-url: /static/**, /api/test/*, /favicon.ico, /user/checkId/*, /user/checkEmail/*

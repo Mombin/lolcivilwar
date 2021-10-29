@@ -25,4 +25,4 @@ logging:
     path: classpath:/logback-local.xml
 
 security:
-  ignore-url: /static/**, /login, /api/test/*, /favicon.ico
+  ignore-url: /static/**, /api/test/*, /favicon.ico, /user/checkId/*, /user/checkEmail/*

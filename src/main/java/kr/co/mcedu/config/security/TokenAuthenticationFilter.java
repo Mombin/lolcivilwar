@@ -3,6 +3,7 @@ package kr.co.mcedu.config.security;
 import io.jsonwebtoken.ExpiredJwtException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -28,8 +29,7 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
         boolean needRefresh = false;
         try {
             if (jwtTokenProvider.validateToken(accessToken)) {
-                //TODO: authentication 생성
-                // SecurityContextHolder.getContext().authentication = jwtTokenProvider.getAuthentication(accessToken)
+                SecurityContextHolder.getContext().setAuthentication(jwtTokenProvider.getAuthentication(accessToken));
             }
         } catch (ExpiredJwtException e) {
             jwtTokenProvider.deleteTokenCookie(response, TokenType.ACCESS_TOKEN);

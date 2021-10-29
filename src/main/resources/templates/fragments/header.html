@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" >
+<body>
+    <header layout:fragment="headerFragment">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="#">롤내전 도우미</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav">
+<!--                        <li class="nav-item">-->
+<!--                            <a class="nav-link" href="/main/mng">메인페이지</a>-->
+<!--                        </li>-->
+                        <li class="nav-item">
+                            <a class="nav-link" href="/custom/mng">포지션 고르기</a>
+                        </li>
+                        <li class="nav-item dropdown" sec:authorize="hasRole('ROLE_USER')">
+                            <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false" name="group">그룹</a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="/group/mng">그룹관리</a></li>
+                                <li><a class="dropdown-item" href="/group/rank">라인별승률</a></li>
+                                <li><a class="dropdown-item" href="/group/synergy">시너지/상성</a></li>
+                                <li><a class="dropdown-item" href="/group/match">경기결과</a></li>
+                                <li><a class="dropdown-item" href="/group/result">전적검색</a></li>
+                                <li><a class="dropdown-item" href="/group/auth">권한관리</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/helper/suggestion">건의사항</a>
+                        </li>
+                        <li class="nav-item" sec:authorize="isAnonymous()">
+                            <a class="nav-link" href="/login">로그인</a>
+                        </li>
+                    </ul>
+                </div>
+                <form class="d-flex">
+                    <div class="dropdown" sec:authorize="hasRole('ROLE_USER')">
+                        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false" name="name">
+                            <span  sec:authentication="name"></span><span class="badge bg-primary rounded-pill" name="messageAlarmCnt" style="margin-left: 5px"></span>
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                            <li><a class="dropdown-item" href="/user/message">알림<span class="badge bg-primary rounded-pill" name="messageAlarmCnt" style="margin-left: 5px"></span></a></li>
+                            <li><a class="dropdown-item" onclick="logout()" href="#">로그아웃</a></li>
+                        </ul>
+                    </div>
+                </form>
+            </div>
+        </nav>
+        <div style="display: none" id="session">
+            <span sec:authentication="name" name="name"></span>
+        </div>
+    </header>
+</body>
+</html>

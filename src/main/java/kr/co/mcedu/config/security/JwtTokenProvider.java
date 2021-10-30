@@ -4,6 +4,12 @@ import io.jsonwebtoken.*;
 import kr.co.mcedu.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -114,5 +120,39 @@ public class JwtTokenProvider {
         Claims claims = Jwts.parser().setSigningKey(encodedSecretKey).parseClaimsJws(token).getBody();
         Long userSeq = claims.get("userSeq", Long.class);
         return Optional.ofNullable(userSeq).orElse(0L);
+    }
+
+    public Authentication getAuthentication(String token)  {
+        UserDetails userDetails  = new User(this.getId(token), "", this.getAuth(token));
+        return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
+    }
+
+    private String getId(String token) {
+        Claims claims = Jwts.parser()
+                            .setSigningKey(encodedSecretKey)
+                            .parseClaimsJws(token).getBody();
+        return claims.getSubject();
+    }
+
+    private Collection<GrantedAuthority> getAuth(String token) {
+        Claims claims = Jwts.parser()
+                            .setSigningKey(encodedSecretKey)
+                            .parseClaimsJws(token)
+                            .getBody();
+        Object roles = claims.get("roles");
+        if(!(roles instanceof ArrayList)) {
+            return Collections.emptyList();
+        }
+        ArrayList<GrantedAuthority> authList = new ArrayList<>();
+
+        ((ArrayList) roles).stream().forEach(it -> {
+            if (it instanceof LinkedHashMap) {
+                ((LinkedHashMap) it).values().forEach(value -> {
+                    authList.add(new SimpleGrantedAuthority(value.toString()));
+                });
+            }
+        });
+
+        return authList;
     }
 }

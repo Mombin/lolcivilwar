@@ -1,4 +1,4 @@
-package kr.co.mcedu.common;
+package kr.co.mcedu.common.controller;
 
 import kr.co.mcedu.utils.SessionUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Optional;
 
 @Slf4j
 @Controller
@@ -26,26 +27,26 @@ public class ViewController {
     /**
      * View 1depth
      */
-    @GetMapping("/{path1:[a-z]}")
+    @GetMapping("/{path1:[a-z]*}")
     public String firstDepth(@PathVariable String path1, HttpServletRequest request, HttpServletResponse response)
             throws IOException {
         if(isExplorer(request)) {
-
             return ERROR_PAGE;
         }
-        Authentication principal = SecurityContextHolder.getContext().getAuthentication();
-        if (LOGIN_PAGE.equals(path1) && principal.getPrincipal() != "anonymousUser") {
+        Optional<Authentication> principal = Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication());
+        if (LOGIN_PAGE.equals(path1)
+                && !"anonymousUser".equals(principal.map(Authentication::getPrincipal).orElse("anonymousUser"))) {
             response.sendRedirect(MAIN_PAGE);
             return MAIN_PAGE;
         }
-        urlLogger("/" + path1);
+        urlLogger(path1);
         return path1;
     }
 
     /**
      * View 2depth
      */
-    @GetMapping("/{path1:[a-z]}/{path2:[a-z]}")
+    @GetMapping("/{path1:[a-z]*}/{path2:[a-z]*}")
     public String secondaryDepth(@PathVariable String path1, @PathVariable String path2, HttpServletRequest request) {
         if(isExplorer(request)) {
             return ERROR_PAGE;
@@ -57,7 +58,7 @@ public class ViewController {
     /**
      * View Popup
      */
-    @GetMapping("/popup/{path1:[a-z]}/{path2:[a-z]}")
+    @GetMapping("/popup/{path1:[a-z]*}/{path2:[a-z]*}")
     public String popupView(@PathVariable String path1, @PathVariable String path2, HttpServletRequest request) {
         if(isExplorer(request)) {
             return ERROR_PAGE;

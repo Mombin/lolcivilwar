@@ -32,4 +32,8 @@ public class UserAlarmEntity extends BaseTimeEntity {
     private UserAlarmType alarmType;
     private Boolean isRead = false;
     private Boolean isDelete = false;
+
+    public void read() {
+        this.isRead = true;
+    }
 }

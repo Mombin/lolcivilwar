@@ -15,6 +15,7 @@ import javax.persistence.*;
 @SequenceGenerator(sequenceName = "web_user_seq", initialValue = 1, allocationSize = 1, name = "web_user_seq_generator", schema = "lol")
 public class WebUserEntity extends BaseTimeEntity {
     @Id
+    @Column(name = "user_seq")
     @GeneratedValue(generator = "web_user_seq_generator", strategy = GenerationType.SEQUENCE)
     private Long userSeq;
     private String userId;

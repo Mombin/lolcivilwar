@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static kr.co.mcedu.config.security.TokenType.ACCESS_TOKEN;
+import static kr.co.mcedu.config.security.TokenType.REFRESH_TOKEN;
 
 @Slf4j
 @RestController
@@ -30,20 +31,20 @@ public class LoginController {
         try {
             token = userDetailsService.login(jwtRequest);
         } catch (Exception e) {
-
             result.put("code", "99999");
             result.put("error", e.getMessage());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(result);
         }
-        ResponseCookie cookie = ResponseCookie.from(ACCESS_TOKEN.getCookieName(), token).path("/").httpOnly(true).build();
+        ResponseCookie cookie = ResponseCookie.from(REFRESH_TOKEN.getCookieName(), token).path("/").httpOnly(true).build();
         result.put("code", "00000");
         return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).body(result);
     }
 
     @PostMapping("/authenticate/out")
     public ResponseEntity<Object> logout(HttpServletRequest request) {
-        ResponseCookie cookie = ResponseCookie.from(ACCESS_TOKEN.getCookieName(), "").path("/").maxAge(0).httpOnly(true).build();
-        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).build();
+        ResponseCookie refreshCookie = ResponseCookie.from(REFRESH_TOKEN.getCookieName(), "").path("/").maxAge(0).httpOnly(true).build();
+        ResponseCookie accessCookie = ResponseCookie.from(ACCESS_TOKEN.getCookieName(), "").path("/").maxAge(0).httpOnly(true).build();
+        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, refreshCookie.toString(), accessCookie.toString()).build();
     }
 
     @GetMapping("/user/checkId/{userId}")

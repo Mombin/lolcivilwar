@@ -6,7 +6,6 @@ import kr.co.mcedu.config.exception.ServiceException;
 import kr.co.mcedu.config.security.JwtTokenProvider;
 import kr.co.mcedu.config.security.TokenType;
 import kr.co.mcedu.user.entity.WebUserEntity;
-import kr.co.mcedu.user.model.UserAuthority;
 import kr.co.mcedu.user.model.UserRole;
 import kr.co.mcedu.user.model.request.JwtRequest;
 import kr.co.mcedu.user.model.request.UserRegisterRequest;
@@ -16,7 +15,6 @@ import kr.co.mcedu.utils.LocalCacheManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -30,9 +28,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static kr.co.mcedu.user.model.UserAuthority.ADMIN;
-import static kr.co.mcedu.user.model.UserAuthority.USER;
-
 @Service
 @RequiredArgsConstructor
 public class UserDetailServiceImpl implements UserDetailsService {
@@ -40,6 +35,8 @@ public class UserDetailServiceImpl implements UserDetailsService {
     private final JwtTokenProvider jwtTokenProvider;
     private final LocalCacheManager localCacheManager;
     private final UserAlarmService userAlarmService;
+
+    @Transactional
     public String login(JwtRequest jwtRequest) throws ServiceException {
         WebUserEntity user = webUserRepository.findWebUserEntityByUserId(jwtRequest.getId())
                                               .orElseThrow(() -> new DataNotExistException("존재하지 않는 사용자입니다."));
@@ -48,26 +45,11 @@ public class UserDetailServiceImpl implements UserDetailsService {
             throw new AccessDeniedException("비밀번호를 다시 확인해주세요.");
         }
         Map<String, Object> data = new HashMap<>();
-        data.put("sub", user.getUserId());
-        data.put("roles", this.getAuthorities(user.getAuthority()));
         data.put("userSeq", user.getUserSeq());
-        String token = jwtTokenProvider.createToken(TokenType.ACCESS_TOKEN, data);
-        SecurityContextHolder.getContext().setAuthentication(jwtTokenProvider.getAuthentication(token));
+        String token = jwtTokenProvider.createToken(TokenType.REFRESH_TOKEN, data);
+        user.setRefreshToken(token);
+        webUserRepository.save(user);
         return token;
-    }
-
-    private List<GrantedAuthority> getAuthorities(String userAuthority) {
-        ArrayList<GrantedAuthority> authorities = new ArrayList<>();
-        switch (UserAuthority.valueOf(userAuthority)) {
-            case ADMIN:
-                authorities.add(new SimpleGrantedAuthority(ADMIN.getSecurity()));
-                authorities.add(new SimpleGrantedAuthority(USER.getSecurity()));
-                break;
-            case USER:
-                authorities.add(new SimpleGrantedAuthority(USER.getSecurity()));
-                break;
-        }
-        return authorities;
     }
 
     @Override

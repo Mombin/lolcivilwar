@@ -4,6 +4,7 @@ import kr.co.mcedu.match.entity.MatchAttendeesEntity;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Optional;
 
 public class SynergyModel {
    private String nickname = "";
@@ -14,15 +15,23 @@ public class SynergyModel {
    private String lastDateString = "";
    private double rate = 0.0;
 
+
    private void add(MatchAttendeesEntity matchAttendeesEntity){
-      this.nickname = matchAttendeesEntity.getCustomUserEntity() != null ?  matchAttendeesEntity.getCustomUserEntity().getNickname() : "" ;
+
+//      this.nickname = matchAttendeesEntity.getCustomUserEntity() != null ?  matchAttendeesEntity.getCustomUserEntity().getNickname() : "" ;
+      Optional<CustomUserEntity> customUserEntity = Optional.ofNullable(matchAttendeesEntity.getCustomUserEntity());
+      Optional<String> entityNickname = customUserEntity.map(CustomUserEntity::getNickname);
+      this.nickname = entityNickname.orElse("");
+
+
       this.summonerName = matchAttendeesEntity.getCustomUserEntity() != null ? matchAttendeesEntity.getCustomUserEntity().getSummonerName() : "";
+      Optional<String> entitySummonerName = customUserEntity.map(CustomUserEntity::getSummonerName);
+      this.summonerName = entitySummonerName.orElse("");
+
+
       this.total += 1;
       if(matchAttendeesEntity.isMatchResult()){
          this.win += 1;
-
-      }else{
-         this.win += 0;
       }
       if(this.lastDate !=null){
          if(matchAttendeesEntity.getCreatedDate() == null){

@@ -4,11 +4,13 @@ import kr.co.mcedu.common.entity.BaseTimeEntity;
 import kr.co.mcedu.group.model.GroupResponse;
 import kr.co.mcedu.match.entity.CustomMatchEntity;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
 import java.util.ArrayList;
 
+@NoArgsConstructor
 @Getter
 @Setter
 @Entity(name = "group")
@@ -33,11 +35,6 @@ public class GroupEntity extends BaseTimeEntity {
 
     @OneToMany(mappedBy = "group", cascade = {CascadeType.ALL}, orphanRemoval = true, fetch = FetchType.LAZY)
     private ArrayList<GroupAuthEntity> groupAuthList ;
-
-
-    public GroupEntity() {
-
-    }
 
     private void addCustomUser(CustomUserEntity customUser){
         this.customUser.add(customUser);

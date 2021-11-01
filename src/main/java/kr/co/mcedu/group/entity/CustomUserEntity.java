@@ -38,7 +38,7 @@ public class CustomUserEntity {
     @JoinColumn(name = "account_id", referencedColumnName = "account_id")
     private SummonerEntity summonerEntity = null;
 
-    private CustomUserResponse toCustomUserResponse(){
+    public CustomUserResponse toCustomUserResponse(){
         return new CustomUserResponse(this);
     }
 

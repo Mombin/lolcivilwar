@@ -38,6 +38,11 @@ public class CustomUserEntity {
     @JoinColumn(name = "account_id", referencedColumnName = "account_id")
     private SummonerEntity summonerEntity = null;
 
+    public CustomUserEntity(String nickname, String summonerId) {
+        this.nickname = nickname;
+        this.summonerName = summonerId;
+    }
+
     public CustomUserResponse toCustomUserResponse(){
         return new CustomUserResponse(this);
     }

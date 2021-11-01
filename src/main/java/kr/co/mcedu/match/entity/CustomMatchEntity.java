@@ -2,6 +2,7 @@ package kr.co.mcedu.match.entity;
 
 import kr.co.mcedu.common.entity.BaseTimeEntity;
 import kr.co.mcedu.group.entity.GroupEntity;
+import lombok.Getter;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.SQLDelete;
@@ -10,6 +11,7 @@ import org.hibernate.annotations.Where;
 import javax.persistence.*;
 import java.util.ArrayList;
 
+@Getter
 @Entity(name = "custom_match")
 @Table(name = "custom_match", schema = "lol")
 @SQLDelete(sql = "UPDATE lol.custom_match SET del_yn = true WHERE match_seq = ?")
@@ -27,7 +29,7 @@ public class CustomMatchEntity extends BaseTimeEntity {
 
     @Fetch(FetchMode.SUBSELECT)
     @OneToMany(mappedBy = "customMatch", cascade = {CascadeType.ALL}, orphanRemoval = true, fetch = FetchType.LAZY)
-    private ArrayList<MatchAttendeesEntity> matchAttendees ;
+    private ArrayList<MatchAttendeesEntity> matchAttendees = new ArrayList<>();
 
     @Column(name = "del_yn", columnDefinition = "boolean default false")
     private boolean delYn = false;

@@ -6,6 +6,7 @@ import kr.co.mcedu.match.entity.CustomMatchEntity;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -13,6 +14,7 @@ import java.util.ArrayList;
 @NoArgsConstructor
 @Getter
 @Setter
+@ToString
 @Entity(name = "group")
 @Table(name = "group", schema = "lol")
 @SequenceGenerator(sequenceName = "group_seq", initialValue = 1, allocationSize = 1, name = "group_seq_generator", schema = "lol")
@@ -31,23 +33,23 @@ public class GroupEntity extends BaseTimeEntity {
     private ArrayList<CustomUserEntity> customUser ;
 
     @OneToMany(mappedBy = "group", cascade = {CascadeType.ALL}, orphanRemoval = true, fetch = FetchType.LAZY)
-    private ArrayList<CustomMatchEntity>  customMatches ;
+    private ArrayList<CustomMatchEntity>  customMatches = new ArrayList<>();
 
     @OneToMany(mappedBy = "group", cascade = {CascadeType.ALL}, orphanRemoval = true, fetch = FetchType.LAZY)
     private ArrayList<GroupAuthEntity> groupAuthList ;
 
-    private void addCustomUser(CustomUserEntity customUser){
+    public void addCustomUser(CustomUserEntity customUser){
         this.customUser.add(customUser);
         customUser.setGroupEntity(this);
     }
 
-    private void removeCustomUser(CustomUserEntity customUser){
+    public void removeCustomUser(CustomUserEntity customUser){
         this.customUser.remove(customUser);
         customUser.setGroupEntity(null);
     }
 
     public final GroupResponse toGroupResponse() {
-        return new GroupResponse(this);
+        return new GroupResponse().setEntity(this);
     }
 
     public GroupEntity(GroupEntity groupEntity) {
@@ -57,6 +59,10 @@ public class GroupEntity extends BaseTimeEntity {
         this.customUser = groupEntity.customUser;
         GroupAuthEntity auth = null;
 
+    }
+    public void addGroupAuth(GroupAuthEntity groupAuthEntity) {
+        this.groupAuthList.add(groupAuthEntity);
+        groupAuthEntity.setGroupEntity(this);
     }
 }
 

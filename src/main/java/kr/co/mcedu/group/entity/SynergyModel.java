@@ -16,31 +16,19 @@ public class SynergyModel {
    private double rate = 0.0;
 
 
-   private void add(MatchAttendeesEntity matchAttendeesEntity){
-
+   public void add(MatchAttendeesEntity matchAttendeesEntity){
       Optional<CustomUserEntity> customUserEntity = Optional.ofNullable(matchAttendeesEntity.getCustomUserEntity());
       this.nickname = customUserEntity.map(CustomUserEntity::getNickname).orElse("");
       this.summonerName = customUserEntity.map(CustomUserEntity::getSummonerName).orElse("");
       if(matchAttendeesEntity.isMatchResult()){
          this.win += 1;
       }
-      if(this.lastDate !=null){
-         if(matchAttendeesEntity.getCreatedDate() == null){
-            matchAttendeesEntity.setCreatedDate(LocalDateTime.now());
-         }
-         if(this.lastDate.isBefore(matchAttendeesEntity.getCreatedDate())){
-            this.lastDate = matchAttendeesEntity.getCreatedDate();
-         }
+      if (Boolean.TRUE.equals(Optional.ofNullable(this.lastDate).map(localDateTime -> localDateTime.isBefore(
+              matchAttendeesEntity.getCreatedDate())).orElse(null))) {
+         this.lastDate = matchAttendeesEntity.getCreatedDate();
       }
       this.rate = (double)Math.round((double)this.win / (double)this.total * (double)1000) / 10.0D;
-
-      if (this.lastDate != null) {
-         this.lastDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-         this.lastDateString = this.lastDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-      } else {
-         this.lastDateString = "";
-      }
-
-
+      this.lastDateString = Optional.ofNullable(this.lastDate).map(localDateTime -> localDateTime.format(
+              DateTimeFormatter.ofPattern("yyyy-MM-dd"))).orElse("");
    }
 }

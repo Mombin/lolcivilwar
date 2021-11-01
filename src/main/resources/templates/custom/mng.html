@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}" >
+<body>
+<div layout:fragment="content">
+    <div id="team" style="border: 1px; margin-top: 20px" class="row team">
+        <div class="input-group" sec:authorize="hasRole('ROLE_USER')" style="margin-bottom: 20px">
+            <span class="input-group-text">승리팀</span>
+            <input type="button" class="btn btn-outline-primary form-control" value="A팀 승리" data-team="a" name="winner_btn">
+            <input type="button" class="btn btn-outline-success form-control" value="B팀 승리" data-team="b" name="winner_btn" >
+        </div>
+        <div class="input-group">
+            <span class="input-group-text">팀</span>
+            <input type="text" class="form-control" readonly value="A" style="justify-content: center">
+            <input type="text" class="form-control" readonly value="B" style="justify-content: center">
+        </div>
+        <div class="input-group team-position" data-position="top">
+            <span class="input-group-text">탑</span>
+            <input type="text" class="form-control" name="team_a">
+            <input type="text" class="form-control" name="team_b">
+        </div>
+        <div class="input-group team-position" data-position="jg">
+            <span class="input-group-text">정글</span>
+            <input type="text" class="form-control" name="team_a">
+            <input type="text" class="form-control" name="team_b">
+        </div>
+        <div class="input-group team-position" data-position="mid">
+            <span class="input-group-text">미드</span>
+            <input type="text" class="form-control" name="team_a">
+            <input type="text" class="form-control" name="team_b">
+        </div>
+        <div class="input-group team-position" data-position="bot">
+            <span class="input-group-text">봇</span>
+            <input type="text" class="form-control" name="team_a">
+            <input type="text" class="form-control" name="team_b">
+        </div>
+        <div class="input-group team-position" data-position="sup">
+            <span class="input-group-text">서폿</span>
+            <input type="text" class="form-control" name="team_a">
+            <input type="text" class="form-control" name="team_b">
+        </div>
+        <div class="input-group">
+            <span class="input-group-text">라인랜덤</span>
+            <input type="button" class="btn btn-primary form-control" value="랜덤" data-team="a" name="random_team">
+            <input type="button" class="btn btn-success form-control" value="랜덤" data-team="b" name="random_team" >
+        </div>
+    </div>
+    <div id="summonerList" class="row" style="margin-top: 20px">
+        <div class="input-group">
+            <input type="button" class="btn btn-secondary form-control" value="새팀 만들기" name="new_team" >
+            <input type="button" class="btn btn-primary form-control" value="그룹에서 팀뽑기" name="group_list_check" sec:authorize="hasRole('ROLE_USER')">
+            <input type="button" class="btn btn-success form-control" value="내전 생성" name="group_list_apply" sec:authorize="hasRole('ROLE_USER')" style="display: none;">
+            <input type="button" class="btn btn-warning form-control" value="팀장 뽑기" name="select_leader" style="display: none">
+        </div>
+        <div class="input-group" style="margin-top: 20px; display: none" sec:authorize="hasRole('ROLE_USER')" name="filter_text">
+            <input class="form-control" type="text" placeholder="검색어" aria-label="default input example">
+        </div>
+    </div>
+    <div id="groupUserList" class="row" style="margin-top: 20px;" sec:authorize="hasRole('ROLE_USER')">
+        <h5 name="pick-count" style="display:none;">선택된 유저 : 0</h5>
+        <div th:replace="~{fragments/fragments :: groupSelector}"></div>
+        <div class="list-group" style="margin-top: 20px; padding-left: 12px; display: none;">
+            <label class="list-group-item">
+                <input class="form-check-input me-1" type="checkbox" value="">
+                Cras justo odio
+            </label>
+        </div>
+    </div>
+    <div class="modal fade" id="modalRandomTeam" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabelTeam" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="staticBackdropLabelTeam">포지션 변경</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body team">
+                    <div class="input-group" data-position="top">
+                        <span class="input-group-text">탑</span>
+                        <input type="text" class="form-control">
+                    </div>
+                    <div class="input-group" data-position="jg">
+                        <span class="input-group-text">정글</span>
+                        <input type="text" class="form-control">
+                    </div>
+                    <div class="input-group" data-position="mid">
+                        <span class="input-group-text">미드</span>
+                        <input type="text" class="form-control">
+                    </div>
+                    <div class="input-group" data-position="bot">
+                        <span class="input-group-text">봇</span>
+                        <input type="text" class="form-control">
+                    </div>
+                    <div class="input-group" data-position="sup">
+                        <span class="input-group-text">서폿</span>
+                        <input type="text" class="form-control">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" name="randomBtn">랜덤</button>
+                    <button type="button" class="btn btn-primary" name="applyBtn">적용하기</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="modalRandomLeader" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="staticBackdropLabel">리더 뽑기</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body team">
+                    <div class="input-group" data-team="A">
+                        <span class="input-group-text">A팀</span>
+                        <input type="text" class="form-control">
+                    </div>
+                    <div class="input-group" data-team="B">
+                        <span class="input-group-text">B팀</span>
+                        <input type="text" class="form-control">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" name="randomBtn">랜덤</button>
+                    <button type="button" class="btn btn-primary" name="applyBtn">적용하기</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<th:block layout:fragment="script">
+    <script type="text/javascript" th:src="@{/static/js/group/groupSelector.js}"></script>
+    <script type="text/javascript" th:src="@{/static/js/custom/mng.js}"></script>
+    <script type="text/javascript" th:src="@{/static/js/custom/mng_event.js}"></script>
+    <script type="text/javascript" th:src="@{/static/js/custom/match.js}"></script>
+</th:block>
+</html>

@@ -2,6 +2,7 @@ package kr.co.mcedu.utils;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import kr.co.mcedu.group.model.response.CustomUserSynergyResponse;
 import lombok.Getter;
 import org.springframework.stereotype.Component;
 import java.util.HashMap;
@@ -11,7 +12,7 @@ import javax.annotation.PostConstruct;
 @Component
 @Getter
 public class LocalCacheManager {
-//    lateinit var synergyCache : Cache<String, CustomUserSynergyResponse>
+    private Cache<String, CustomUserSynergyResponse> synergyCache;
 //    lateinit var matchHistoryCache : Cache<String, HashMap<Int, MatchHistoryResponse>>
 //    lateinit var personalResultHistoryCache : Cache<String, HashMap<Int, PersonalResultResponse>>
     private Cache<String, Boolean> userIdCache;
@@ -20,9 +21,9 @@ public class LocalCacheManager {
 
     @PostConstruct
     public void after() {
-//        synergyCache = CacheBuilder.newBuilder()
-//                .expireAfterAccess(1, TimeUnit.HOURS)
-//                .build()
+        synergyCache = CacheBuilder.newBuilder()
+                .expireAfterAccess(1, TimeUnit.HOURS)
+                .build();
 //        matchHistoryCache = CacheBuilder.newBuilder()
 //                .expireAfterAccess(1, TimeUnit.HOURS)
 //                .build()

@@ -55,8 +55,10 @@ public class GroupResponse {
                     }
                     LocalDateTime createDateOrNow = Optional.ofNullable(matchAttendees.getCreatedDate())
                                                      .orElseGet(LocalDateTime::now);
-                    if (Boolean.TRUE.equals(Optional.ofNullable(target.getLastDate())
-                                                    .map(localDateTime -> localDateTime.isBefore(createDateOrNow)).orElse(null))) {
+                    boolean isBeforeCreateDateOrNow = Optional.ofNullable(target.getLastDate())
+                                                              .map(localDateTime -> localDateTime.isBefore(createDateOrNow))
+                                                              .orElse(false);
+                    if (!isBeforeCreateDateOrNow) {
                         target.setLastDate(createDateOrNow);
                     }
                 });

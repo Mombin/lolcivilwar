@@ -50,7 +50,8 @@ function setMyGroup(data) {
     $groupUserList.empty();
     data.customUser.forEach(function (item, index) {
         const text = item.nickname + "[" + item.summonerName + "]";
-        const $span = $('<span>').html(`${item.total}전/${item.win}승/${Math.round((item.win / (item.total)) * 100)}%`).css('float', 'right');
+        let percent = item.total === 0 ? 0 : Math.round((item.win / (item.total)) * 100);
+        const $span = $('<span>').html(`${item.total}전/${item.win}승/${percent}%`).css('float', 'right');
         $groupUserList.append($('<label>').addClass("list-group-item").attr('name', 'group-summoner')
             .append($("<input>").addClass("form-check-input me-1").prop('type', 'checkbox').data('name', text).on('click', fnCheck))
             .append(text)

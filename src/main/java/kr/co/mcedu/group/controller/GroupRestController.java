@@ -2,6 +2,7 @@ package kr.co.mcedu.group.controller;
 
 import kr.co.mcedu.config.exception.AccessDeniedException;
 import kr.co.mcedu.config.exception.AlreadyDataExistException;
+import kr.co.mcedu.config.exception.DataNotExistException;
 import kr.co.mcedu.config.exception.ServiceException;
 import kr.co.mcedu.group.entity.CustomUserResponse;
 import kr.co.mcedu.group.entity.GroupAuthEnum;
@@ -55,7 +56,8 @@ class GroupRestController {
     public Object getMyMatchGroup() throws AccessDeniedException {
         List<GroupResponse> list = groupService.findMyGroups().stream().filter(it -> GroupAuthEnum.isMatchableAuth(
                 Optional.ofNullable(it.getAuth()).orElse(GroupAuthEnum.NONE))).collect(Collectors.toList());
-        list.forEach(it -> it.getCustomUser().sort(Comparator.comparing(CustomUserResponse::getLastDate).reversed()));
+        list.forEach(it -> it.getCustomUser().sort(Comparator.comparing(CustomUserResponse::getLastDate,
+                Comparator.nullsLast(Comparator.reverseOrder()))));
         return new ResponseWrapper().setData(list).build();
     }
 
@@ -69,7 +71,7 @@ class GroupRestController {
     }
 
     @GetMapping("/auth/{groupSeq}")
-    public Object getAuthUserList(@PathVariable Long groupSeq) {
+    public Object getAuthUserList(@PathVariable Long groupSeq) throws ServiceException {
         return new ResponseWrapper().setData(groupService.getAuthUserList(groupSeq)).build();
     }
 
@@ -124,24 +126,24 @@ class GroupRestController {
     }
 
     @PostMapping("/match/{groupSeq}/{page}")
-    public Object getMatch(@PathVariable Long groupSeq, @PathVariable Integer page) {
+    public Object getMatch(@PathVariable Long groupSeq, @PathVariable Integer page) throws Exception {
         return new ResponseWrapper().setData(groupService.getMatches(groupSeq, page)).build();
     }
 
     @DeleteMapping("/match/{matchSeq}")
-    public Object deleteMatch(@PathVariable Long matchSeq) {
+    public Object deleteMatch(@PathVariable Long matchSeq) throws ServiceException {
         return new ResponseWrapper().setData(groupService.deleteMatch(matchSeq)).build();
     }
 
     @PostMapping("/v1/link/summoner")
-    public Object linkSummoner(@RequestBody LinkSummonerRequest request) {
+    public Object linkSummoner(@RequestBody LinkSummonerRequest request) throws DataNotExistException {
         log.info("GroupRestController > linkSummoner: {}", request.toString());
         groupService.linkSummoner(request);
         return new ResponseWrapper().build();
     }
 
     @GetMapping("/v1/personal/result")
-    public Object personalResult(@ModelAttribute PersonalResultRequest request) {
+    public Object personalResult(@ModelAttribute PersonalResultRequest request) throws Exception {
         log.info("GroupRestController  > personalResult: {}", request.toString());
         return new ResponseWrapper().setData(groupService.getPersonalResult(request)).build();
     }

@@ -1,6 +1,7 @@
 package kr.co.mcedu.group.service;
 
 import kr.co.mcedu.config.exception.AccessDeniedException;
+import kr.co.mcedu.config.exception.DataNotExistException;
 import kr.co.mcedu.config.exception.ServiceException;
 import kr.co.mcedu.group.entity.GroupEntity;
 import kr.co.mcedu.group.model.GroupResponse;
@@ -29,13 +30,13 @@ public interface GroupService {
     CustomUserSynergyResponse calculateSynergy(CustomUserSynergyRequest customUserSynergyRequest)
             throws ServiceException;
 
-    MatchHistoryResponse getMatches(Long groupSeq, Integer pageNum);
+    MatchHistoryResponse getMatches(Long groupSeq, Integer pageNum) throws Exception;
 
-    Object deleteMatch(Long matchSeq);
+    Object deleteMatch(Long matchSeq) throws ServiceException;
 
-    List<GroupAuthResponse> getAuthUserList(Long groupSeq);
+    List<GroupAuthResponse> getAuthUserList(Long groupSeq) throws ServiceException;
 
-    void linkSummoner(LinkSummonerRequest request);
+    void linkSummoner(LinkSummonerRequest request) throws DataNotExistException;
 
-    PersonalResultResponse getPersonalResult(PersonalResultRequest request);
+    PersonalResultResponse getPersonalResult(PersonalResultRequest request) throws Exception;
 }

@@ -24,7 +24,7 @@ public class MatchHistoryResponse implements Serializable {
         this.list = new ArrayList<>();
     }
 
-    public void setPage(Page<CustomMatchEntity> page) {
+    public MatchHistoryResponse setPage(Page<CustomMatchEntity> page) {
         final AtomicLong matchNumber = new AtomicLong(page.getTotalElements() - ((long) page.getNumber() * page.getSize()));
         page.get().forEach(it -> {
             List<String> aList = new ArrayList<>();
@@ -58,6 +58,7 @@ public class MatchHistoryResponse implements Serializable {
             matchHistoryElement.setMatchSeq(Optional.ofNullable(it.getMatchSeq()).orElse(0L));
             list.add(matchHistoryElement);
         });
+        return this;
     }
 
     private String teamFlip(String team) {

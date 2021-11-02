@@ -18,7 +18,7 @@ public class PersonalResultResponse implements Serializable {
     private Integer totalPage = 0;
     private List<PersonalResultElement> list = new ArrayList<>();
 
-    public void setPage(Page<MatchAttendeesEntity> page) {
+    public PersonalResultResponse setPage(Page<MatchAttendeesEntity> page) {
         this.totalPage = page.getTotalPages();
         list.clear();
         page.get().forEach(it -> {
@@ -41,6 +41,7 @@ public class PersonalResultResponse implements Serializable {
             result.setMatchUser(matchUserName);
             list.add(result);
         });
+        return this;
     }
 
     @Getter

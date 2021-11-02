@@ -16,6 +16,14 @@ spring:
       naming:
         implicit-strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
         physical-strategy: org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy
+  devtools:
+    livereload:
+      enabled: true
+  web:
+    resources:
+      cache:
+        cachecontrol:
+          no-store: true
 
 logging:
   file:

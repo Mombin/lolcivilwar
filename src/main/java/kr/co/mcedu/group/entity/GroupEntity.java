@@ -10,6 +10,7 @@ import lombok.ToString;
 
 import javax.persistence.*;
 import java.util.ArrayList;
+import java.util.List;
 
 @NoArgsConstructor
 @Getter
@@ -22,7 +23,7 @@ public class GroupEntity extends BaseTimeEntity {
     @Id
     @Column(name = "group_seq")
     @GeneratedValue(generator = "group_seq_generator", strategy = GenerationType.SEQUENCE)
-    private long groupSeq ;
+    private Long groupSeq ;
 
     @Column(name = "group_name", length = 30)
     private String groupName ;
@@ -30,22 +31,22 @@ public class GroupEntity extends BaseTimeEntity {
     private String owner ;
 
     @OneToMany(mappedBy = "group", cascade = {CascadeType.ALL}, orphanRemoval = true, fetch = FetchType.EAGER)
-    private ArrayList<CustomUserEntity> customUser ;
+    private List<CustomUserEntity> customUser = new ArrayList<>();
 
     @OneToMany(mappedBy = "group", cascade = {CascadeType.ALL}, orphanRemoval = true, fetch = FetchType.LAZY)
-    private ArrayList<CustomMatchEntity>  customMatches = new ArrayList<>();
+    private List<CustomMatchEntity>  customMatches = new ArrayList<>();
 
     @OneToMany(mappedBy = "group", cascade = {CascadeType.ALL}, orphanRemoval = true, fetch = FetchType.LAZY)
-    private ArrayList<GroupAuthEntity> groupAuthList ;
+    private List<GroupAuthEntity> groupAuthList = new ArrayList<>();
 
     public void addCustomUser(CustomUserEntity customUser){
         this.customUser.add(customUser);
-        customUser.setGroupEntity(this);
+        customUser.setGroup(this);
     }
 
     public void removeCustomUser(CustomUserEntity customUser){
         this.customUser.remove(customUser);
-        customUser.setGroupEntity(null);
+        customUser.setGroup(null);
     }
 
     public final GroupResponse toGroupResponse() {
@@ -62,7 +63,7 @@ public class GroupEntity extends BaseTimeEntity {
     }
     public void addGroupAuth(GroupAuthEntity groupAuthEntity) {
         this.groupAuthList.add(groupAuthEntity);
-        groupAuthEntity.setGroupEntity(this);
+        groupAuthEntity.setGroup(this);
     }
 }
 

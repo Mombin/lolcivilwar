@@ -26,7 +26,7 @@ public class GroupAuthResponse {
         Optional<WebUserEntity> webUser = Optional.ofNullable(entity.getWebUser());
         this.userId = webUser.map(WebUserEntity::getUserId).orElse(null);
         this.userSeq = webUser.map(WebUserEntity::getUserSeq).orElse(null);
-        this.groupSeq = Optional.ofNullable(entity.getGroupEntity()).map(GroupEntity::getGroupSeq).orElse(null);
+        this.groupSeq = Optional.ofNullable(entity.getGroup()).map(GroupEntity::getGroupSeq).orElse(null);
     }
 
     public static List<GroupAuthResponse> of(List<GroupAuthEntity> groupAuthList ) {

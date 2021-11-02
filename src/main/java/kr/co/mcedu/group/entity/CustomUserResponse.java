@@ -40,7 +40,7 @@ public class CustomUserResponse {
 
    public CustomUserResponse(CustomUserEntity customUserEntity) {
       this.seq = customUserEntity.getSeq();
-      this.groupSeq = Optional.ofNullable(customUserEntity.getGroupEntity()).map(GroupEntity::getGroupSeq).orElse(null);
+      this.groupSeq = Optional.ofNullable(customUserEntity.getGroup()).map(GroupEntity::getGroupSeq).orElse(null);
       this.nickname = Optional.ofNullable(customUserEntity.getNickname()).orElse("");
       this.summonerName = Optional.ofNullable(customUserEntity.getSummonerName()).orElse("");
       this.positionWinRate = new HashMap<>();

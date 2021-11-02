@@ -10,6 +10,7 @@ import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Entity(name = "custom_match")
@@ -29,7 +30,7 @@ public class CustomMatchEntity extends BaseTimeEntity {
 
     @Fetch(FetchMode.SUBSELECT)
     @OneToMany(mappedBy = "customMatch", cascade = {CascadeType.ALL}, orphanRemoval = true, fetch = FetchType.LAZY)
-    private ArrayList<MatchAttendeesEntity> matchAttendees = new ArrayList<>();
+    private List<MatchAttendeesEntity> matchAttendees = new ArrayList<>();
 
     @Column(name = "del_yn", columnDefinition = "boolean default false")
     private boolean delYn = false;

@@ -19,7 +19,7 @@ public class GroupAuthEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "group_seq", referencedColumnName = "group_seq", insertable = true, updatable = true)
-    private GroupEntity groupEntity = null;
+    private GroupEntity group = null;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_seq", referencedColumnName = "user_seq", insertable = true, updatable = true)

@@ -131,6 +131,11 @@ function enterKeyPress(event, execFn) {
     }
 }
 
+function sleep(ms) {
+    const wakeUpTime = Date.now() + ms
+    while (Date.now() < wakeUpTime) {}
+}
+
 function browserCheck() {
     const agent = navigator.userAgent.toLowerCase();
     if ((navigator.appName === 'Netscape' && agent.indexOf('trident') !== -1 )||agent.indexOf("msie") !== -1) {    //익스플로러인지 체크

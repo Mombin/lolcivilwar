@@ -4,7 +4,7 @@ let data = {};
 let randomList = []
     , originalList = []
     , newTeamFlag = false;
-onmessage = async function (evt) {
+onmessage = function (evt) {
     data = evt.data;
     newTeamFlag =  data.newTeamFlag;
     originalList = [data.list.top, data.list.jg, data.list.mid, data.list.bot, data.list.sup];
@@ -20,7 +20,7 @@ onmessage = async function (evt) {
             postMessage(randomList.slice());
         }
 
-        await sleep(data.speed * (newTeamFlag ? 5 : 1));
+        sleep(data.speed * (newTeamFlag ? 5 : 1));
     }
 }
 

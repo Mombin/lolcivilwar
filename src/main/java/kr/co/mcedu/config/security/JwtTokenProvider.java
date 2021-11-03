@@ -117,7 +117,7 @@ public class JwtTokenProvider {
      * @return userSeq, 없을 경우 0
      */
     public long getUserSeq(String token) {
-        Claims claims = Jwts.parser().setSigningKey(encodedSecretKey).parseClaimsJws(token).getBody();
+        Claims claims = getClaim(token);
         Long userSeq = claims.get("userSeq", Long.class);
         return Optional.ofNullable(userSeq).orElse(0L);
     }
@@ -135,10 +135,7 @@ public class JwtTokenProvider {
     }
 
     private Collection<GrantedAuthority> getAuth(String token) {
-        Claims claims = Jwts.parser()
-                            .setSigningKey(encodedSecretKey)
-                            .parseClaimsJws(token)
-                            .getBody();
+        Claims claims = getClaim(token);
         Object roles = claims.get("roles");
         if(!(roles instanceof ArrayList)) {
             return Collections.emptyList();
@@ -154,5 +151,12 @@ public class JwtTokenProvider {
         });
 
         return authList;
+    }
+
+    public Claims getClaim(String token) {
+        return Jwts.parser()
+                   .setSigningKey(encodedSecretKey)
+                   .parseClaimsJws(token)
+                   .getBody();
     }
 }

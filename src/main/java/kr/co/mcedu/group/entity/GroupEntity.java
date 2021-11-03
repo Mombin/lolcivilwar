@@ -6,13 +6,16 @@ import kr.co.mcedu.match.entity.CustomMatchEntity;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 import javax.persistence.*;
 import java.util.ArrayList;
+import java.util.List;
 
 @NoArgsConstructor
 @Getter
 @Setter
+@ToString
 @Entity(name = "group")
 @Table(name = "group", schema = "lol")
 @SequenceGenerator(sequenceName = "group_seq", initialValue = 1, allocationSize = 1, name = "group_seq_generator", schema = "lol")
@@ -20,7 +23,7 @@ public class GroupEntity extends BaseTimeEntity {
     @Id
     @Column(name = "group_seq")
     @GeneratedValue(generator = "group_seq_generator", strategy = GenerationType.SEQUENCE)
-    private long groupSeq ;
+    private Long groupSeq ;
 
     @Column(name = "group_name", length = 30)
     private String groupName ;
@@ -28,26 +31,26 @@ public class GroupEntity extends BaseTimeEntity {
     private String owner ;
 
     @OneToMany(mappedBy = "group", cascade = {CascadeType.ALL}, orphanRemoval = true, fetch = FetchType.EAGER)
-    private ArrayList<CustomUserEntity> customUser ;
+    private List<CustomUserEntity> customUser = new ArrayList<>();
 
     @OneToMany(mappedBy = "group", cascade = {CascadeType.ALL}, orphanRemoval = true, fetch = FetchType.LAZY)
-    private ArrayList<CustomMatchEntity>  customMatches ;
+    private List<CustomMatchEntity>  customMatches = new ArrayList<>();
 
     @OneToMany(mappedBy = "group", cascade = {CascadeType.ALL}, orphanRemoval = true, fetch = FetchType.LAZY)
-    private ArrayList<GroupAuthEntity> groupAuthList ;
+    private List<GroupAuthEntity> groupAuthList = new ArrayList<>();
 
-    private void addCustomUser(CustomUserEntity customUser){
+    public void addCustomUser(CustomUserEntity customUser){
         this.customUser.add(customUser);
-        customUser.setGroupEntity(this);
+        customUser.setGroup(this);
     }
 
-    private void removeCustomUser(CustomUserEntity customUser){
+    public void removeCustomUser(CustomUserEntity customUser){
         this.customUser.remove(customUser);
-        customUser.setGroupEntity(null);
+        customUser.setGroup(null);
     }
 
     public final GroupResponse toGroupResponse() {
-        return new GroupResponse(this);
+        return new GroupResponse().setEntity(this);
     }
 
     public GroupEntity(GroupEntity groupEntity) {
@@ -57,6 +60,10 @@ public class GroupEntity extends BaseTimeEntity {
         this.customUser = groupEntity.customUser;
         GroupAuthEntity auth = null;
 
+    }
+    public void addGroupAuth(GroupAuthEntity groupAuthEntity) {
+        this.groupAuthList.add(groupAuthEntity);
+        groupAuthEntity.setGroup(this);
     }
 }
 

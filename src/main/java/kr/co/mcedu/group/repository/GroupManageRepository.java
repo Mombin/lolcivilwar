@@ -51,8 +51,8 @@ public class GroupManageRepository {
 
         return Optional.ofNullable(queryFactory.select(groupEntity).distinct()
                                                .from(groupEntity)
-                                               .innerJoin(customUserEntity).fetchJoin()
-                                               .innerJoin(summonerEntity).fetchJoin()
+                                               .innerJoin(groupEntity.customUser, customUserEntity).fetchJoin()
+                                               .innerJoin(customUserEntity.summonerEntity, summonerEntity).fetchJoin()
                                                .where(groupEntity.groupSeq.eq(groupSeq))
                                                .fetchOne());
     }

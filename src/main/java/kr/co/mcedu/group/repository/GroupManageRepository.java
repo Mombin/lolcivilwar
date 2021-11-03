@@ -13,8 +13,7 @@ import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
 import javax.persistence.EntityManager;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 import static kr.co.mcedu.group.entity.QCustomUserEntity.customUserEntity;
 import static kr.co.mcedu.group.entity.QGroupEntity.groupEntity;
@@ -68,5 +67,16 @@ public class GroupManageRepository {
                                                .leftJoin(summonerEntity).fetchJoin()
                                                .where(customUserEntity.seq.eq(customUserSeq))
                                                .fetchOne());
+    }
+
+    public List<GroupEntity> getGroupEntities(Collection<Long> groupSeqs) {
+        if (groupSeqs.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        return queryFactory.select(groupEntity).from(groupEntity)
+                           .leftJoin(groupEntity.customUser, customUserEntity).fetchJoin()
+                           .leftJoin(customUserEntity.summonerEntity, summonerEntity).fetchJoin()
+                           .where(groupEntity.groupSeq.in(groupSeqs)).fetch();
     }
 }

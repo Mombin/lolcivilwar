@@ -5,6 +5,7 @@ import kr.co.mcedu.config.exception.AlreadyDataExistException;
 import kr.co.mcedu.config.exception.DataNotExistException;
 import kr.co.mcedu.config.exception.ServiceException;
 import kr.co.mcedu.group.entity.*;
+import kr.co.mcedu.group.model.GroupAuthDto;
 import kr.co.mcedu.group.model.GroupResponse;
 import kr.co.mcedu.group.model.GroupSaveRequest;
 import kr.co.mcedu.group.model.request.*;
@@ -56,16 +57,13 @@ public class GroupServiceImpl implements GroupService {
      */
     @Override
     public GroupEntity getGroup(Long groupSeq) throws ServiceException {
+        GroupAuthEnum groupAuth = SessionUtils.getGroupAuth(groupSeq);
+        if (groupAuth == GroupAuthEnum.NONE) {
+            throw new AccessDeniedException("권한이 없습니다.");
+        }
         Optional<GroupEntity> group = groupManageRepository.findByIdFetch(groupSeq);
         if (!group.isPresent()) {
             throw new DataNotExistException("없는 그룹입니다.");
-        }
-
-        WebUserEntity webUserEntity = webUserService.findWebUserEntityByUserId(SessionUtils.getId());
-
-        if (group.get().getGroupAuthList().stream()
-                 .noneMatch(groupAuthEntity -> groupAuthEntity.getWebUser().equals(webUserEntity))) {
-            throw new AccessDeniedException("권한이 없습니다.");
         }
         return group.get();
     }
@@ -102,15 +100,15 @@ public class GroupServiceImpl implements GroupService {
      */
     @Transactional
     @Override
-    public List<GroupResponse> findMyGroups() throws AccessDeniedException {
-        WebUserEntity webUserEntity = webUserService.findWebUserEntityByUserId(SessionUtils.getId());
+    public List<GroupResponse> findMyGroups() {
+        Map<Long, GroupAuthDto> groupAuth = SessionUtils.getGroupAuth();
+        List<GroupEntity> groupEntities = groupManageRepository.getGroupEntities(groupAuth.keySet());
         ArrayList<GroupResponse> list = new ArrayList<>();
-        List<GroupAuthEntity> groupAuthList = groupAuthRepository.findAllByWebUser(webUserEntity);
-        groupAuthList.forEach(it -> Optional.ofNullable(it.getGroup()).ifPresent(groupEntity -> {
+        groupEntities.forEach(groupEntity -> {
             GroupResponse groupResponse = groupEntity.toGroupResponse();
-            groupResponse.setAuth(it.getGroupAuth());
+            groupResponse.setAuth(groupAuth.get(groupEntity.getGroupSeq()).getGroupAuth());
             list.add(groupResponse);
-        }));
+        });
         list.forEach(groupResponse -> groupResponse.getCustomUser().parallelStream().forEach(customUserResponse -> {
             if (!customUserResponse.isRefreshTarget()) {
                 return;
@@ -132,9 +130,9 @@ public class GroupServiceImpl implements GroupService {
     @Transactional
     @Override
     public void addSummonerInGroup(CustomUserSaveRequest customUserSaveRequest) throws ServiceException {
-        GroupEntity group = this.getGroup(customUserSaveRequest.getGroupSeq());
-        GroupAuthEnum.authorityCheck(GroupAuthEnum::isManageableAuth, group.getGroupAuthList());
+        SessionUtils.groupManageableAuthCheck(customUserSaveRequest.getGroupSeq());
 
+        GroupEntity group = this.getGroup(customUserSaveRequest.getGroupSeq());
         if (group.getCustomUser().stream().anyMatch(it -> it.getNickname().equals(customUserSaveRequest.getNickname()))){
             throw new AlreadyDataExistException("이미 저장된 닉네임입니다.");
         }
@@ -152,8 +150,9 @@ public class GroupServiceImpl implements GroupService {
     @Transactional
     @Override
     public void deleteSummonerInGroup(CustomUserDeleteRequest customUserDeleteRequest) throws ServiceException {
+        SessionUtils.groupManageableAuthCheck(customUserDeleteRequest.getGroupSeq());
+
         GroupEntity groupEntity = this.getGroup(customUserDeleteRequest.getGroupSeq());
-        GroupAuthEnum.authorityCheck(GroupAuthEnum::isManageableAuth, groupEntity.getGroupAuthList());
         List<CustomUserEntity> list = groupEntity.getCustomUser().stream()
                                                  .filter(it -> customUserDeleteRequest.getUserSeqArray()
                                                                                       .contains(it.getSeq()))
@@ -168,8 +167,9 @@ public class GroupServiceImpl implements GroupService {
     @Transactional
     @Override
     public void modifySummonerInGroup(CustomUserModifyRequest customUserModifyRequest) throws ServiceException {
+        SessionUtils.groupManageableAuthCheck(customUserModifyRequest.getGroupSeq());
+
         GroupEntity groupEntity = this.getGroup(customUserModifyRequest.getGroupSeq());
-        GroupAuthEnum.authorityCheck(GroupAuthEnum::isManageableAuth, groupEntity.getGroupAuthList());
         if (groupEntity.getCustomUser().stream().anyMatch(it -> it.getNickname().equals(customUserModifyRequest.getNickname())
                 && it.getSeq() != customUserModifyRequest.getCustomUserSeq()
         )) {
@@ -275,17 +275,8 @@ public class GroupServiceImpl implements GroupService {
             throw new ServiceException("삭제 할수 없는 매치입니다.");
         }
         CustomMatchEntity matchEntity = match.get();
-        String userId = SessionUtils.getId();
-        List<GroupAuthEntity> groupAuthEntities = Optional.ofNullable(matchEntity.getGroup())
-                                                          .map(GroupEntity::getGroupAuthList)
-                                                          .orElse(Collections.emptyList());
-        boolean manageableAuthCheck = groupAuthEntities.stream()
-                                                      .filter(it -> Objects.equals(
-                                                              Optional.ofNullable(it.getWebUser()).map(WebUserEntity::getUserId).orElse(""), userId))
-                                                      .noneMatch(it -> GroupAuthEnum.isManageableAuth(it.getGroupAuth()));
-        if (manageableAuthCheck) {
-            throw new ServiceException("권한이 부족합니다.");
-        }
+        SessionUtils.groupManageableAuthCheck(matchEntity.getGroup().getGroupSeq());
+
         matchEntity.getMatchAttendees().forEach(it -> cacheManager.getSynergyCache().invalidate(
                 (Optional.ofNullable(it.getCustomUserEntity()).map(CustomUserEntity::getSeq).orElse(0L)).toString()));
         customMatchRepository.delete(matchEntity);

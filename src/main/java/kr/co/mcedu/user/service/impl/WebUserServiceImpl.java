@@ -2,10 +2,12 @@ package kr.co.mcedu.user.service.impl;
 
 import kr.co.mcedu.config.exception.AccessDeniedException;
 import kr.co.mcedu.config.exception.ServiceException;
+import kr.co.mcedu.config.security.AccessTokenField;
 import kr.co.mcedu.config.security.JwtTokenProvider;
 import kr.co.mcedu.config.security.TokenType;
 import kr.co.mcedu.user.entity.WebUserEntity;
 import kr.co.mcedu.user.model.UserAuthority;
+import kr.co.mcedu.user.repository.UserRepository;
 import kr.co.mcedu.user.repository.WebUserRepository;
 import kr.co.mcedu.user.service.WebUserService;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +32,7 @@ import static kr.co.mcedu.user.model.UserAuthority.USER;
 public class WebUserServiceImpl implements WebUserService {
     private final JwtTokenProvider jwtTokenProvider;
     private final WebUserRepository webUserRepository;
+    private final UserRepository userRepository;
     /**
      * userId 를 이용하여 WebUserEntity 검색
      */
@@ -69,6 +72,8 @@ public class WebUserServiceImpl implements WebUserService {
         }
         Map<String, Object> data = new HashMap<>();
         data.put("sub", webUserEntity.getUserId());
+        data.put("userAuth", webUserEntity.getAuthority());
+        data.put(AccessTokenField.GROUP_AUTH, userRepository.getGroupAuthList(userSeq));
         data.put("roles", this.getAuthorities(webUserEntity.getAuthority()));
         data.put("userSeq", webUserEntity.getUserSeq());
         String accessToken = jwtTokenProvider.createToken(TokenType.ACCESS_TOKEN, data);

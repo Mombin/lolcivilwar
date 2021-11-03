@@ -3,7 +3,9 @@ package kr.co.mcedu.match.entity;
 
 import kr.co.mcedu.common.entity.BaseTimeEntity;
 import kr.co.mcedu.group.entity.CustomUserEntity;
+import kr.co.mcedu.match.model.CustomMatchResult;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.ResultCheckStyle;
 import org.hibernate.annotations.SQLDelete;
@@ -17,6 +19,7 @@ import javax.persistence.*;
 @Table(name = "match_attendees", schema = "lol")
 @SQLDelete(sql = "UPDATE lol.match_attendees SET del_yn = true WHERE attendees_seq = ?", check = ResultCheckStyle.COUNT)
 @Where(clause = "del_yn = false")
+@NoArgsConstructor
 @SequenceGenerator(sequenceName = "attendees_seq", initialValue = 1, allocationSize = 1, name = "attendees_seq_generator", schema = "lol")
 public class MatchAttendeesEntity extends BaseTimeEntity {
     @Id
@@ -41,6 +44,14 @@ public class MatchAttendeesEntity extends BaseTimeEntity {
 
     @Column(name = "del_yn", columnDefinition = "boolean default false")
     private boolean delYn  = false;
+
+    public MatchAttendeesEntity(CustomMatchResult customMatchResult) {
+        this.matchResult = customMatchResult.getResult();
+        this.position = customMatchResult.getPosition();
+        this.team = customMatchResult.getTeam();
+        this.customUserEntity = customMatchResult.getCustomUser();
+        this.customMatch = customMatchResult.getCustomMatch();
+    }
 
     @PreRemove
     public void removeAttendess(){

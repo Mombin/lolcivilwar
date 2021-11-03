@@ -3,6 +3,7 @@ package kr.co.mcedu.match.entity;
 import kr.co.mcedu.common.entity.BaseTimeEntity;
 import kr.co.mcedu.group.entity.GroupEntity;
 import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.SQLDelete;
@@ -13,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Getter
+@Setter
 @Entity(name = "custom_match")
 @Table(name = "custom_match", schema = "lol")
 @SQLDelete(sql = "UPDATE lol.custom_match SET del_yn = true WHERE match_seq = ?")

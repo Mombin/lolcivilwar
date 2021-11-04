@@ -121,6 +121,7 @@ class GroupRestController {
     @GetMapping("/synergy")
     public Object getSynergy(@ModelAttribute CustomUserSynergyRequest customUserSynergyRequest)
             throws ServiceException {
+        log.info("GroupRestController > getSynergy : {}", customUserSynergyRequest.toString());
         CustomUserSynergyResponse data = groupService.calculateSynergy(customUserSynergyRequest);
         return new ResponseWrapper().setData(data).build();
     }

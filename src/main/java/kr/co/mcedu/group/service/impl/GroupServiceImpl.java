@@ -22,6 +22,7 @@ import kr.co.mcedu.match.entity.MatchAttendeesEntity;
 import kr.co.mcedu.match.model.response.MatchHistoryResponse;
 import kr.co.mcedu.match.repository.CustomMatchRepository;
 import kr.co.mcedu.match.repository.MatchAttendeesRepository;
+import kr.co.mcedu.match.repository.MatchRepository;
 import kr.co.mcedu.summoner.entity.SummonerEntity;
 import kr.co.mcedu.summoner.service.SummonerService;
 import kr.co.mcedu.user.entity.WebUserEntity;
@@ -51,6 +52,7 @@ public class GroupServiceImpl implements GroupService {
     private final WebUserService webUserService;
     private final SummonerService summonerService;
     private final GroupManageRepository groupManageRepository;
+    private final MatchRepository matchRepository;
 
     /**
      * groupSeq를 이용하여 해당 GroupEntity 가져옴
@@ -191,7 +193,14 @@ public class GroupServiceImpl implements GroupService {
         groupRepository.save(groupEntity);
     }
 
+    /**
+     * 시너지/상성 계산
+     * @param customUserSynergyRequest 요청 request
+     * @return 계산 결과
+     * @throws ServiceException
+     */
     @Override
+    @Transactional
     public CustomUserSynergyResponse calculateSynergy(CustomUserSynergyRequest customUserSynergyRequest)
             throws ServiceException {
         Long customUserSeq = Optional.ofNullable(customUserSynergyRequest.getCustomUserSeq()).orElse(0L);
@@ -206,17 +215,20 @@ public class GroupServiceImpl implements GroupService {
         }
         CustomUserEntity entity = userEntityOpt.get();
         Optional<GroupEntity> groupEntity = Optional.ofNullable(entity.getGroup());
-        if (!groupEntity.isPresent() || groupEntity.get().getGroupSeq().equals(requestGroupSeq)) {
+        if (!groupEntity.isPresent() || !groupEntity.get().getGroupSeq().equals(requestGroupSeq)) {
             throw new ServiceException("잘못된 요청입니다.");
         }
 
-        List<MatchAttendeesEntity> matchList = matchAttendeesRepository.findAllByCustomUserEntity(entity);
+        List<MatchAttendeesEntity> matchList = matchRepository.findAllByCustomUserEntity(entity);
         Map<Long, SynergyModel> synergy = new HashMap<>();
         Map<Long, SynergyModel> badSynergy = new HashMap<>();
+        // 쿼리 조회를 줄이기 위해 전체한번에 조회
+        List<Long> matchSeqs = matchList.stream().map(MatchAttendeesEntity::getCustomMatch)
+                                      .map(CustomMatchEntity::getMatchSeq).collect(Collectors.toList());
+        Map<Long, List<MatchAttendeesEntity>> matchMap = matchRepository.findAllByCustomMatchs(matchSeqs).stream()
+                                                                        .collect(Collectors.groupingBy(it -> it.getCustomMatch().getMatchSeq()));
         matchList.forEach(target -> {
-            List<MatchAttendeesEntity> allList = new ArrayList<>();
-            Optional.ofNullable(target.getCustomMatch()).ifPresent(customMatchEntity -> allList.addAll(
-                    matchAttendeesRepository.findAllByCustomMatch(customMatchEntity)));
+            List<MatchAttendeesEntity> allList = matchMap.getOrDefault(target.getCustomMatch().getMatchSeq(), Collections.emptyList());
 
             allList.stream()
                    .filter(matchAttendeesEntity -> !matchAttendeesEntity.getAttendeesSeq().equals(target.getAttendeesSeq()))

@@ -64,7 +64,7 @@ public class GroupManageRepository {
 
         return Optional.ofNullable(queryFactory.select(customUserEntity)
                                                .from(customUserEntity)
-                                               .leftJoin(summonerEntity).fetchJoin()
+                                               .leftJoin(customUserEntity.summonerEntity, summonerEntity).fetchJoin()
                                                .where(customUserEntity.seq.eq(customUserSeq))
                                                .fetchOne());
     }

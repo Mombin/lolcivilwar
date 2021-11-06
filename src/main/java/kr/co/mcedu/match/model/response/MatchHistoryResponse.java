@@ -25,6 +25,7 @@ public class MatchHistoryResponse implements Serializable {
     }
 
     public MatchHistoryResponse setPage(Page<CustomMatchEntity> page) {
+        this.totalPage = page.getTotalPages();
         final AtomicLong matchNumber = new AtomicLong(page.getTotalElements() - ((long) page.getNumber() * page.getSize()));
         page.get().forEach(it -> {
             List<String> aList = new ArrayList<>();

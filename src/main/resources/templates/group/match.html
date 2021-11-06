@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}" >
+<body>
+<div layout:fragment="content">
+    <div th:replace="~{fragments/fragments :: groupSelector}"></div>
+    <table class="table" style="margin-top: 20px">
+        <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">경기일자</th>
+            <th scope="col">승리팀</th>
+            <th scope="col">A팀</th>
+            <th scope="col">B팀</th>
+            <th scope="col" class="deleteCol">삭제</th>
+        </tr>
+        </thead>
+        <tbody id="list">
+        </tbody>
+    </table>
+    <nav>
+        <ul class="pagination justify-content-center" id="pagination">
+            <li class="page-item disabled">
+                <a class="page-link" href="#" onclick="prevPage()">이전</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="#">다음</a>
+            </li>
+        </ul>
+    </nav>
+</div>
+</body>
+<th:block layout:fragment="script">
+    <script type="text/javascript" th:src="@{/static/js/group/groupSelector.js}"></script>
+    <script type="text/javascript" th:src="@{/static/js/group/match.js}"></script>
+    <script type="text/javascript" th:src="@{/static/js/group/match_event.js}"></script>
+</th:block>
+</html>

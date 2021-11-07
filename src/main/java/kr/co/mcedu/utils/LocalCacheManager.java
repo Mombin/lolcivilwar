@@ -8,6 +8,7 @@ import kr.co.mcedu.match.model.response.MatchHistoryResponse;
 import lombok.Getter;
 import org.springframework.stereotype.Component;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.PostConstruct;
 
@@ -15,7 +16,7 @@ import javax.annotation.PostConstruct;
 @Getter
 public class LocalCacheManager {
     private Cache<String, CustomUserSynergyResponse> synergyCache;
-    private Cache<String, HashMap<Integer, MatchHistoryResponse>> matchHistoryCache;
+    private Cache<String, Map<Integer, MatchHistoryResponse>> matchHistoryCache;
     private Cache<String, HashMap<Integer, PersonalResultResponse>> personalResultHistoryCache;
     private Cache<String, Boolean> userIdCache;
     private Cache<String, Boolean> emailCache;

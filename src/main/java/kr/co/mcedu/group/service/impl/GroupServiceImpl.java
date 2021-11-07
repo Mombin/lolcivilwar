@@ -259,7 +259,7 @@ public class GroupServiceImpl implements GroupService {
     @Override
     public MatchHistoryResponse getMatches(Long groupSeq, Integer pageNum) throws Exception {
         GroupEntity group = this.getGroup(groupSeq);
-        HashMap<Integer, MatchHistoryResponse> map = cacheManager.getMatchHistoryCache()
+        Map<Integer, MatchHistoryResponse> map = cacheManager.getMatchHistoryCache()
                                                                  .get(groupSeq.toString(), HashMap::new);
         Optional<MatchHistoryResponse> result = Optional.ofNullable(map.get(pageNum));
         if (result.isPresent()) {

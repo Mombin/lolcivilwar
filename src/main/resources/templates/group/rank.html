@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+<body>
+<div layout:fragment="content">
+    <div th:replace="~{fragments/fragments :: groupSelector}"></div>
+    <ul class="nav nav-tabs" style="margin-top: 20px" id="position">
+        <li class="nav-item">
+            <a class="nav-link active" href="#" data-position="total">종합</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#" data-position="top">탑</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#" data-position="jg">정글</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#" data-position="mid">미드</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#" data-position="bot">원딜</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#" data-position="sup">서폿</a>
+        </li>
+    </ul>
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">닉네임</th>
+            <th scope="col">소환사명</th>
+            <th scope="col">Total</th>
+            <th scope="col">Win</th>
+            <th scope="col">승률(%)</th>
+            <th scope="col">마지막게임일</th>
+        </tr>
+        </thead>
+        <tbody id="list">
+        </tbody>
+    </table>
+</div>
+</body>
+<th:block layout:fragment="script">
+    <script type="text/javascript" th:src="@{/static/js/group/groupSelector.js}"></script>
+    <script type="text/javascript" th:src="@{/static/js/group/rank.js}"></script>
+    <script type="text/javascript" th:src="@{/static/js/group/rank_event.js}"></script>
+</th:block>
+</html>

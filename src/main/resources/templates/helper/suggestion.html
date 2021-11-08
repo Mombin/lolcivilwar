@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}" >
+<body>
+<div layout:fragment="content">
+    <div class="form-floating" style="margin-top: 20px">
+        <textarea class="form-control" placeholder="좋은 건의남겨주세요" id="suggestionText" style="height: 150px"></textarea>
+        <label for="suggestionText" id="suggestionTextLimit">0 / 250</label>
+    </div>
+    <div class="card" style="margin-top: 20px">
+        <div class="card-header">
+            정보
+        </div>
+        <div class="card-body">
+            <p class="card-text">건의사항은 하루에 한건만 입력가능합니다</p>
+            <a href="#" class="btn btn-primary" id="suggestionSubmit">건의사항 제출하기</a>
+        </div>
+    </div>
+</div>
+</body>
+<th:block layout:fragment="script">
+    <script type="text/javascript" th:src="@{/static/js/helper/suggestion.js}"></script>
+</th:block>
+</html>

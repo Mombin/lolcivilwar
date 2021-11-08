@@ -64,7 +64,7 @@ public class GroupManageRepository {
 
         return Optional.ofNullable(queryFactory.select(customUserEntity)
                                                .from(customUserEntity)
-                                               .leftJoin(summonerEntity).fetchJoin()
+                                               .leftJoin(customUserEntity.summonerEntity, summonerEntity).fetchJoin()
                                                .where(customUserEntity.seq.eq(customUserSeq))
                                                .fetchOne());
     }
@@ -74,7 +74,8 @@ public class GroupManageRepository {
             return Collections.emptyList();
         }
 
-        return queryFactory.select(groupEntity).from(groupEntity)
+        return queryFactory.select(groupEntity).distinct()
+                           .from(groupEntity)
                            .leftJoin(groupEntity.customUser, customUserEntity).fetchJoin()
                            .leftJoin(customUserEntity.summonerEntity, summonerEntity).fetchJoin()
                            .where(groupEntity.groupSeq.in(groupSeqs)).fetch();

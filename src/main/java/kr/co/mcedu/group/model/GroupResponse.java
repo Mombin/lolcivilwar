@@ -57,8 +57,8 @@ public class GroupResponse {
                                                      .orElseGet(LocalDateTime::now);
                     boolean isBeforeCreateDateOrNow = Optional.ofNullable(target.getLastDate())
                                                               .map(localDateTime -> localDateTime.isBefore(createDateOrNow))
-                                                              .orElse(false);
-                    if (!isBeforeCreateDateOrNow) {
+                                                              .orElse(true);
+                    if (isBeforeCreateDateOrNow) {
                         target.setLastDate(createDateOrNow);
                     }
                 });

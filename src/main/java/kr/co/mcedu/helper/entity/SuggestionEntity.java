@@ -3,6 +3,7 @@ package kr.co.mcedu.helper.entity;
 
 import kr.co.mcedu.common.entity.BaseTimeEntity;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.Column;
@@ -14,11 +15,16 @@ import javax.persistence.Table;
 @Setter
 @Entity(name = "suggestion")
 @Table(name = "suggestion", schema = "lol")
-public class SugestionEntity extends BaseTimeEntity {
+@NoArgsConstructor
+public class SuggestionEntity extends BaseTimeEntity {
     @EmbeddedId
     private SuggestionId id ;
 
     @Column(name = "context",length = 300)
     private String context ;
 
+    public SuggestionEntity(final SuggestionId suggestionId, final String context) {
+        this.id = suggestionId;
+        this.context = context;
+    }
 }

@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}" >
+<body>
+<div layout:fragment="content">
+    <div style="margin-top: 20px">
+        <h4>새로운 알림</h4>
+        <div id="unreadMessage">
+        </div>
+    </div>
+</div>
+</body>
+<th:block layout:fragment="script">
+    <script type="text/javascript" th:src="@{/static/js/user/message.js}"></script>
+    <script type="text/javascript" th:src="@{/static/js/user/message_event.js}"></script>
+</th:block>
+</html>

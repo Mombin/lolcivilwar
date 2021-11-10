@@ -303,16 +303,8 @@ public class GroupServiceImpl implements GroupService {
     @Transactional
     @Override
     public List<GroupAuthResponse> getAuthUserList(Long groupSeq) throws ServiceException {
+        SessionUtils.groupManageableAuthCheck(groupSeq);
         GroupEntity groupEntity = this.getGroup(groupSeq);
-        Optional<GroupAuthEntity> myAuthOption = groupEntity.getGroupAuthList().stream()
-                                                            .filter(it -> Optional.ofNullable(it.getWebUser())
-                                                                                  .map(WebUserEntity::getUserSeq)
-                                                                                  .orElse(0L) == SessionUtils.getUserSeq())
-                                                            .findFirst();
-
-        if (!myAuthOption.isPresent() || !GroupAuthEnum.isManageableAuth(myAuthOption.get().getGroupAuth())) {
-            throw new AccessDeniedException("확인할 수 있는 권한이 없습니다.");
-        }
         return GroupAuthResponse.of(groupEntity.getGroupAuthList()).stream()
                                 .sorted(Comparator.comparingInt(o -> o.getGroupAuth().ordinal()))
                                 .collect(Collectors.toList());

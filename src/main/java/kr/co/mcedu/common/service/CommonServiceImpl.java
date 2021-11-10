@@ -30,18 +30,18 @@ public class CommonServiceImpl implements CommonService {
 
     public void updateRiotApiProperty(String apiKey){
         Optional<SystemEntity> systemEntityOption = systemRepository.findById(SystemPropertyKey.RIOT_PROPERTY.name());
-        SystemEntity systemEntity = new SystemEntity();
-
+        SystemEntity systemEntity;
         if(!systemEntityOption.isPresent()){
             SystemEntity entity = new SystemEntity();
             entity.setPropertyName(SystemPropertyKey.RIOT_PROPERTY.name());
             entity.setPropertyValue1("https://kr.api.riotgames.com");
+            systemEntity = entity;
         }else{
-            systemEntityOption.get();
+            systemEntity = systemEntityOption.get();
         }
         systemEntity.setPropertyValue2(apiKey);
         systemEntity = systemRepository.save(systemEntity);
-        apiEngine.updateApiProperty(RiotApiProperty(systemEntity));
+        apiEngine.updateApiProperty(new RiotApiProperty(systemEntity));
     }
 
 }

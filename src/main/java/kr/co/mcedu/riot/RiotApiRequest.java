@@ -1,15 +1,37 @@
 package kr.co.mcedu.riot;
 
-import java.util.HashMap;
+import com.google.common.base.Charsets;
+import kr.co.mcedu.utils.StringUtils;
+import lombok.Getter;
+import lombok.Setter;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.HashMap;
+import java.util.Map;
+
+@Getter
+@Setter
 public class RiotApiRequest {
 
-    private  String messageKey;
+    private String messageKey = StringUtils.randomStringGenerate(6);
+    private RiotApiType apiType = RiotApiType.DEFAULT;
+    private Map<String, Object> data = new HashMap<>();
+    private String url = "";
 
-    private RiotApiType apiType;
-
-    private HashMap data;
-
-    private String url;
-
+    public void build() {
+        String urlTemplate = apiType.getUrl();
+        String encodedValue = "";
+        for (Map.Entry<String, Object> entry : data.entrySet()) {
+            String key = entry.getKey();
+            Object value = entry.getValue();
+            try {
+                encodedValue = URLEncoder.encode(value.toString(), Charsets.UTF_8.toString());
+            } catch (UnsupportedEncodingException ignore) {
+                encodedValue = value.toString();
+            }
+            urlTemplate = urlTemplate.replace("{" + key + "}", encodedValue);
+        }
+        this.url = urlTemplate;
+    }
 }

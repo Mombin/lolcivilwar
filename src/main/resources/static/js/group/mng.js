@@ -3,6 +3,7 @@ let currentGroup
     , openerData = {};
 function init() {
     callMyGroup('/api/group/my', groupChangeFunction);
+    console.log("최신화됨?");
 }
 
 /* 그룹에 추가할 소환사명 */
@@ -75,14 +76,16 @@ function setModifyTarget() {
 
 function saveGroup() {
     const groupName = $("#groupName").val();
+    console.log(groupName);
     if(groupName.trim() === "") {
-        alert("그룹 이름을 지정해주세요")
+        alert("그룹 이름을 지정해주세요");
         return;
     }
     const param = {
         groupName: groupName.trim()
     }
-    common_ajax.call("/api/group", 'POST', param, function(res) {
+    let result = true;
+    common_ajax.call("/api/group", 'POST', false, param, function(res) {
         if(res.code === API_RESULT.FAIL) {
             if (res.message) {
                 alert(res.message);
@@ -147,6 +150,7 @@ function groupChangeFunction(groupList, groupSeq) {
         }
     }
 
+    console.log(myGroupFlag);
     if (!myGroupFlag) {
         $('#myGroup').html("그룹을 생성할수 있습니다.");
         $("#addGroupForm").hide();

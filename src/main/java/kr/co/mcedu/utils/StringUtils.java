@@ -8,13 +8,11 @@ import java.util.Random;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class StringUtils {
 
-
-
-    public static String randomStringGenerate(int size){
+    public static String randomStringGenerate(int size) {
         if(size < 0 ){
             return "";
         }
-        StringBuffer temp = new StringBuffer();
+        StringBuilder temp = new StringBuilder();
         Random random = new Random();
         for (int i = 0; i < size; i++) {
             switch (random.nextInt(3)) {

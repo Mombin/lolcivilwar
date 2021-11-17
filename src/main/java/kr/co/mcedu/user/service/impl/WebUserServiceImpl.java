@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static kr.co.mcedu.user.model.UserAuthority.ADMIN;
 import static kr.co.mcedu.user.model.UserAuthority.USER;
@@ -33,6 +34,8 @@ public class WebUserServiceImpl implements WebUserService {
     private final JwtTokenProvider jwtTokenProvider;
     private final WebUserRepository webUserRepository;
     private final UserRepository userRepository;
+    private final Map<Long, Boolean> needRefreshed = new ConcurrentHashMap<>();
+
     /**
      * userId 를 이용하여 WebUserEntity 검색
      */
@@ -79,5 +82,19 @@ public class WebUserServiceImpl implements WebUserService {
         String accessToken = jwtTokenProvider.createToken(TokenType.ACCESS_TOKEN, data);
         SecurityContextHolder.getContext().setAuthentication(jwtTokenProvider.getAuthentication(accessToken));
         return accessToken;
+    }
+
+    @Override
+    public boolean isRefreshedUser(Long userSeq) {
+        if (needRefreshed.get(userSeq) == null) {
+            return false;
+        }
+        needRefreshed.remove(userSeq);
+        return true;
+    }
+
+    @Override
+    public void pushRefreshedUser(Long userSeq) {
+        needRefreshed.put(userSeq, true);
     }
 }

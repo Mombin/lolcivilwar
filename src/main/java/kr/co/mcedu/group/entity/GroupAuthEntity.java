@@ -1,5 +1,6 @@
 package kr.co.mcedu.group.entity;
 
+import kr.co.mcedu.common.entity.BaseTimeEntity;
 import kr.co.mcedu.user.entity.WebUserEntity;
 import lombok.Getter;
 import lombok.Setter;
@@ -11,7 +12,7 @@ import javax.persistence.*;
 @Entity(name = "group_auth")
 @Table(name = "group_auth", schema = "lol")
 @SequenceGenerator(sequenceName = "group_auth_seq", initialValue = 1, allocationSize = 1, name = "group_auth_seq_generator", schema = "lol")
-public class GroupAuthEntity {
+public class GroupAuthEntity extends BaseTimeEntity {
     @Id
     @GeneratedValue(generator = "group_auth_seq_generator", strategy = GenerationType.SEQUENCE)
     @Column(name = "group_auth_seq")

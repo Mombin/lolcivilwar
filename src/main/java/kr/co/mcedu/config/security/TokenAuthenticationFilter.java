@@ -36,6 +36,10 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
         try {
             if (jwtTokenProvider.validateToken(accessToken)) {
                 SecurityContextHolder.getContext().setAuthentication(jwtTokenProvider.getAuthentication(accessToken));
+                long userSeq = jwtTokenProvider.getUserSeq(accessToken);
+                if(webUserService.isRefreshedUser(userSeq)) {
+                    needRefresh = true;
+                }
             } else {
                 needRefresh = true;
             }

@@ -2,8 +2,9 @@ let $groupSelector
 
 function callMyGroup(url, changeFn, changeFnParam) {
     $groupSelector = $("#groupSelector");
+    let groupList = [];
     common_ajax.call(url, 'POST', false, {}, function (res) {
-        const groupList = res.data;
+        groupList = res.data;
         if (groupList.length === 0) {
             toast.warning("그룹에 속해 있지 않습니다.")
             return;
@@ -15,8 +16,8 @@ function callMyGroup(url, changeFn, changeFnParam) {
             $groupSelector.show();
         });
 
-        if (typeof changeFn === 'function') {
-            changeFn(groupList, changeFnParam);
-        }
     });
+    if (typeof changeFn === 'function') {
+        changeFn(groupList, changeFnParam);
+    }
 }

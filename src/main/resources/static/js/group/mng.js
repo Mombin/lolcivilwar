@@ -3,7 +3,6 @@ let currentGroup
     , openerData = {};
 function init() {
     callMyGroup('/api/group/my', groupChangeFunction);
-    console.log("최신화됨?");
 }
 
 /* 그룹에 추가할 소환사명 */
@@ -92,10 +91,14 @@ function saveGroup() {
                 return;
             }
             alert("그룹 생성에 실패하였습니다. 자세한 사항은 관리자에게 문의바랍니다.")
-        } else {
-            callMyGroup('/api/group/my', groupChangeFunction);
+            result = false;
         }
     });
+    if (result) {
+        setTimeout(function () {
+            callMyGroup('/api/group/my', groupChangeFunction)
+        },1000);
+    }
 }
 
 // 그룹 선택

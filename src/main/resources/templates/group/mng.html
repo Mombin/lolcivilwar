@@ -25,6 +25,7 @@
         <div id="myGroupList">
             <ul class="list-group"></ul>
             <button type="button" class="btn btn-danger" id="deleteUser" style="margin-top: 10px">삭제</button>
+            <button type="button" class="btn btn-primary" id="saveTierPoint" style="margin-top: 10px; float: right">티어표저장</button>
         </div>
     </div>
     <form id="openerData" style="display: none">
@@ -33,7 +34,7 @@
 </body>
 <th:block layout:fragment="script">
     <script type="text/javascript" th:src="@{/static/js/group/groupSelector.js}"></script>
-    <script type="text/javascript" th:src="@{/static/js/group/mng.js}"></script>
+    <script type="text/javascript" th:src="@{/static/js/group/mng.js?ver=2021}"></script>
     <script type="text/javascript" th:src="@{/static/js/group/mng_event.js}"></script>
 </th:block>
 </html>

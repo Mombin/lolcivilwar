@@ -40,6 +40,9 @@ public class CustomUserEntity {
     @JoinColumn(name = "account_id", referencedColumnName = "account_id")
     private SummonerEntity summonerEntity = null;
 
+    @Column(name = "tier_point")
+    private Long tierPoint = 0L;
+
     public CustomUserEntity(String nickname, String summonerId) {
         this.nickname = nickname;
         this.summonerName = summonerId;

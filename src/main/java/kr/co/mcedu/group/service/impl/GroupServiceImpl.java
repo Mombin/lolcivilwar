@@ -35,6 +35,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -355,5 +356,33 @@ public class GroupServiceImpl implements GroupService {
         map.put(request.getPage(), personalResultResponse);
         cacheManager.getPersonalResultHistoryCache().put(request.getCustomUserSeq().toString(), map);
         return personalResultResponse;
+    }
+
+    @Override
+    @Transactional
+    public void saveTierPoint(final List<SaveTierPointRequest> request) throws AccessDeniedException {
+        if (CollectionUtils.isEmpty(request)) {
+            return;
+        }
+
+        SessionUtils.groupManageableAuthCheck(request.get(0).getGroupSeq());
+
+        List<Long> userSeqs = request.stream().map(SaveTierPointRequest::getUserSeq).collect(Collectors.toList());
+
+        List<CustomUserEntity> customUserEntities = customUserRepository.findAllById(userSeqs);
+        if (customUserEntities.isEmpty()) {
+            return;
+        }
+
+        Map<Long, CustomUserEntity> customUserEntityMap = customUserEntities.stream().collect(
+                Collectors.toMap(CustomUserEntity::getSeq, it -> it));
+
+        request.forEach(it -> {
+            CustomUserEntity customUserEntity = customUserEntityMap.get(it.getUserSeq());
+            if (customUserEntity == null || !Objects.equals(customUserEntity.getGroup().getGroupSeq(), it.getGroupSeq())) {
+                return;
+            }
+            customUserEntity.setTierPoint(Optional.ofNullable(it.getTierPoint()).orElse(0L));
+        });
     }
 }

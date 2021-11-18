@@ -15,28 +15,18 @@ import java.util.Optional;
 @Setter
 public class CustomUserResponse {
    private long seq;
-
    private Long groupSeq;
-
    private String nickname;
-
    private String summonerName;
-
    private Map<String, Pair<Integer, Integer>> positionWinRate;
-
    private int total;
-
    private int win;
-
    private LocalDateTime lastDate;
-
    private String accountId;
-
    private int profileIconId;
-
    private int summonerLevel;
-
    private boolean isRefreshTarget;
+   private Long tierPoint;
 
    public CustomUserResponse(CustomUserEntity customUserEntity) {
       this.seq = customUserEntity.getSeq();
@@ -55,6 +45,7 @@ public class CustomUserResponse {
                                            .map(localDateTime -> localDateTime.plusHours(1)
                                                                               .isBefore(LocalDateTime.now()))
                                            .orElse(false);
+      this.tierPoint = customUserEntity.getTierPoint();
    }
 
    public void totalIncrease() {

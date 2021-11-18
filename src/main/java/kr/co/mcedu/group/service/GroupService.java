@@ -39,4 +39,6 @@ public interface GroupService {
     void linkSummoner(LinkSummonerRequest request) throws DataNotExistException;
 
     PersonalResultResponse getPersonalResult(PersonalResultRequest request) throws Exception;
+
+    void saveTierPoint(List<SaveTierPointRequest> request) throws AccessDeniedException;
 }

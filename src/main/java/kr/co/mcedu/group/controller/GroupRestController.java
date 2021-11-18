@@ -48,7 +48,7 @@ class GroupRestController {
     @PostMapping("/my")
     public Object getMyGroup() throws AccessDeniedException {
         List<GroupResponse> list = groupService.findMyGroups();
-        list.forEach(it -> it.getCustomUser().sort(Comparator.comparing(CustomUserResponse::getSeq)));
+        list.forEach(it -> it.getCustomUser().sort(Comparator.comparing(CustomUserResponse::getTierPoint).reversed()));
         return new ResponseWrapper().setData(list).build();
     }
 
@@ -147,5 +147,12 @@ class GroupRestController {
     public Object personalResult(@ModelAttribute PersonalResultRequest request) throws Exception {
         log.info("GroupRestController  > personalResult: {}", request.toString());
         return new ResponseWrapper().setData(groupService.getPersonalResult(request)).build();
+    }
+
+    @PostMapping("/tier-point")
+    public Object saveTierPoint(@RequestBody List<SaveTierPointRequest> request) throws AccessDeniedException {
+        log.info("GroupRestController > saveTierPoint: {}", request.toString());
+        groupService.saveTierPoint(request);
+        return new ResponseWrapper().build();
     }
 }

@@ -75,24 +75,30 @@ function setModifyTarget() {
 
 function saveGroup() {
     const groupName = $("#groupName").val();
+    console.log(groupName);
     if(groupName.trim() === "") {
-        alert("그룹 이름을 지정해주세요")
+        alert("그룹 이름을 지정해주세요");
         return;
     }
     const param = {
         groupName: groupName.trim()
     }
-    common_ajax.call("/api/group", 'POST', param, function(res) {
+    let result = true;
+    common_ajax.call("/api/group", 'POST', false, param, function(res) {
         if(res.code === API_RESULT.FAIL) {
             if (res.message) {
                 alert(res.message);
                 return;
             }
             alert("그룹 생성에 실패하였습니다. 자세한 사항은 관리자에게 문의바랍니다.")
-        } else {
-            callMyGroup('/api/group/my', groupChangeFunction);
+            result = false;
         }
     });
+    if (result) {
+        setTimeout(function () {
+            callMyGroup('/api/group/my', groupChangeFunction)
+        },1000);
+    }
 }
 
 // 그룹 선택
@@ -147,6 +153,7 @@ function groupChangeFunction(groupList, groupSeq) {
         }
     }
 
+    console.log(myGroupFlag);
     if (!myGroupFlag) {
         $('#myGroup').html("그룹을 생성할수 있습니다.");
         $("#addGroupForm").hide();

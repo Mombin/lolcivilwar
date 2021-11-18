@@ -24,6 +24,9 @@ spring:
       cache:
         cachecontrol:
           no-store: true
+  mvc:
+    static-path-pattern: /static/**
+
 logging:
   file:
     path: classpath:/logback-local.xml

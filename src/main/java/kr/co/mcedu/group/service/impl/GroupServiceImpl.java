@@ -116,7 +116,7 @@ public class GroupServiceImpl implements GroupService {
             if (!customUserResponse.isRefreshTarget()) {
                 return;
             }
-            Optional.ofNullable(summonerService.getSummoner("", customUserResponse.getAccountId()))
+            Optional.ofNullable(summonerService.getSummonerByAccountId(customUserResponse.getAccountId()))
                     .ifPresent(it -> {
                         customUserResponse.setProfileIconId(it.getProfileIconId());
                         customUserResponse.setSummonerLevel(it.getSummonerLevel());

@@ -1,8 +1,8 @@
 package kr.co.mcedu.config.security;
 
 import io.jsonwebtoken.ExpiredJwtException;
-import kr.co.mcedu.config.exception.ServiceException;
 import kr.co.mcedu.user.service.WebUserService;
+import kr.co.mcedu.utils.SessionUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,7 +13,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -48,29 +47,10 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
             needRefresh = true;
         }
         if (needRefresh) {
-            refreshProcess(request, response);
+            SessionUtils.refreshProcess(request, response);
         }
 
         filterChain.doFilter(request, response);
-    }
-
-    private void refreshProcess(HttpServletRequest request, HttpServletResponse response) {
-        String refreshToken = jwtTokenProvider.parseTokenCookie(request, TokenType.REFRESH_TOKEN);
-        try {
-            if (jwtTokenProvider.validateToken(refreshToken)) {
-                String accessToken = webUserService.getAccessToken(refreshToken);
-                Cookie accessTokenCookie = new Cookie(TokenType.ACCESS_TOKEN.getCookieName(), accessToken);
-                accessTokenCookie.setPath("/");
-                response.addCookie(accessTokenCookie);
-            } else {
-                jwtTokenProvider.deleteTokenCookie(response, TokenType.REFRESH_TOKEN);
-            }
-        } catch (ExpiredJwtException e) {
-            jwtTokenProvider.deleteTokenCookie(response, TokenType.REFRESH_TOKEN);
-        } catch (ServiceException serviceException) {
-            log.debug("", serviceException);
-            jwtTokenProvider.deleteTokenCookie(response, TokenType.REFRESH_TOKEN);
-        }
     }
 
     @Override

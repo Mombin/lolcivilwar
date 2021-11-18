@@ -94,6 +94,9 @@ function saveGroup() {
             alert("그룹 생성에 실패하였습니다. 자세한 사항은 관리자에게 문의바랍니다.")
             result = false;
         }
+        $('#myGroup').html("");
+        $('#groupName').val('');
+        $("#createGroup").hide();
     });
     if (result) {
         setTimeout(function () {

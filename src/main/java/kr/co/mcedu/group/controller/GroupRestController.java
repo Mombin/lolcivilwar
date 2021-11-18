@@ -12,6 +12,7 @@ import kr.co.mcedu.group.model.request.*;
 import kr.co.mcedu.group.model.response.CustomUserSynergyResponse;
 import kr.co.mcedu.group.service.GroupService;
 import kr.co.mcedu.utils.ResponseWrapper;
+import kr.co.mcedu.utils.SessionUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -38,6 +39,7 @@ class GroupRestController {
                 result = ResponseWrapper.fail();
             } else {
                 result = new ResponseWrapper().setData(groupSeq);
+                SessionUtils.refreshAccessToken();
             }
         } catch (AlreadyDataExistException e) {
             result = ResponseWrapper.fail("이미 해당 아이디로 생성된 그룹이 있습니다.");

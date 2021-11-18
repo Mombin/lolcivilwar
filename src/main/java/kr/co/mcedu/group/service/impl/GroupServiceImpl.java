@@ -95,7 +95,6 @@ public class GroupServiceImpl implements GroupService {
         groupEntity.setOwner(userId);
         GroupEntity result = groupRepository.save(groupEntity);
         log.info(result.toString());
-        webUserService.pushRefreshedUser(webUserEntity.getUserSeq());
         return result.getGroupSeq();
     }
 

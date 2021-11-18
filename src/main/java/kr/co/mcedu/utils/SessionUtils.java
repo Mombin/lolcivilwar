@@ -1,28 +1,37 @@
 package kr.co.mcedu.utils;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import kr.co.mcedu.config.exception.AccessDeniedException;
+import kr.co.mcedu.config.exception.ServiceException;
 import kr.co.mcedu.config.security.AccessTokenField;
 import kr.co.mcedu.config.security.JwtTokenProvider;
 import kr.co.mcedu.config.security.TokenType;
 import kr.co.mcedu.group.entity.GroupAuthEnum;
 import kr.co.mcedu.group.model.GroupAuthDto;
+import kr.co.mcedu.user.service.WebUserService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 
+@Slf4j
 @Component
 public class SessionUtils {
     private static JwtTokenProvider jwtTokenProvider;
+    private static WebUserService webUserService;
 
-    public SessionUtils(JwtTokenProvider jwtTokenProvider) {
+    public SessionUtils(JwtTokenProvider jwtTokenProvider, WebUserService webUserService) {
         SessionUtils.setTokenProvider(jwtTokenProvider);
+        SessionUtils.setWebUserService(webUserService);
     }
 
     /**
@@ -31,6 +40,10 @@ public class SessionUtils {
      */
     private static void setTokenProvider(JwtTokenProvider jwtTokenProvider) {
         SessionUtils.jwtTokenProvider = jwtTokenProvider;
+    }
+
+    private static void setWebUserService(WebUserService webUserService) {
+        SessionUtils.webUserService = webUserService;
     }
 
     /**
@@ -76,6 +89,10 @@ public class SessionUtils {
         return ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
     }
 
+    private static HttpServletResponse getResponse() {
+        return ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getResponse();
+    }
+
     public static Map<Long, GroupAuthDto> getGroupAuth() {
         Claims claim = jwtTokenProvider.getClaim(getAccessToken());
         List list = claim.get(AccessTokenField.GROUP_AUTH, List.class);
@@ -110,5 +127,28 @@ public class SessionUtils {
 
     private static String getAccessToken() {
         return jwtTokenProvider.parseTokenCookie(getRequest(),TokenType.ACCESS_TOKEN);
+    }
+
+    public static void refreshAccessToken() {
+        refreshProcess(getRequest(), getResponse());
+    }
+
+    public static void refreshProcess(HttpServletRequest request, HttpServletResponse response) {
+        String refreshToken = jwtTokenProvider.parseTokenCookie(request, TokenType.REFRESH_TOKEN);
+        try {
+            if (jwtTokenProvider.validateToken(refreshToken)) {
+                String accessToken = webUserService.getAccessToken(refreshToken);
+                Cookie accessTokenCookie = new Cookie(TokenType.ACCESS_TOKEN.getCookieName(), accessToken);
+                accessTokenCookie.setPath("/");
+                response.addCookie(accessTokenCookie);
+            } else {
+                jwtTokenProvider.deleteTokenCookie(response, TokenType.REFRESH_TOKEN);
+            }
+        } catch (ExpiredJwtException e) {
+            jwtTokenProvider.deleteTokenCookie(response, TokenType.REFRESH_TOKEN);
+        } catch (ServiceException serviceException) {
+            log.debug("", serviceException);
+            jwtTokenProvider.deleteTokenCookie(response, TokenType.REFRESH_TOKEN);
+        }
     }
 }

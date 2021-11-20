@@ -6,21 +6,21 @@ import kr.co.mcedu.common.repository.SystemRepository;
 import kr.co.mcedu.riot.ApiEngine;
 import kr.co.mcedu.riot.RiotApiProperty;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class CommonServiceImpl implements CommonService {
 
-    private ApiEngine apiEngine;
+    private final ApiEngine apiEngine;
     private final SystemRepository systemRepository;
 
-    @Autowired
-    public void setApiEngine(final ApiEngine apiEngine) {
-        this.apiEngine = apiEngine;
+    @PostConstruct
+    private void init() {
+        apiEngine.init(getRiotApiProperty());
     }
 
     @Override

@@ -2,13 +2,11 @@ package kr.co.mcedu.riot;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import kr.co.mcedu.common.service.CommonService;
 import kr.co.mcedu.riot.model.response.DefaultApiResponse;
 import kr.co.mcedu.riot.model.response.RiotApiResponse;
 import kr.co.mcedu.utils.StringUtils;
 import kr.co.mcedu.utils.TimeUtils;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -18,21 +16,16 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import java.time.LocalDateTime;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Component
-@RequiredArgsConstructor
 public class ApiEngine {
-    private final CommonService commonService;
     private ApiShooter apiShooter;
 
-    @PostConstruct
-    private void init() {
-        RiotApiProperty riotApiProperty = commonService.getRiotApiProperty();
+    public void init(RiotApiProperty riotApiProperty) {
         this.apiShooter = new ApiShooter(riotApiProperty);
         this.apiShooter.validationCheck();
         this.apiShooter.start();

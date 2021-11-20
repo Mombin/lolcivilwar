@@ -15,9 +15,13 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class CommonServiceImpl implements CommonService {
 
-    @Autowired
     private ApiEngine apiEngine;
     private final SystemRepository systemRepository;
+
+    @Autowired
+    public void setApiEngine(final ApiEngine apiEngine) {
+        this.apiEngine = apiEngine;
+    }
 
     @Override
     public RiotApiProperty getRiotApiProperty(){

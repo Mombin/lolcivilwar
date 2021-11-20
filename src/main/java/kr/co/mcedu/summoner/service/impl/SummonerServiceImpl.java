@@ -62,11 +62,10 @@ public class SummonerServiceImpl implements SummonerService {
 
     @Override
     public SummonerEntity getSummonerByAccountId(String accountId) {
-        String search = accountId.replace("\\s", "").toUpperCase();
-        if (StringUtils.isEmpty(search)) {
+        if (StringUtils.isEmpty(accountId)) {
             return null;
         }
-        Optional<SummonerEntity> result = summonerRepository.findById(search);
+        Optional<SummonerEntity> result = summonerRepository.findById(accountId);
         if (result.isPresent()) {
             SummonerEntity summonerEntity = result.get();
 

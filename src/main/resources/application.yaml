@@ -33,3 +33,5 @@ logging:
 
 security:
   ignore-url: /static/**, /api/test/*, /favicon.ico, /user/checkId/*, /user/checkEmail/*
+server:
+  port: 8081

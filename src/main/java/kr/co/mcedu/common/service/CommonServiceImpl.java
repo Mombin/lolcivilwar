@@ -5,29 +5,28 @@ import kr.co.mcedu.common.entity.SystemPropertyKey;
 import kr.co.mcedu.common.repository.SystemRepository;
 import kr.co.mcedu.riot.ApiEngine;
 import kr.co.mcedu.riot.RiotApiProperty;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class CommonServiceImpl implements CommonService {
 
     @Autowired
-    public ApiEngine apiEngine;
-
+    private ApiEngine apiEngine;
     private final SystemRepository systemRepository;
 
-    public CommonServiceImpl(SystemRepository systemRepository) {
-        this.systemRepository = systemRepository;
-    }
-
+    @Override
     public RiotApiProperty getRiotApiProperty(){
         Optional<SystemEntity> systemEntity = systemRepository.findById(SystemPropertyKey.RIOT_PROPERTY.name());
         return systemEntity.map(RiotApiProperty::new).orElse(null);
 
     }
 
+    @Override
     public void updateRiotApiProperty(String apiKey){
         Optional<SystemEntity> systemEntityOption = systemRepository.findById(SystemPropertyKey.RIOT_PROPERTY.name());
         SystemEntity systemEntity;

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>롤내전 도우미</title>
+    <!-- 공통으로 쓰이는 css파일을넣는다.-->
+    <link rel="stylesheet" th:href="@{/static/css/common.css}"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
+    <!-- 컨텐츠페이지의 CSS 영역이 들어감 -->
+    <th:block layout:fragment="css" />
+
+    <!-- 공통으로 쓰이는 script파일을넣는다.-->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>
+    <script type="text/javascript" th:src="@{/static/js/lib/jquery-3.6.0.min.js}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <script type="text/javascript" th:src="@{/static/js/common/common-util.js}"></script>
+    <script type="text/javascript" th:src="@{/static/js/common/constants.js}"></script>
+    <script type="text/javascript" th:src="@{/static/js/common/moment.min.js}"></script>
+    <script type="text/javascript" th:src="@{/static/js/common/moment-with-locales.min.js}"></script>
+    <script type="text/javascript">
+      $(document).ready(function () {
+        const topic = ['group'];
+        const pathName = location.pathname;
+        const $nav = $(".navbar-nav").find(`[href='${pathName}']`);
+        if ($nav.length !== 0) {
+          $nav.addClass('active').attr('aria-current', 'page').attr('href', '#');
+        }
+
+        $.each(topic, function(index, item) {
+          if(pathName.startsWith("/"+item)) {
+            $(".navbar-nav").find(`[name='${item}']`).addClass('active');
+          }
+        });
+      });
+    </script>
+    <script sec:authorize="hasRole('ROLE_USER')">
+      $(document).ready(function() {
+        callAlarmCount();
+      })
+
+      function callAlarmCount() {
+        common_ajax.call('/api/user/alarm/count', 'GET', true, {}, function (res) {
+          if(res.code === API_RESULT.FAIL) {
+            alert(res.message);
+            return;
+          }
+          let $alarmCnt = $("[name='messageAlarmCnt']");
+          if (res.data === 0) {
+            $alarmCnt.hide();
+            return;
+          }
+          $alarmCnt.show().html(res.data);
+        })
+      }
+
+      function logout() {
+        if(!confirm("로그아웃 하시겠습니까?")) {
+          return;
+        }
+        common_ajax.call('/authenticate/out', 'POST', true, {}, function () {
+          location.href = "/"
+        })
+      }
+    </script>
+    <!-- 컨텐츠페이지의 스크립트 영역이 들어감 -->
+    <th:block layout:fragment="script" />
+</head>
+<body>
+    <header layout:replace="~{fragments/header :: headerFragment}"></header>
+
+    <div layout:fragment="content"></div>
+
+    <footer layout:replace="~{fragments/footer :: footerFragment}"></footer>
+</body>
+</html>

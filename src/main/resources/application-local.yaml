@@ -1,0 +1,34 @@
+spring:
+  datasource:
+    url: "jdbc:postgresql://mcedu.co.kr:5432/lol_dev"
+    driver-class-name: org.postgresql.Driver
+    username: postgres
+    password: bitbot12#$
+  jwt:
+    secret: local_yache
+  thymeleaf:
+    cache: false
+  config:
+    activate:
+      on-profile: local
+  jpa:
+    hibernate:
+      naming:
+        implicit-strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
+        physical-strategy: org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy
+  devtools:
+    livereload:
+      enabled: true
+  web:
+    resources:
+      cache:
+        cachecontrol:
+          no-store: true
+  mvc:
+    static-path-pattern: /static/**
+logging:
+  file:
+    path: classpath:/logback-local.xml
+
+security:
+  ignore-url: /static/**, /api/test/*, /favicon.ico, /user/checkId/*, /user/checkEmail/*

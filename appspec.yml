@@ -1,0 +1,15 @@
+version: 0.0
+os: linux
+files:
+  - source: /
+    destination: /home/lolcw/build/
+permissions:
+  - object: /
+    pattern: "**"
+    owner: lolcw
+    group: lolcw
+hooks:
+  AfterInstall:
+    - location: ./scripts/start.sh
+      timeout: 60
+      runas: lolcw

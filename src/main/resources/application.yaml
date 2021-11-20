@@ -1,6 +1,37 @@
 spring:
+  profiles:
+    active: local
+
+---
+spring:
   datasource:
-    url: "jdbc:postgresql://mcedu.co.kr:5432/lol_dev"
+    url: "jdbc:postgresql://localhost:5432/lol"
     driver-class-name: org.postgresql.Driver
     username: postgres
     password: bitbot12#$
+  jwt:
+    secret: prod_yache
+  config:
+    activate:
+      on-profile: prod
+  jpa:
+    hibernate:
+      naming:
+        implicit-strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
+        physical-strategy: org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy
+  web:
+    resources:
+      cache:
+        cachecontrol:
+          no-store: true
+  mvc:
+    static-path-pattern: /static/**
+
+logging:
+  file:
+    path: classpath:/logback-local.xml
+
+security:
+  ignore-url: /static/**, /api/test/*, /favicon.ico, /user/checkId/*, /user/checkEmail/*
+server:
+  port: 8081

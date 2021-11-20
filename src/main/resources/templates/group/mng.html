@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}" >
+<body>
+<div layout:fragment="content">
+    <h3 id="myGroup" style="margin-top: 20px;"></h3>
+    <div id="createGroup" class="input-group mb-3" style="display: none;">
+        <span class="input-group-text">그룹명</span>
+        <input id="groupName" class="form-control" type="text" maxlength="15" placeholder="생성할 그룹명">
+        <input id="saveBtn" class="btn btn-primary" type="button" onclick="saveGroup()" value="생성">
+    </div>
+    <div th:replace="~{fragments/fragments :: groupSelector}"></div>
+    <div class="form-floating" style="margin-top: 20px">
+        <div id="addGroupForm" class="input-group mb-3">
+            <input id="nickname" type="text" class="form-control" placeholder="닉네임">
+            <input id="summonerId" type="text" class="form-control" placeholder="소환사명">
+            <button id="addBtn" class="btn btn-outline-secondary new-group" type="button">추가</button>
+            <button id="deleteBtn" class="btn btn-outline-danger modify-group" type="button" style="display: none">삭제</button>
+            <button id="modifyBtn" class="btn btn-outline-success modify-group" type="button" style="display: none">수정</button>
+            <button id="newBtn" class="btn btn-outline-primary modify-group" type="button" style="display: none">신규</button>
+        </div>
+        <div id="myGroupList">
+            <ul class="list-group"></ul>
+            <button type="button" class="btn btn-danger" id="deleteUser" style="margin-top: 10px">삭제</button>
+            <button type="button" class="btn btn-primary" id="saveTierPoint" style="margin-top: 10px; float: right">티어표저장</button>
+        </div>
+    </div>
+    <form id="openerData" style="display: none">
+    </form>
+</div>
+</body>
+<th:block layout:fragment="script">
+    <script type="text/javascript" th:src="@{/static/js/group/groupSelector.js}"></script>
+    <script type="text/javascript" th:src="@{/static/js/group/mng.js?ver=2021}"></script>
+    <script type="text/javascript" th:src="@{/static/js/group/mng_event.js}"></script>
+</th:block>
+</html>

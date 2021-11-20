@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}" >
+<body>
+<div layout:fragment="content">
+    <div style="display: flex">
+        <div th:replace="~{fragments/fragments :: groupSelector}"></div>
+        <select id="customUserSelect" class="form-select" aria-label="Default select example" style="width: 20%; margin-left: auto; margin-top: 20px;">
+            <option value="0" selected disabled>닉네임을 선택해주세요</option>
+        </select>
+    </div>
+    <table class="table" style="margin-top: 20px">
+        <thead>
+        <tr>
+            <th scope="col" style="width: 20%; text-align: center">경기일자</th>
+            <th scope="col" style="width: 20%; text-align: center">포지션</th>
+            <th scope="col" style="width: 20%; text-align: center">상대라이너</th>
+            <th scope="col" style="width: 20%; text-align: center">승/패</th>
+        </tr>
+        </thead>
+        <tbody id="list">
+        </tbody>
+    </table>
+    <nav>
+        <ul class="pagination justify-content-center" id="pagination">
+            <li class="page-item disabled">
+                <a class="page-link" href="#" onclick="prevPage()">이전</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="#">다음</a>
+            </li>
+        </ul>
+    </nav>
+</div>
+</body>
+<th:block layout:fragment="script">
+    <script type="text/javascript" th:src="@{/static/js/group/groupSelector.js}"></script>
+    <script type="text/javascript" th:src="@{/static/js/group/result.js}"></script>
+    <script type="text/javascript" th:src="@{/static/js/group/result_event.js}"></script>
+</th:block>
+</html>

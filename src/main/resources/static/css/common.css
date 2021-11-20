@@ -1,0 +1,21 @@
+@charset "UTF-8";
+
+.textInput { width: 200px }
+.boder1 {border: 1px solid}
+.w300px {width: 300px}
+@media screen and (max-device-width: 580px) {
+    body { margin: auto !important; width: 100%}
+}
+@media screen and (min-device-width: 580px) {
+    body { margin: auto !important; width: 70%}
+}
+.team .input-group .input-group-text { width: 80px; justify-content: center;}
+.team div.input-group input.form-control { text-align: center; }
+
+.hover-underline:hover {
+    text-decoration: underline;
+}
+
+/* 기본 css */
+.f-r { float: right !important; }
+.ta-c { text-align: center !important; }

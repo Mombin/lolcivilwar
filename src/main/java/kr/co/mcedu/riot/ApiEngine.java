@@ -118,7 +118,7 @@ public class ApiEngine {
         }
 
         public void validationCheck() {
-            isValidationProperty = StringUtils.isEmpty(riotApiProperty.getApiKey()) && StringUtils.isEmpty(riotApiProperty.getRiotApiUrl());
+            isValidationProperty = !StringUtils.isEmpty(riotApiProperty.getApiKey()) && !StringUtils.isEmpty(riotApiProperty.getRiotApiUrl());
         }
 
         private DefaultApiResponse getPropertyErrorResponse() {

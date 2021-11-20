@@ -15,3 +15,7 @@
 .hover-underline:hover {
     text-decoration: underline;
 }
+
+/* 기본 css */
+.f-r { float: right !important; }
+.ta-c { text-align: center !important; }

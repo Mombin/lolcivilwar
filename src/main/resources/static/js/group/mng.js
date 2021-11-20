@@ -40,8 +40,10 @@ function setList() {
         if (GROUP_AUTH.isManageable(currentGroup.auth)) {
             $li.append($("<input>").addClass("form-check-input me-1").prop("type", "checkbox").data('seq', item.seq))
         }
-        $li.append($("<span>").html(item.nickname + "["+ item.summonerName +"]").on('click', setModifyTarget).data(item).addClass('hover-underline')).append($span)
-
+        $li.append($("<span>").html(item.nickname + "["+ item.summonerName +"]").on('click', setModifyTarget).data(item).addClass('hover-underline'))
+            .append($('<input>').attr('name', 'tierPoint').addClass('form-control ta-c f-r').css('margin-left', '10px').css('width', '50px')
+                .data('seq', item.seq).data('groupSeq', item.groupSeq).val(item.tierPoint))
+            .append($span)
         if (item.accountId === "") {
             $span.append('  ')
                 .append(
@@ -75,7 +77,6 @@ function setModifyTarget() {
 
 function saveGroup() {
     const groupName = $("#groupName").val();
-    console.log(groupName);
     if(groupName.trim() === "") {
         alert("그룹 이름을 지정해주세요");
         return;
@@ -93,6 +94,9 @@ function saveGroup() {
             alert("그룹 생성에 실패하였습니다. 자세한 사항은 관리자에게 문의바랍니다.")
             result = false;
         }
+        $('#myGroup').html("");
+        $('#groupName').val('');
+        $("#createGroup").hide();
     });
     if (result) {
         setTimeout(function () {
@@ -107,9 +111,11 @@ function changeGroupSelect() {
     if (GROUP_AUTH.isManageable(currentGroup.auth)) {
         $("#addGroupForm").show();
         $("#deleteUser").show();
+        $("#saveTierPoint").show();
     } else {
         $("#addGroupForm").hide();
         $("#deleteUser").hide();
+        $("#saveTierPoint").hide();
     }
     setList();
 }
@@ -153,12 +159,12 @@ function groupChangeFunction(groupList, groupSeq) {
         }
     }
 
-    console.log(myGroupFlag);
     if (!myGroupFlag) {
         $('#myGroup').html("그룹을 생성할수 있습니다.");
         $("#addGroupForm").hide();
         $("#createGroup").show();
         $("#deleteUser").hide();
+        $("#saveTierPoint").hide();
     }
 
     if (groupSeq) {

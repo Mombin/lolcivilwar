@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/popupLayout}" >
+<div layout:fragment="content">
+    <form id="summonerLinkForm" class="card" style="width: 15rem; margin: 20px auto;">
+        <img id="userFormProfile" class="card-img-top">
+        <div class="card-body">
+            <h5 class="card-title"></h5>
+        </div>
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item" name="level"></li>
+        </ul>
+        <div class="card-body">
+            <p class="card-text"></p>
+            <a href="javascript:void(0);" class="btn btn-primary" name="confirm" style="float: left">인증하기</a>
+            <a href="javascript:void(0);" class="btn btn-danger" name="cancel" style="float: right">취소</a>
+        </div>
+    </form>
+</div>
+<th:block layout:fragment="script">
+    <script type="text/javascript">
+        let targetData = {}
+            , $summonerLinkForm;
+        $(document).ready(function() {
+            $summonerLinkForm = $("#summonerLinkForm");
+            $.each($(opener.document.getElementById('openerData')).children(), function (index, object) {
+                targetData[object.name] = object.value;
+            });
+            common_ajax.call("/api/summoner/search", 'GET', false, targetData, function (res) {
+                if (res.code !== API_RESULT.SUCCESS) {
+                    $summonerLinkForm.find('.card-text').html('일치하는 닉네임이 없습니다.')
+                    $summonerLinkForm.find('[name="confirm"]').attr('disabled', 'disabled');
+                    return;
+                }
+
+                let data = res.data;
+                $summonerLinkForm.find("#userFormProfile").attr('src', riotData.profileIcon(data.profileIconId))
+                $summonerLinkForm.find('.card-title').html(data.name);
+                $summonerLinkForm.find('.card-text').html('본인이 맞으시면 아래 버튼을 눌러주세요')
+                $summonerLinkForm.find('[name="level"]').html(`레벨 : ${data.summonerLevel}`)
+                $summonerLinkForm.find('[name="confirm"]')
+                    .data('userSeq', targetData.seq)
+                    .data('groupSeq', targetData.groupSeq)
+                    .data('accountId', data.accountId)
+            });
+
+            $summonerLinkForm.find('[name="cancel"]').on('click', function () {
+                window.close();
+            });
+            $summonerLinkForm.find('[name="confirm"]').on('click', function () {
+                common_ajax.call("/api/group/v1/link/summoner", 'POST', true, $(this).data(), function (res) {
+                    if (res.code === API_RESULT.SUCCESS) {
+                        window.opener.refresh();
+                        window.close();
+                    }
+                })
+            });
+
+        })
+    </script>
+</th:block>
+</html>

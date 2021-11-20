@@ -7,21 +7,23 @@ import java.util.Random;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class StringUtils {
-
+    private static final Random RANDOM = new Random();
     public static String randomStringGenerate(int size) {
         if(size < 0 ){
             return "";
         }
         StringBuilder temp = new StringBuilder();
-        Random random = new Random();
         for (int i = 0; i < size; i++) {
-            switch (random.nextInt(3)) {
+            switch (RANDOM.nextInt(3)) {
                 case 0:
-                    temp.append((char) random.nextInt(26) + 97);
+                    temp.append((char) (RANDOM.nextInt(26) + 97));
+                    break;
                 case 1:
-                    temp.append((char) random.nextInt(26) + 65);
+                    temp.append((char) (RANDOM.nextInt(26) + 65));
+                    break;
                 case 2:
-                    temp.append((char) random.nextInt(10));
+                    temp.append(RANDOM.nextInt(10));
+                    break;
             }
 
         }

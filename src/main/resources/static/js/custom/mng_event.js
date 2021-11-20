@@ -10,6 +10,7 @@ let worker
     , $modalLeader
     , $filterText
     , $pickCount
+    , $toggleTierPoint
     , flag = false
     , newTeamFlagA = true
     , newTeamFlagB = true
@@ -34,6 +35,7 @@ function setItems() {
     $groupSelector = $("#groupSelector");
     $filterText = $('[name="filter_text"]');
     $pickCount = $('[name="pick-count"]');
+    $toggleTierPoint = $('#toggleTierPoint');
 }
 
 function setEvents() {
@@ -114,6 +116,7 @@ function setEvents() {
         const $summonerList = $("#summonerList");
         for (let i = 0; i < 10; i++) {
             const input = $("<input>").attr('type', 'text').attr('placeholder', '이름')
+                .css('width', '30%')
                 .attr('name', 'summonerName')
                 .data('index', i).addClass('form-control');
             const btnA = $("<button>").addClass('btn btn-outline-primary')
@@ -132,9 +135,16 @@ function setEvents() {
                 });
                 $summoner.append($("<input>").attr('type', 'text').attr('readonly', true)
                     .css('text-align', 'center')
+                    .css('width', '30%')
                     .attr('name', 'summonerRate').addClass('form-control')).val();
             }
-
+            if (Object.keys(tierPoints).length > 0) {
+                input.on('change', function() {
+                    let tierPoint = tierPoints[$(this).val()] || 0;
+                    $(this).next().next().val(tierPoint);
+                });
+            }
+            $summoner.append($("<input>").addClass('tierPointGroup').attr('type', 'text').attr('readonly', true).css('display', $toggleTierPoint.getToggleVal() ? 'block' : 'none').css('text-align', 'center').css('width', '5%').addClass('form-control'))
             $summoner.append(btnA).append(btnB);
             $summonerList.append($summoner);
         }
@@ -148,7 +158,8 @@ function setEvents() {
         $.each(summonerNames(), function(index, item) {
             listOfSummoner[$(item).data('index')] = {
                 name: $(item).val(),
-                index: index
+                index: index,
+                tierPoint: Number($(item).parent().find('.tierPointGroup').val())
             };
         });
         $modalLeader.find("[data-team='A'] input").val('');
@@ -169,11 +180,13 @@ function setEvents() {
             $randomLeaderBtn.html('스탑');
         }
         worker = new Worker('/static/js/custom/randomWorker.js');
-        worker.postMessage({ flag : flag, list: listOfSummoner, speed: 50});
+        worker.postMessage({ flag : flag, list: listOfSummoner, speed: 50, tierOn: $toggleTierPoint.getToggleVal() });
         worker.onmessage = function (evt) {
             const tempList = evt.data;
-            $modalLeader.find("[data-team='A'] input").val(tempList[0].obj.name).data('index', tempList[0].obj.index);
-            $modalLeader.find("[data-team='B'] input").val(tempList[1].obj.name).data('index', tempList[1].obj.index);
+            $modalLeader.find("[data-team='A'] [name='summonerName']").val(tempList[0].obj.name).data('index', tempList[0].obj.index);
+            $modalLeader.find("[data-team='A'] .tierPointGroup").val(tempList[0].obj.tierPoint);
+            $modalLeader.find("[data-team='B'] [name='summonerName']").val(tempList[1].obj.name).data('index', tempList[1].obj.index);
+            $modalLeader.find("[data-team='B'] .tierPointGroup").val(tempList[1].obj.tierPoint);
         }
     })
 
@@ -188,8 +201,8 @@ function setEvents() {
             alert("팀장을 정해주세요");
             return;
         }
-        const teamAleader = $modalLeader.find("[data-team='A'] input");
-        const teamBleader = $modalLeader.find("[data-team='B'] input");
+        const teamAleader = $modalLeader.find("[data-team='A'] input[name='summonerName']");
+        const teamBleader = $modalLeader.find("[data-team='B'] input[name='summonerName']");
         let gap = 0;
         if (teamBleader.data().index > teamAleader.data().index) {
             gap--;
@@ -203,6 +216,11 @@ function setEvents() {
         $("#modalRandomLeader .btn-close").trigger('click');
         $("[name='select_leader']").hide();
         newLeaderFlag = false;
+
+        if($toggleTierPoint.getToggleVal()) {
+            sumTierPoints('a');
+            sumTierPoints('b');
+        }
     });
 
     $("[name='group_list_check']").on('click', function () {
@@ -243,6 +261,30 @@ function setEvents() {
         currentGroupSeq = item.groupSeq
     });
     $filterText.find('.form-control').on('keyup', filteringList);
+    $toggleTierPoint.on('click', function () {
+        let tierToggle = $(this).data('tierToggle');
+        if (tierToggle === 'off') {
+            $(this).data('tierToggle', 'on')
+            $(this).val('티어표 ON')
+            $('.tierPointGroup').show()
+        } else {
+            $(this).data('tierToggle', 'off')
+            $(this).val('티어표 OFF')
+            $('.tierPointGroup').hide()
+        }
+        $(this).toggleClass('btn-danger').toggleClass('btn-primary')
+        sumTierPoints('a');
+        sumTierPoints('b');
+    })
+    $toggleTierPoint.getToggleVal = function () {
+        return $(this).data('tierToggle') === 'on';
+    }
+
+    $("#team .team-position input").on('change',function () {
+        if($toggleTierPoint.getToggleVal()) {
+            sumTierPoints($(this).data('team'));
+        }
+    });
 }
 
 function filteringList() {

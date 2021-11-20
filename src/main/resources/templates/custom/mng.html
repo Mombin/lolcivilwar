@@ -8,39 +8,46 @@
 <div layout:fragment="content">
     <div id="team" style="border: 1px; margin-top: 20px" class="row team">
         <div class="input-group" sec:authorize="hasRole('ROLE_USER')" style="margin-bottom: 20px">
+            <div style="width: 100%">
+                <input type="button" class="btn btn-danger f-r" value="티어표 OFF" id="toggleTierPoint" data-tier-toggle="off">
+            </div>
+        </div>
+        <div class="input-group" sec:authorize="hasRole('ROLE_USER')" style="margin-bottom: 20px">
             <span class="input-group-text">승리팀</span>
             <input type="button" class="btn btn-outline-primary form-control" value="A팀 승리" data-team="a" name="winner_btn">
             <input type="button" class="btn btn-outline-success form-control" value="B팀 승리" data-team="b" name="winner_btn" >
         </div>
         <div class="input-group">
             <span class="input-group-text">팀</span>
-            <input type="text" class="form-control" readonly value="A" style="justify-content: center">
-            <input type="text" class="form-control" readonly value="B" style="justify-content: center">
+            <input type="text" class="form-control" readonly value="A" style="justify-content: center;  width: 40%">
+            <input type="text" name="tearPointSum" data-team="a" value="0" class="tierPointGroup form-control" style="width: 5%; display: none; background-color: white" readonly>
+            <input type="text" name="tearPointSum" data-team="b" value="0" class="tierPointGroup form-control" style="width: 5%; display: none; background-color: white" readonly>
+            <input type="text" class="form-control" readonly value="B" style="justify-content: center;  width: 40%">
         </div>
         <div class="input-group team-position" data-position="top">
             <span class="input-group-text">탑</span>
-            <input type="text" class="form-control" name="team_a">
-            <input type="text" class="form-control" name="team_b">
+            <input type="text" class="form-control" name="team_a" data-team="a">
+            <input type="text" class="form-control" name="team_b" data-team="b">
         </div>
         <div class="input-group team-position" data-position="jg">
             <span class="input-group-text">정글</span>
-            <input type="text" class="form-control" name="team_a">
-            <input type="text" class="form-control" name="team_b">
+            <input type="text" class="form-control" name="team_a" data-team="a">
+            <input type="text" class="form-control" name="team_b" data-team="b">
         </div>
         <div class="input-group team-position" data-position="mid">
             <span class="input-group-text">미드</span>
-            <input type="text" class="form-control" name="team_a">
-            <input type="text" class="form-control" name="team_b">
+            <input type="text" class="form-control" name="team_a" data-team="a">
+            <input type="text" class="form-control" name="team_b" data-team="b">
         </div>
         <div class="input-group team-position" data-position="bot">
             <span class="input-group-text">봇</span>
-            <input type="text" class="form-control" name="team_a">
-            <input type="text" class="form-control" name="team_b">
+            <input type="text" class="form-control" name="team_a" data-team="a">
+            <input type="text" class="form-control" name="team_b" data-team="b">
         </div>
         <div class="input-group team-position" data-position="sup">
             <span class="input-group-text">서폿</span>
-            <input type="text" class="form-control" name="team_a">
-            <input type="text" class="form-control" name="team_b">
+            <input type="text" class="form-control" name="team_a" data-team="a">
+            <input type="text" class="form-control" name="team_b" data-team="b">
         </div>
         <div class="input-group">
             <span class="input-group-text">라인랜덤</span>
@@ -115,11 +122,13 @@
                 <div class="modal-body team">
                     <div class="input-group" data-team="A">
                         <span class="input-group-text">A팀</span>
-                        <input type="text" class="form-control">
+                        <input type="text" name="summonerName" class="form-control" style="width: 65%">
+                        <input type="text" class="tierPointGroup form-control" style="width: 5%; display: none" readonly>
                     </div>
                     <div class="input-group" data-team="B">
                         <span class="input-group-text">B팀</span>
-                        <input type="text" class="form-control">
+                        <input type="text" name="summonerName" class="form-control" style="width: 65%">
+                        <input type="text" class="tierPointGroup form-control" style="width: 5%; display: none;" readonly>
                     </div>
                 </div>
                 <div class="modal-footer">

@@ -1,4 +1,4 @@
-let matchRate = {};
+let matchRate = {}, tierPoints = {};
 
 function isValidationName(team) {
     let result = true;
@@ -14,7 +14,7 @@ function isValidationName(team) {
 
 function isValidationList() {
     let result = true;
-    $.each($("[name='summonerName']"), function(index, item) {
+    $.each($("#summonerList [name='summonerName']"), function(index, item) {
         const value = $(item).val();
         if (!value || value.trim() === "") {
             result = false;
@@ -24,7 +24,7 @@ function isValidationList() {
 }
 
 function summonerNames() {
-    return $("[name='summonerName']");
+    return $("#summonerList [name='summonerName']");
 }
 
 function moveTeam() {
@@ -42,6 +42,10 @@ function moveTeam() {
     if (flag) {
         $(this).parent().remove();
     }
+
+    if ($toggleTierPoint.getToggleVal()) {
+        sumTierPoints(target)
+    }
 }
 
 /* 목록에 있는 리스트 뿌려줌 */
@@ -50,13 +54,13 @@ function setMyGroup(data) {
     $groupUserList.empty();
     data.customUser.forEach(function (item, index) {
         const text = item.nickname + "[" + item.summonerName + "]";
-        let percent = item.total === 0 ? 0 : Math.round((item.win / (item.total)) * 100);
-        const $span = $('<span>').html(`${item.total}전/${item.win}승/${percent}%`).css('float', 'right');
+        const $span = $('<span>').html(`${item.total}전/${item.win}승/${Math.round((item.win / (item.total)) * 100)}%`).css('float', 'right');
         $groupUserList.append($('<label>').addClass("list-group-item").attr('name', 'group-summoner')
             .append($("<input>").addClass("form-check-input me-1").prop('type', 'checkbox').data('name', text).on('click', fnCheck))
             .append(text)
             .append($span));
         matchRate[text] = item.positionWinRate;
+        tierPoints[text] = item.tierPoint
     });
 }
 
@@ -114,4 +118,18 @@ function dice(param) {
         result = res.data;
     });
     return result;
+}
+
+function sumTierPoints(team) {
+    if (team === undefined) {
+        return;
+    }
+    let sum = 0;
+    $.each($(`#team .team-position input[name="team_${team}"]`),function (idx, obj) {
+        if ($(obj).val().trim() !== '') {
+            let tierPoint = tierPoints[$(obj).val().trim()] || 0;
+            sum += tierPoint;
+        }
+    });
+    $(`#team [name="tearPointSum"][data-team="${team}"]`).val(sum);
 }

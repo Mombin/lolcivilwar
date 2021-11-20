@@ -25,6 +25,7 @@ function bindEvent() {
 
     $("#modifyBtn").on('click', fnModifyBtnClick);
     $groupSelector.on('change', changeGroupSelect);
+    $("#saveTierPoint").on('click', saveTierPoint)
 }
 
 /* 체크박스 선택후 삭제 기능 */
@@ -109,4 +110,41 @@ function fnModifyBtnClick() {
         callMyGroup('/api/group/my', groupChangeFunction, currentGroup.groupSeq);
         $("#newBtn").trigger('click');
     });
+}
+
+function saveTierPoint() {
+    let validation = true;
+    let param = [];
+    $.each($('[name="tierPoint"]'), function (idx, obj) {
+        const value = $(obj).val();
+        const data = $(obj).data();
+        if (!validation) {
+            return;
+        }
+
+        if (isNaN(Number(value)) || Number(value) < 0 || Number.isInteger(value)) {
+            toast.warning("티어점수는 0이상의 정수만 가능합니다.");
+            $(obj).focus();
+            validation = false;
+        }
+        param.push({
+            groupSeq: data.groupSeq,
+            userSeq: data.seq,
+            tierPoint: Number(value)
+        })
+
+    });
+    if (!validation) {
+        return;
+    }
+
+    common_ajax.call('/api/group/tier-point', 'POST', true, param, function (res) {
+        if (res.code === API_RESULT.FAIL) {
+            toast.error(res.message);
+            return;
+        }
+        toast.success("수정되었습니다")
+        callMyGroup('/api/group/my', groupChangeFunction, currentGroup.groupSeq);
+    })
+
 }

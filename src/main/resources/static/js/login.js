@@ -109,8 +109,8 @@ function validateId() {
 
 function validatePwd() {
     let pwd = $registerPwd.val().trim();
-    const test = /^.*(?=^.{8,12}$)(?=.*\d)(?=.*[a-zA-Z])(?=.*[!@#$%^&+=]).*$/.exec(pwd);
-    $pwdValidationMessage.html(test === null ?'문자, 숫자, 특수문자를 포함하여 8~12자리로 만들어주세요': '');
+    const test = /^.*(?=^.{8,14}$)(?=.*\d)(?=.*[a-zA-Z])(?=.*[!@#$%^&+=]).*$/.exec(pwd);
+    $pwdValidationMessage.html(test === null ?'문자, 숫자, 특수문자를 포함하여 8~14자리로 만들어주세요': '');
     if($registerPwdChk.val().trim()) {
         validatePwdChk()
     }

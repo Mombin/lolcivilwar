@@ -117,4 +117,14 @@ public class StringUtils {
 
         return temp.toString();
     }
+
+    /**
+     * LOLCW TAG 생성
+     * 생성규칙 대문자 3자리 + 숫자 2자리
+     * @return LOLCW TAG
+     * @since 2021. 11. 22
+     */
+    public static String getLolcwTag() {
+        return randomCapitalStr(3) + randomNumberStr(2);
+    }
 }

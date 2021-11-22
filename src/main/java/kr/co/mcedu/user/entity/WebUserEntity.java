@@ -26,4 +26,5 @@ public class WebUserEntity extends BaseTimeEntity {
     private String email;
     private Boolean confirm = false;
     private String refreshToken;
+    private String lolcwTag;
 }

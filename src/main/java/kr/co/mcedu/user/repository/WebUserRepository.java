@@ -10,4 +10,5 @@ import java.util.*;
 public interface WebUserRepository extends JpaRepository<WebUserEntity, Long> {
     Optional<WebUserEntity> findWebUserEntityByUserId(String userId);
     Optional<WebUserEntity> findWebUserEntityByEmail(String email);
+    Optional<WebUserEntity> findWebUserEntityByLolcwTag(String lolcwTag);
 }

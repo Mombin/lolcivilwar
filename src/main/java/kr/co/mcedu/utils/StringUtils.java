@@ -9,27 +9,7 @@ import java.util.function.Supplier;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class StringUtils {
     private static final Random RANDOM = new Random();
-    public static String randomStringGenerate(int size) {
-        if(size <= 0 ){
-            return "";
-        }
-        StringBuilder temp = new StringBuilder();
-        for (int i = 0; i < size; i++) {
-            switch (RANDOM.nextInt(3)) {
-                case 0:
-                    temp.append(randomLowerStr());
-                    break;
-                case 1:
-                    temp.append(randomCapitalStr());
-                    break;
-                case 2:
-                    temp.append(randomNumberStr());
-                    break;
-            }
-
-        }
-        return temp.toString();
-    }
+    
     /**
      * String empty check
      * @param str 문자열
@@ -49,12 +29,40 @@ public class StringUtils {
     }
 
     /**
+     * 지정된 길이의 랜덤한 대문자, 소문자, 숫자형 문자를 생성
+     * @param length 길이
+     * @return 길이가 0이하인 경우 공백, 나머지 랜덤 대문자, 소문자, 숫자형 문자
+     */
+    public static String randomStringGenerate(int length) {
+        return randomStrWithSupplier(length, StringUtils::randomStr);
+    }
+
+    /**
+     * 랜덤한 대문자, 소문자, 숫자형 문자를 생성
+     * @return 대문자, 소문자, 숫자형 문자 1개 
+     */
+    public static String randomStr() {
+        String result;
+        switch (RANDOM.nextInt(3)) {
+            case 0:
+                result = randomLowerStr();
+                break;
+            case 1:
+                result = randomCapitalStr();
+                break;
+            default:
+                result = randomNumberStr();
+        }
+        return result;
+    }
+    
+    /**
      * 지정된 길이의 랜덤 대문자
      * @param length 길이
      * @return 길이가 0이하일경우 공백, 나머지 랜덤 대문자
      */
     public static String randomCapitalStr(int length) {
-        return randomStr(length, StringUtils::randomCapitalStr);
+        return randomStrWithSupplier(length, StringUtils::randomCapitalStr);
     }
 
     /**
@@ -71,7 +79,7 @@ public class StringUtils {
      * @return 길이가 0이하일경우 공백, 나머지 랜덤 숫자
      */
     public static String randomNumberStr(int length) {
-        return randomStr(length, StringUtils::randomNumberStr);
+        return randomStrWithSupplier(length, StringUtils::randomNumberStr);
     }
 
     /**
@@ -88,7 +96,7 @@ public class StringUtils {
      * @return 길이가 0이하일경우 공백, 나머지 랜덤 소문자
      */
     public static String randomLowerStr(int length) {
-        return randomStr(length, StringUtils::randomLowerStr);
+        return randomStrWithSupplier(length, StringUtils::randomLowerStr);
     }
 
     /**
@@ -105,7 +113,7 @@ public class StringUtils {
      * @param randomSup 문자제공 함수
      * @return 길이가 0이하일경우 공백, 나머지 문자제공함수에 맞는 랜덤문자
      */
-    private static String randomStr(int length, Supplier<String> randomSup) {
+    private static String randomStrWithSupplier(int length, Supplier<String> randomSup) {
         if (length <= 0) {
             return "";
         }

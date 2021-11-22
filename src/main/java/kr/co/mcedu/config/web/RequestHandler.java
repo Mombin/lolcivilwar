@@ -13,7 +13,8 @@ public class RequestHandler implements WebRequestInterceptor {
     @Override
     public void preHandle(final WebRequest request) throws Exception {
         String servletPath = ((DispatcherServletWebRequest) request).getRequest().getServletPath();
-        if (StringUtils.isEmpty(servletPath) || servletPath.startsWith("/static") || servletPath.startsWith("/error")) {
+        if (StringUtils.isEmpty(servletPath) || servletPath.startsWith("/static") || servletPath.startsWith(
+                "/error") || servletPath.startsWith("/swagger")) {
             return;
         }
         log.info("url: {}", servletPath);

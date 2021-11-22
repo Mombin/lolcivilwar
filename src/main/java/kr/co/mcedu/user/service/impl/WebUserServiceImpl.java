@@ -79,6 +79,7 @@ public class WebUserServiceImpl implements WebUserService {
         data.put(AccessTokenField.GROUP_AUTH, userRepository.getGroupAuthList(userSeq));
         data.put("roles", this.getAuthorities(webUserEntity.getAuthority()));
         data.put("userSeq", webUserEntity.getUserSeq());
+        data.put("lolcwTag", webUserEntity.getLolcwTag());
         String accessToken = jwtTokenProvider.createToken(TokenType.ACCESS_TOKEN, data);
         SecurityContextHolder.getContext().setAuthentication(jwtTokenProvider.getAuthentication(accessToken));
         return accessToken;

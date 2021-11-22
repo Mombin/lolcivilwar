@@ -67,6 +67,11 @@
           location.href = "/"
         })
       }
+
+      function copyLolcwTag() {
+        copyToClipboard($('#lolcwTag').data('lolcwTag'))
+        toast.success("태그가 복사되었습니다.");
+      }
     </script>
     <!-- 컨텐츠페이지의 스크립트 영역이 들어감 -->
     <th:block layout:fragment="script" />

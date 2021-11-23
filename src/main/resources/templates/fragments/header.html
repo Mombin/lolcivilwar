@@ -6,7 +6,7 @@
     <header layout:fragment="headerFragment">
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
             <div class="container-fluid">
-                <a class="navbar-brand" href="#">롤내전 도우미</a>
+                <a class="navbar-brand" href="#">LoL Civil War</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
@@ -45,6 +45,8 @@
                         <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                             <li><a class="dropdown-item" href="/user/message">알림<span class="badge bg-primary rounded-pill" name="messageAlarmCnt" style="margin-left: 5px"></span></a></li>
                             <li><a class="dropdown-item" onclick="logout()" href="#">로그아웃</a></li>
+
+                            <li><span id="lolcwTag" class="dropdown-item" onclick="copyLolcwTag()" th:attr="data-lolcw-tag=|${userInfo.lolcwTag}|">L-TAG : <span th:text="${userInfo.lolcwTag}" th:remove="tag"></span></span></li>
                         </ul>
                     </div>
                 </form>

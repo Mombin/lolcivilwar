@@ -30,4 +30,5 @@ function readMessage() {
         $this.parent().parent().remove();
     });
     getUnreadMessage();
+    callAlarmCount();
 }

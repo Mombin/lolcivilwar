@@ -1,5 +1,6 @@
 package kr.co.mcedu.config.web;
 
+import kr.co.mcedu.utils.SessionUtils;
 import kr.co.mcedu.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ui.ModelMap;
@@ -17,7 +18,8 @@ public class RequestHandler implements WebRequestInterceptor {
                 "/error") || servletPath.startsWith("/swagger")) {
             return;
         }
-        log.info("url: {}", servletPath);
+
+        log.info("url: {}, id: {}, ip: {}", servletPath, SessionUtils.getId(), SessionUtils.getIp());
     }
 
     @Override public void postHandle(final WebRequest request, final ModelMap model) throws Exception {

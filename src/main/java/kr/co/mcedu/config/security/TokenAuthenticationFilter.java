@@ -3,9 +3,11 @@ package kr.co.mcedu.config.security;
 import io.jsonwebtoken.ExpiredJwtException;
 import kr.co.mcedu.user.service.WebUserService;
 import kr.co.mcedu.utils.SessionUtils;
+import kr.co.mcedu.utils.StringUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
@@ -34,7 +36,7 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
         boolean needRefresh = false;
         try {
             if (jwtTokenProvider.validateToken(accessToken)) {
-                SecurityContextHolder.getContext().setAuthentication(jwtTokenProvider.getAuthentication(accessToken));
+                this.setAuthentication(accessToken);
                 long userSeq = jwtTokenProvider.getUserSeq(accessToken);
                 if(webUserService.isRefreshedUser(userSeq)) {
                     needRefresh = true;
@@ -47,7 +49,11 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
             needRefresh = true;
         }
         if (needRefresh) {
-            SessionUtils.refreshProcess(request, response);
+            accessToken = SessionUtils.refreshProcess(request, response);
+        }
+
+        if (!StringUtils.isEmpty(accessToken)) {
+            this.setAuthentication(accessToken);
         }
 
         filterChain.doFilter(request, response);
@@ -58,5 +64,10 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
         return securityIgnore.stream()
                              .anyMatch(pattern -> new AntPathMatcher().match(pattern, request.getServletPath()));
 
+    }
+
+    private void setAuthentication(String token) {
+        Authentication authentication = jwtTokenProvider.getAuthentication(token);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 }

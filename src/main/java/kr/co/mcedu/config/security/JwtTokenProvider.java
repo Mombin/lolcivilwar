@@ -1,10 +1,11 @@
 package kr.co.mcedu.config.security;
 
 import io.jsonwebtoken.*;
+import kr.co.mcedu.group.model.GroupAuthDto;
+import kr.co.mcedu.utils.ModelUtils;
 import kr.co.mcedu.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -124,7 +125,10 @@ public class JwtTokenProvider {
 
     public Authentication getAuthentication(String token)  {
         UserDetails userDetails  = new User(this.getId(token), "", this.getAuth(token));
-        return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
+        LolcwAuthentication authentication = new LolcwAuthentication(userDetails, "", userDetails.getAuthorities());
+        authentication.setGroupAuth(getGroupAuth(token));
+        authentication.setUserSeq(getUserSeq(token));
+        return authentication;
     }
 
     private String getId(String token) {
@@ -158,5 +162,27 @@ public class JwtTokenProvider {
                    .setSigningKey(encodedSecretKey)
                    .parseClaimsJws(token)
                    .getBody();
+    }
+
+    /**
+     * token 으로 부터 GroupAuthDto Map 추출
+     * @param accessToken
+     * @return GroupAuthDto Map
+     */
+    private Map<Long, GroupAuthDto> getGroupAuth(String accessToken) {
+        Claims claim = getClaim(accessToken);
+        List list = claim.get(AccessTokenField.GROUP_AUTH, List.class);
+        if (list.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
+        Map<Long, GroupAuthDto> groupAuthDtoMap = new HashMap<>();
+        for (final Object o : list) {
+            GroupAuthDto groupAuthDto = ModelUtils.map(o, GroupAuthDto.class);
+            if (Objects.nonNull(groupAuthDto.getGroupSeq())) {
+                groupAuthDtoMap.put(groupAuthDto.getGroupSeq(), groupAuthDto);
+            }
+        }
+        return groupAuthDtoMap;
     }
 }

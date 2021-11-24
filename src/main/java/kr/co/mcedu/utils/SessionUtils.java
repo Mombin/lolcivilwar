@@ -1,17 +1,17 @@
 package kr.co.mcedu.utils;
 
-import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import kr.co.mcedu.config.exception.AccessDeniedException;
 import kr.co.mcedu.config.exception.ServiceException;
-import kr.co.mcedu.config.security.AccessTokenField;
 import kr.co.mcedu.config.security.JwtTokenProvider;
+import kr.co.mcedu.config.security.LolcwAuthentication;
 import kr.co.mcedu.config.security.TokenType;
 import kr.co.mcedu.group.entity.GroupAuthEnum;
 import kr.co.mcedu.group.model.GroupAuthDto;
 import kr.co.mcedu.user.model.UserInfo;
 import kr.co.mcedu.user.service.WebUserService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -20,8 +20,9 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Optional;
 import java.util.function.Predicate;
 
 @Slf4j
@@ -76,14 +77,11 @@ public class SessionUtils {
      * @return userSeq, 없을경우 0
      */
     public static long getUserSeq() {
-        HttpServletRequest request = getRequest();
-        final AtomicReference<String> token = new AtomicReference<>("");
-        Arrays.stream(request.getCookies()).forEach(it -> {
-            if (TokenType.REFRESH_TOKEN.getCookieName().equals(it.getName())) {
-                token.set(it.getValue());
-            }
-        });
-        return jwtTokenProvider.getUserSeq(token.get());
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (!(authentication instanceof LolcwAuthentication)) {
+            return 0;
+        }
+        return ((LolcwAuthentication) authentication).getUserSeq();
     }
 
     private static HttpServletRequest getRequest() {
@@ -95,20 +93,11 @@ public class SessionUtils {
     }
 
     public static Map<Long, GroupAuthDto> getGroupAuth() {
-        Claims claim = jwtTokenProvider.getClaim(getAccessToken());
-        List list = claim.get(AccessTokenField.GROUP_AUTH, List.class);
-        if (list.isEmpty()) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (!(authentication instanceof LolcwAuthentication)) {
             return Collections.emptyMap();
         }
-
-        Map<Long, GroupAuthDto> groupAuthDtoMap = new HashMap<>();
-        for (final Object o : list) {
-            GroupAuthDto groupAuthDto = ModelUtils.map(o, GroupAuthDto.class);
-            if (Objects.nonNull(groupAuthDto.getGroupSeq())) {
-                groupAuthDtoMap.put(groupAuthDto.getGroupSeq(), groupAuthDto);
-            }
-        }
-        return groupAuthDtoMap;
+        return ((LolcwAuthentication) authentication).getGroupAuth();
     }
 
     public static GroupAuthEnum getGroupAuth(Long groupSeq) {
@@ -126,19 +115,16 @@ public class SessionUtils {
         }
     }
 
-    private static String getAccessToken() {
-        return jwtTokenProvider.parseTokenCookie(getRequest(),TokenType.ACCESS_TOKEN);
+    public static String refreshAccessToken() {
+        return refreshProcess(getRequest(), getResponse());
     }
 
-    public static void refreshAccessToken() {
-        refreshProcess(getRequest(), getResponse());
-    }
-
-    public static void refreshProcess(HttpServletRequest request, HttpServletResponse response) {
+    public static String refreshProcess(HttpServletRequest request, HttpServletResponse response) {
         String refreshToken = jwtTokenProvider.parseTokenCookie(request, TokenType.REFRESH_TOKEN);
+        String accessToken = "";
         try {
             if (jwtTokenProvider.validateToken(refreshToken)) {
-                String accessToken = webUserService.getAccessToken(refreshToken);
+                accessToken = webUserService.getAccessToken(refreshToken);
                 Cookie accessTokenCookie = new Cookie(TokenType.ACCESS_TOKEN.getCookieName(), accessToken);
                 accessTokenCookie.setPath("/");
                 response.addCookie(accessTokenCookie);
@@ -151,6 +137,7 @@ public class SessionUtils {
             log.debug("", serviceException);
             jwtTokenProvider.deleteTokenCookie(response, TokenType.REFRESH_TOKEN);
         }
+        return accessToken;
     }
 
     /**

@@ -4,19 +4,26 @@ import kr.co.mcedu.config.exception.AccessDeniedException;
 import kr.co.mcedu.config.exception.ServiceException;
 import kr.co.mcedu.user.entity.WebUserEntity;
 import kr.co.mcedu.utils.SessionUtils;
+import lombok.Getter;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
+@Getter
 public enum GroupAuthEnum {
-    OWNER("소유자"),
-    MANAGER("관리자"),
-    MATCHER("주최자"),
-    USER("사용자"),
-    NONE("권한부족");
+    OWNER("소유자", 4),
+    MANAGER("관리자", 3),
+    MATCHER("주최자", 2),
+    USER("사용자", 1),
+    NONE("권한부족", 0);
 
-    GroupAuthEnum(String authName) {
+    private final String authName;
+    private final int order;
+
+    GroupAuthEnum(String authName, int order) {
+        this.authName = authName;
+        this.order = order;
     }
 
 

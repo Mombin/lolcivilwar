@@ -80,4 +80,13 @@ public class GroupManageRepository {
                            .leftJoin(customUserEntity.summonerEntity, summonerEntity).fetchJoin()
                            .where(groupEntity.groupSeq.in(groupSeqs)).fetch();
     }
+
+    public List<MatchAttendeesEntity> getMatchAttendees(Collection<Long> matchSeqs) {
+        if (matchSeqs.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        return queryFactory.selectFrom(matchAttendeesEntity)
+                           .where(matchAttendeesEntity.customMatch.matchSeq.in(matchSeqs)).fetch();
+    }
 }

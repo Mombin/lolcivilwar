@@ -7,10 +7,12 @@ import kr.co.mcedu.match.model.response.DiceResponse;
 import kr.co.mcedu.match.service.CustomMatchService;
 import kr.co.mcedu.utils.ResponseWrapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/custom")
@@ -22,7 +24,13 @@ class CustomMatchController {
      */
     @PutMapping("/match")
     public Object saveResult(@RequestBody CustomMatchSaveRequest customMatchSaveRequest) throws ServiceException {
-        customMatchService.saveCustomMatchResult(customMatchSaveRequest);
+        log.info("param: {}", customMatchSaveRequest);
+        try {
+            customMatchService.saveCustomMatchResult(customMatchSaveRequest);
+        } catch (ServiceException exception) {
+            return ResponseWrapper.fail(exception.getViewMessage()).build();
+        }
+
         return new ResponseWrapper().build();
     }
 

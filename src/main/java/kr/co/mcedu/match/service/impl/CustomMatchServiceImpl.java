@@ -39,6 +39,9 @@ public class CustomMatchServiceImpl implements CustomMatchService {
     @Transactional
     public void saveCustomMatchResult(CustomMatchSaveRequest customMatchSaveRequest) throws ServiceException {
         SessionUtils.groupAuthorityCheck(customMatchSaveRequest.getGroupSeq(), GroupAuthEnum::isMatchableAuth);
+        if (customMatchSaveRequest.getMatchResult().isEmpty()) {
+            throw new ServiceException("잘못된 데이터입니다.");
+        }
 
         GroupEntity groupEntity = groupService.getGroup(customMatchSaveRequest.getGroupSeq());
         CustomMatchEntity entity = new CustomMatchEntity();

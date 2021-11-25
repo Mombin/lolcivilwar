@@ -12,6 +12,7 @@ import kr.co.mcedu.user.model.request.UserRegisterRequest;
 import kr.co.mcedu.user.repository.WebUserRepository;
 import kr.co.mcedu.user.service.UserAlarmService;
 import kr.co.mcedu.utils.LocalCacheManager;
+import kr.co.mcedu.utils.StringUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -22,11 +23,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import javax.transaction.Transactional;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -35,6 +34,25 @@ public class UserDetailServiceImpl implements UserDetailsService {
     private final JwtTokenProvider jwtTokenProvider;
     private final LocalCacheManager localCacheManager;
     private final UserAlarmService userAlarmService;
+
+    @PostConstruct
+    @Transactional
+    @Deprecated
+    public void createLolcwTag() {
+        List<WebUserEntity> webUserEntities = webUserRepository.findAllByLolcwTagIsNull();
+        webUserEntities.forEach(webUserEntity -> {
+            String lolcwTag = StringUtils.getLolcwTag();
+            while(true) {
+                Optional<WebUserEntity> findByTag = webUserRepository.findWebUserEntityByLolcwTag(lolcwTag);
+                if (!findByTag.isPresent()) {
+                    break;
+                }
+                lolcwTag = StringUtils.getLolcwTag();
+            }
+            webUserEntity.setLolcwTag(lolcwTag);
+            webUserRepository.saveAndFlush(webUserEntity);
+        });
+    }
 
     @Transactional
     public String login(JwtRequest jwtRequest) throws ServiceException {
@@ -90,11 +108,21 @@ public class UserDetailServiceImpl implements UserDetailsService {
         if (this.checkUserByUserId(request.getId()) || this.checkUserByEmail(request.getEmail())) {
             throw new ServiceException("잘못된 접근입니다.");
         }
+        String lolcwTag = StringUtils.getLolcwTag();
+        while(true) {
+            Optional<WebUserEntity> findByTag = webUserRepository.findWebUserEntityByLolcwTag(lolcwTag);
+            if (!findByTag.isPresent()) {
+                break;
+            }
+            lolcwTag = StringUtils.getLolcwTag();
+        }
+
         WebUserEntity entity = new WebUserEntity();
         entity.setUserId(request.getId());
         entity.setPassword(BCrypt.hashpw(request.getPassword(), BCrypt.gensalt()));
         entity.setEmail(request.getEmail());
         entity.setAuthority(UserRole.USER.getCd());
+        entity.setLolcwTag(lolcwTag);
         entity = webUserRepository.save(entity);
         if(entity.getUserSeq() == null ) {
             throw new ServiceException("잘못된 접근입니다.");

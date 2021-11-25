@@ -34,7 +34,7 @@ public class ResponseWrapper {
     }
 
     public static ResponseWrapper fail(String message) {
-        return new ResponseWrapper(ResponseResult.FAIL);
+        return new ResponseWrapper(ResponseResult.FAIL, "", message);
     }
 
     public Map<String, Object> build() {

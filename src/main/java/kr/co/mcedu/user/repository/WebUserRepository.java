@@ -10,4 +10,12 @@ import java.util.*;
 public interface WebUserRepository extends JpaRepository<WebUserEntity, Long> {
     Optional<WebUserEntity> findWebUserEntityByUserId(String userId);
     Optional<WebUserEntity> findWebUserEntityByEmail(String email);
+    Optional<WebUserEntity> findWebUserEntityByLolcwTag(String lolcwTag);
+
+    /**
+     * 이후 패치에서 삭제
+     * @return lolcw 태그 지정안된 유저
+     */
+    @Deprecated
+    List<WebUserEntity> findAllByLolcwTagIsNull();
 }

@@ -3,6 +3,7 @@ package kr.co.mcedu.group.repository;
 import com.querydsl.core.QueryResults;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import kr.co.mcedu.group.entity.CustomUserEntity;
+import kr.co.mcedu.group.entity.GroupAuthEntity;
 import kr.co.mcedu.group.entity.GroupEntity;
 import kr.co.mcedu.match.entity.MatchAttendeesEntity;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +17,7 @@ import javax.persistence.EntityManager;
 import java.util.*;
 
 import static kr.co.mcedu.group.entity.QCustomUserEntity.customUserEntity;
+import static kr.co.mcedu.group.entity.QGroupAuthEntity.groupAuthEntity;
 import static kr.co.mcedu.group.entity.QGroupEntity.groupEntity;
 import static kr.co.mcedu.match.entity.QCustomMatchEntity.customMatchEntity;
 import static kr.co.mcedu.match.entity.QMatchAttendeesEntity.matchAttendeesEntity;
@@ -88,5 +90,20 @@ public class GroupManageRepository {
 
         return queryFactory.selectFrom(matchAttendeesEntity)
                            .where(matchAttendeesEntity.customMatch.matchSeq.in(matchSeqs)).fetch();
+    }
+
+    public Optional<GroupAuthEntity> getGroupAuthByGroupSeqAndUserSeq(Long groupSeq, Long userSeq) {
+        if (userSeq == null) {
+            return Optional.empty();
+        }
+
+        return Optional.ofNullable(queryFactory.select(groupAuthEntity).from(groupAuthEntity)
+                                               .where(groupAuthEntity.group.groupSeq.eq(groupSeq),
+                                                       groupAuthEntity.webUser.userSeq.eq(userSeq))
+                                               .fetchOne());
+    }
+
+    public void delete(final GroupAuthEntity groupAuthEntity) {
+        entityManager.remove(groupAuthEntity);
     }
 }

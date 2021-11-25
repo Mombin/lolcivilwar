@@ -8,6 +8,7 @@ import kr.co.mcedu.config.security.LolcwAuthentication;
 import kr.co.mcedu.config.security.TokenType;
 import kr.co.mcedu.group.entity.GroupAuthEnum;
 import kr.co.mcedu.group.model.GroupAuthDto;
+import kr.co.mcedu.user.model.UserInfo;
 import kr.co.mcedu.user.service.WebUserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
@@ -137,5 +138,26 @@ public class SessionUtils {
             jwtTokenProvider.deleteTokenCookie(response, TokenType.REFRESH_TOKEN);
         }
         return accessToken;
+    }
+
+    /**
+     * 웹에서 쓸 userInfo 생성
+     * @return userInfo
+     */
+    public static UserInfo getUserInfo() {
+        String accessToken = getAccessToken();
+        if (StringUtils.isEmpty(accessToken)) {
+            return null;
+        }
+        try {
+            Claims claim = jwtTokenProvider.getClaim(accessToken);
+            String lolcwTag = claim.get("lolcwTag", String.class);
+
+            UserInfo userInfo = new UserInfo();
+            userInfo.setLolcwTag(lolcwTag);
+            return userInfo;
+        } catch (ExpiredJwtException ignore) {
+            return null;
+        }
     }
 }

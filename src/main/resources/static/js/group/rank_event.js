@@ -26,10 +26,12 @@ function bindEvent() {
             let date = (item.lastDate || []).slice();
             let lastDate;
             if (date) {
-                date[1] = date[1] - 1;
-                lastDate = moment(date.slice(0, 6));
-                if (moment().diff(lastDate, 'day') > 10) {
-                    return;
+                if (Number($seasonSelector.val()) === currentGroup.defaultSeason.seasonSeq) {
+                    date[1] = date[1] - 1;
+                    lastDate = moment(date.slice(0, 6));
+                    if (moment().diff(lastDate, 'day') > 10) {
+                        return;
+                    }
                 }
             } else {
                 return;

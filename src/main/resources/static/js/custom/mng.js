@@ -62,6 +62,8 @@ function setMyGroup(data) {
         matchRate[text] = item.positionWinRate;
         tierPoints[text] = item.tierPoint
     });
+
+    $('#seasonName').val(data.defaultSeason.seasonName).data('seasonSeq', data.defaultSeason.seasonSeq)
 }
 
 /* 10명 초과 체크시 해제 */

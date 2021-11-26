@@ -1,9 +1,11 @@
 package kr.co.mcedu.group.model;
 
 import kr.co.mcedu.group.entity.CustomUserEntity;
-import kr.co.mcedu.group.entity.CustomUserResponse;
+import kr.co.mcedu.group.entity.GroupSeasonEntity;
+import kr.co.mcedu.group.model.response.CustomUserResponse;
 import kr.co.mcedu.group.entity.GroupAuthEnum;
 import kr.co.mcedu.group.entity.GroupEntity;
+import kr.co.mcedu.group.model.response.GroupSeasonResponse;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.util.Pair;
@@ -28,6 +30,8 @@ public class GroupResponse {
     private List<CustomUserResponse> customUser;
 
     private GroupAuthEnum auth;
+
+    private GroupSeasonResponse defaultSeason;
 
     public GroupResponse setEntity(GroupEntity groupEntity) {
         this.groupSeq = groupEntity.getGroupSeq();
@@ -67,5 +71,12 @@ public class GroupResponse {
 
         this.customUser.addAll(map.values());
         return this;
+    }
+
+    public void setSeasonEntity(final GroupSeasonEntity groupSeasonEntity) {
+        GroupSeasonResponse groupSeasonResponse = new GroupSeasonResponse();
+        groupSeasonResponse.setSeasonSeq(groupSeasonEntity.getGroupSeasonSeq());
+        groupSeasonResponse.setSeasonName(groupSeasonEntity.getSeasonName());
+        this.defaultSeason = groupSeasonResponse;
     }
 }

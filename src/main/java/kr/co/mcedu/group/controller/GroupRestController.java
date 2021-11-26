@@ -47,16 +47,21 @@ class GroupRestController {
         return result.build();
     }
 
+    @PostMapping("/v1/my")
+    public Object getMyGroupV1() {
+        return new ResponseWrapper().setData(groupService.findMyGroups()).build();
+    }
+
     @PostMapping("/my")
-    public Object getMyGroup() throws AccessDeniedException {
-        List<GroupResponse> list = groupService.findMyGroups();
+    public Object getMyGroupV0() throws AccessDeniedException {
+        List<GroupResponse> list = groupService.findMyGroupsWithDefaultSeason();
         list.forEach(it -> it.getCustomUser().sort(Comparator.comparing(CustomUserResponse::getTierPoint).reversed()));
         return new ResponseWrapper().setData(list).build();
     }
 
     @PostMapping("/my-match")
     public Object getMyMatchGroup() throws AccessDeniedException {
-        List<GroupResponse> list = groupService.findMyGroups().stream().filter(it -> GroupAuthEnum.isMatchableAuth(
+        List<GroupResponse> list = groupService.findMyGroupsWithDefaultSeason().stream().filter(it -> GroupAuthEnum.isMatchableAuth(
                 Optional.ofNullable(it.getAuth()).orElse(GroupAuthEnum.NONE))).collect(Collectors.toList());
         list.forEach(it -> it.getCustomUser().sort(Comparator.comparing(CustomUserResponse::getLastDate,
                 Comparator.nullsLast(Comparator.reverseOrder()))));
@@ -65,9 +70,9 @@ class GroupRestController {
 
     @PostMapping("/my-manage")
     public Object getMyManagerGroup() throws AccessDeniedException {
-        List<GroupResponse> list = groupService.findMyGroups().stream()
-                                                  .filter(it -> GroupAuthEnum.isManageableAuth(it.getAuth()))
-                                                  .collect(Collectors.toList());
+        List<GroupResponse> list = groupService.findMyGroupsWithDefaultSeason().stream()
+                                               .filter(it -> GroupAuthEnum.isManageableAuth(it.getAuth()))
+                                               .collect(Collectors.toList());
         list.forEach(it -> it.getCustomUser().clear());
         return new ResponseWrapper().setData(list).build();
     }

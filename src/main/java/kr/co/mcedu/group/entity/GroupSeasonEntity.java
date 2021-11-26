@@ -1,6 +1,7 @@
 package kr.co.mcedu.group.entity;
 
 import kr.co.mcedu.common.entity.BaseTimeEntity;
+import kr.co.mcedu.group.model.response.GroupSeasonResponse;
 import kr.co.mcedu.user.entity.WebUserEntity;
 import lombok.Getter;
 import lombok.Setter;
@@ -40,5 +41,12 @@ public class GroupSeasonEntity extends BaseTimeEntity {
         groupSeasonEntity.setCreateUser(owner);
         groupSeasonEntity.setGroup(group);
         return groupSeasonEntity;
+    }
+
+    public GroupSeasonResponse toResponse() {
+        GroupSeasonResponse groupSeasonResponse = new GroupSeasonResponse();
+        groupSeasonResponse.setSeasonSeq(this.groupSeasonSeq);
+        groupSeasonResponse.setSeasonName(this.seasonName);
+        return groupSeasonResponse;
     }
 }

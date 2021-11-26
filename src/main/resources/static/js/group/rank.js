@@ -1,4 +1,4 @@
-let currentGroup = {};
+let currentGroup = {}, $seasonSelector = null;
 
 function setList(list) {
     const $list = $("#list")
@@ -32,7 +32,19 @@ function setList(list) {
 // 그룹 선택 이벤트
 function changeGroupSelect() {
     currentGroup = $(this).find('option:selected').data('group');
+    setSeasons();
     $('#position .nav-link.active').trigger('click');
+}
+
+function setSeasons() {
+    $seasonSelector.empty();
+    $.each(currentGroup.seasons, function (idx, season) {
+        let option = $('<option>').val(season.seasonSeq).html(season.seasonName);
+        if (season.seasonSeq === currentGroup.defaultSeason.seasonSeq) {
+            option.attr('selected', true);
+        }
+        $seasonSelector.append(option);
+    });
 }
 
 function groupChangeFunction(groupList) {
@@ -43,4 +55,20 @@ function groupChangeFunction(groupList) {
             return;
         }
     }
+}
+
+function callRankData() {
+    const param = {
+        groupSeq: currentGroup.groupSeq,
+        seasonSeq: $seasonSelector.val()
+    }
+    common_ajax.call('/api/group/v1/rank', 'POST', false, param, function (res) {
+        if (res.code !== API_RESULT.SUCCESS) {
+            toast.error(res.message)
+            return;
+        }
+        $.each(res.data, function (idx, obj) {
+            currentGroup.customUser[$seasonSelector.val()].push(obj);
+        })
+    });
 }

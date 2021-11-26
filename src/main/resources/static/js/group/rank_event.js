@@ -7,6 +7,7 @@ $(document).ready(function () {
 // 객체 바인딩
 function bindObject() {
     $groupSelector = $("#groupSelector")
+    $seasonSelector = $('#season');
 }
 
 // 이벤트 바인딩
@@ -16,7 +17,12 @@ function bindEvent() {
         $(this).addClass('active');
         let position = $(this).data('position');
         let list = [];
-        $.each(currentGroup.customUser, function (index, item) {
+
+        if (currentGroup.customUser[$seasonSelector.val()] === undefined) {
+            currentGroup.customUser[$seasonSelector.val()] = [];
+            callRankData()
+        }
+        $.each(currentGroup.customUser[$seasonSelector.val()], function (index, item) {
             let date = (item.lastDate || []).slice();
             let lastDate;
             if (date) {
@@ -63,10 +69,13 @@ function bindEvent() {
         });
         setList(list);
     });
+    $seasonSelector.on('change', function () {
+        $("#position .nav-link.active").trigger('click');
+    });
 
     $groupSelector.on('change', changeGroupSelect);
 }
 
 function init() {
-    callMyGroup('/api/group/my', groupChangeFunction);
+    callMyGroup('/api/group/v1/my', groupChangeFunction);
 }

@@ -5,13 +5,13 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import kr.co.mcedu.group.entity.CustomUserEntity;
 import kr.co.mcedu.group.entity.GroupEntity;
 import kr.co.mcedu.group.entity.GroupSeasonEntity;
+import kr.co.mcedu.match.entity.CustomMatchEntity;
 import kr.co.mcedu.match.entity.MatchAttendeesEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
 import javax.persistence.EntityManager;
@@ -112,5 +112,10 @@ public class GroupManageRepository {
 
     public List<GroupSeasonEntity> getGroupSeasons(final Set<Long> seasonSeqs) {
         return queryFactory.selectFrom(groupSeasonEntity).where(groupSeasonEntity.groupSeasonSeq.in(seasonSeqs)).fetch();
+    }
+
+    public List<CustomMatchEntity> getCustomMatchByGroupSeqAndSeasonSeq(long groupSeq, Long seasonSeq) {
+        return queryFactory.selectFrom(customMatchEntity).where(customMatchEntity.group.groupSeq.eq(groupSeq),
+                customMatchEntity.groupSeason.groupSeasonSeq.eq(seasonSeq)).fetch();
     }
 }

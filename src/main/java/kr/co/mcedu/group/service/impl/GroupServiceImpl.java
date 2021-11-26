@@ -14,6 +14,7 @@ import kr.co.mcedu.group.repository.CustomUserRepository;
 import kr.co.mcedu.group.repository.GroupAuthRepository;
 import kr.co.mcedu.group.repository.GroupManageRepository;
 import kr.co.mcedu.group.repository.GroupRepository;
+import kr.co.mcedu.group.service.GroupResultService;
 import kr.co.mcedu.group.service.GroupService;
 import kr.co.mcedu.match.entity.CustomMatchEntity;
 import kr.co.mcedu.match.entity.MatchAttendeesEntity;
@@ -27,18 +28,14 @@ import kr.co.mcedu.user.entity.WebUserEntity;
 import kr.co.mcedu.user.service.WebUserService;
 import kr.co.mcedu.utils.LocalCacheManager;
 import kr.co.mcedu.utils.SessionUtils;
-import kr.co.mcedu.utils.TransactionUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import javax.annotation.PostConstruct;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
@@ -58,39 +55,7 @@ public class GroupServiceImpl implements GroupService {
     private final SummonerService summonerService;
     private final GroupManageRepository groupManageRepository;
     private final MatchRepository matchRepository;
-    private final TransactionUtils transactionUtils;
-
-
-    @Deprecated
-    @PostConstruct
-    public void init() {
-        transactionUtils.transaction(this::seasonDb);
-    }
-
-    @Deprecated
-    public void seasonDb() {
-        List<GroupEntity> all = groupRepository.findAll();
-        List<Long> groupSeqs = all.stream().map(GroupEntity::getGroupSeq).collect(Collectors.toList());
-
-        Map<Long, List<GroupSeasonEntity>> groupSeasonMap = groupManageRepository.getGroupSeasonsByGroupSeqs(groupSeqs).stream()
-                                                                                 .collect(Collectors.groupingBy(
-                                                                                         it -> it.getGroup()
-                                                                                                 .getGroupSeq()));
-
-        all.forEach(group -> {
-            List<GroupSeasonEntity> list = groupSeasonMap.get(group.getGroupSeq());
-            if (list == null) {
-                WebUserEntity owner = null;
-                Optional<GroupAuthEntity> groupAuth = groupAuthRepository.findByGroupAndGroupAuth(group, GroupAuthEnum.OWNER);
-                if (groupAuth.isPresent()) {
-                    owner = groupAuth.get().getWebUser();
-                }
-                GroupSeasonEntity groupSeasonEntity = GroupSeasonEntity.defaultSeason(owner, group);
-                GroupSeasonEntity save = groupManageRepository.save(groupSeasonEntity);
-                groupManageRepository.updateAllGroupSeason(save);
-            }
-        });
-    }
+    private final GroupResultService groupResultService;
 
     /**
      * groupSeq를 이용하여 해당 GroupEntity 가져옴
@@ -142,7 +107,7 @@ public class GroupServiceImpl implements GroupService {
      */
     @Transactional
     @Override
-    public List<GroupResponse> findMyGroups() {
+    public List<GroupResponse> findMyGroupsWithDefaultSeason() {
         Map<Long, GroupAuthDto> groupAuth = SessionUtils.getGroupAuth();
         List<GroupEntity> groupEntities = groupManageRepository.getGroupEntities(groupAuth.keySet());
         ArrayList<GroupResponse> list = new ArrayList<>();
@@ -153,7 +118,14 @@ public class GroupServiceImpl implements GroupService {
                                                                                   .filter(GroupSeasonEntity::getDefaultSeason)
                                                                                   .findFirst();
             defaultGroupSeason.ifPresent(groupResponse::setSeasonEntity);
-            this.setEntityToGroupResponse(groupResponse, groupEntity);
+            groupResponse.setGroupEntity(groupEntity);
+            try {
+                List<CustomUserResponse> customUserResponses = groupResultService.getCustomUserBySeason(new GroupResultRequest(groupEntity.getGroupSeq(), groupResponse.getDefaultSeason().getSeasonSeq()));
+                groupResponse.setCustomUser(customUserResponses);
+            } catch (DataNotExistException exception) {
+                log.error("", exception);
+                groupResponse.setCustomUser(Collections.emptyList());
+            }
             groupResponse.setAuth(groupAuth.get(groupEntity.getGroupSeq()).getGroupAuth());
 
             list.add(groupResponse);
@@ -498,43 +470,27 @@ public class GroupServiceImpl implements GroupService {
         return groupSeasons.get(0);
     }
 
-    public void setEntityToGroupResponse(GroupResponse groupResponse, GroupEntity groupEntity) {
-        groupResponse.setGroupSeq(groupEntity.getGroupSeq());
-        groupResponse.setGroupName(groupEntity.getGroupName());
-        groupResponse.setOwner(groupEntity.getOwner());
-        groupResponse.setAuth(null);
-
-        GroupSeasonResponse defaultSeason = groupResponse.getDefaultSeason();
-
-        Map<Long, CustomUserResponse> map = groupEntity.getCustomUser().stream().collect(
-                Collectors.toMap(CustomUserEntity::getSeq, CustomUserEntity::toCustomUserResponse));
-
-        List<CustomMatchEntity> customMatchEntities = groupManageRepository.getCustomMatchByGroupSeqAndSeasonSeq(groupResponse.getGroupSeq(), defaultSeason.getSeasonSeq());
-        customMatchEntities.forEach(it -> it.getMatchAttendees().forEach(matchAttendees -> {
-            Optional.ofNullable(matchAttendees.getCustomUserEntity()).map(CustomUserEntity::getSeq).map(map::get)
-                    .ifPresent(target -> {
-
-                        Pair<Integer, Integer> pair = target.getPositionWinRate()
-                                                            .getOrDefault(matchAttendees.getPosition(), Pair.of(0, 0));
-                        Pair<Integer, Integer> newPair = Pair.of(pair.getFirst() + 1,
-                                matchAttendees.isMatchResult() ? pair.getSecond() + 1 : pair.getSecond());
-                        target.getPositionWinRate().put(matchAttendees.getPosition(), newPair);
-
-                        target.totalIncrease();
-                        if (matchAttendees.isMatchResult()) {
-                            target.winIncrease();
-                        }
-                        LocalDateTime createDateOrNow = Optional.ofNullable(matchAttendees.getCreatedDate())
-                                                                .orElseGet(LocalDateTime::now);
-                        boolean isBeforeCreateDateOrNow = Optional.ofNullable(target.getLastDate())
-                                                                  .map(localDateTime -> localDateTime.isBefore(
-                                                                          createDateOrNow)).orElse(true);
-                        if (isBeforeCreateDateOrNow) {
-                            target.setLastDate(createDateOrNow);
-                        }
-                    });
-        }));
-
-        groupResponse.getCustomUser().addAll(map.values());
+    @Override
+    @Transactional
+    public List<GroupResponse> findMyGroups() {
+        Map<Long, GroupAuthDto> groupAuth = SessionUtils.getGroupAuth();
+        List<GroupEntity> groupEntities = groupManageRepository.getGroupEntities(groupAuth.keySet());
+        ArrayList<GroupResponse> list = new ArrayList<>();
+        groupEntities.forEach(groupEntity -> {
+            GroupResponse groupResponse = new GroupResponse();
+            List<GroupSeasonEntity> groupSeasonEntities = groupManageRepository.getGroupSeasonsByGroupSeqs(Collections.singleton(groupEntity.getGroupSeq()));
+            Optional<GroupSeasonEntity> defaultGroupSeason = groupSeasonEntities.stream()
+                                                                                .filter(GroupSeasonEntity::getDefaultSeason)
+                                                                                .findFirst();
+            defaultGroupSeason.ifPresent(groupResponse::setSeasonEntity);
+            groupResponse.setSeasons(groupSeasonEntities.stream().map(GroupSeasonEntity::toResponse)
+                                                        .sorted(Comparator.comparing(GroupSeasonResponse::getSeasonSeq).reversed())
+                                                        .collect(Collectors.toList()));
+            groupResponse.setGroupEntity(groupEntity);
+            groupResponse.setAuth(groupAuth.get(groupEntity.getGroupSeq()).getGroupAuth());
+            list.add(groupResponse);
+        });
+        return list;
     }
+
 }

@@ -20,7 +20,7 @@ public interface GroupService {
 
     Long makeGroup(GroupSaveRequest groupSaveRequest) throws ServiceException;
 
-    List<GroupResponse> findMyGroups() throws AccessDeniedException;
+    List<GroupResponse> findMyGroupsWithDefaultSeason() throws AccessDeniedException;
 
     void addSummonerInGroup(CustomUserSaveRequest customUserSaveRequest) throws ServiceException;
 
@@ -44,4 +44,6 @@ public interface GroupService {
     void saveTierPoint(List<SaveTierPointRequest> request) throws AccessDeniedException;
 
     GroupSeasonEntity getGroupSeasonEntity(Long seasonSeq) throws DataNotExistException;
+
+    List<GroupResponse> findMyGroups();
 }

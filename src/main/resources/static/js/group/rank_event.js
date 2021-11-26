@@ -25,11 +25,13 @@ function bindEvent() {
         $.each(currentGroup.customUser[$seasonSelector.val()], function (index, item) {
             let date = (item.lastDate || []).slice();
             let lastDate;
-            if (date && Number($seasonSelector.val()) === currentGroup.defaultSeason.seasonSeq) {
-                date[1] = date[1] - 1;
-                lastDate = moment(date.slice(0, 6));
-                if (moment().diff(lastDate, 'day') > 10) {
-                    return;
+            if (date) {
+                if (Number($seasonSelector.val()) === currentGroup.defaultSeason.seasonSeq) {
+                    date[1] = date[1] - 1;
+                    lastDate = moment(date.slice(0, 6));
+                    if (moment().diff(lastDate, 'day') > 10) {
+                        return;
+                    }
                 }
             } else {
                 return;

@@ -1,6 +1,8 @@
-package kr.co.mcedu.group.entity;
+package kr.co.mcedu.group.model.response;
 
 import kr.co.mcedu.common.entity.BaseTimeEntity;
+import kr.co.mcedu.group.entity.CustomUserEntity;
+import kr.co.mcedu.group.entity.GroupEntity;
 import kr.co.mcedu.summoner.entity.SummonerEntity;
 import lombok.Getter;
 import lombok.Setter;

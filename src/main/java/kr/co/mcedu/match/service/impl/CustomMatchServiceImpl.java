@@ -4,6 +4,7 @@ import kr.co.mcedu.config.exception.ServiceException;
 import kr.co.mcedu.group.entity.CustomUserEntity;
 import kr.co.mcedu.group.entity.GroupAuthEnum;
 import kr.co.mcedu.group.entity.GroupEntity;
+import kr.co.mcedu.group.entity.GroupSeasonEntity;
 import kr.co.mcedu.group.service.GroupService;
 import kr.co.mcedu.match.entity.CustomMatchEntity;
 import kr.co.mcedu.match.model.CustomMatchResult;
@@ -44,8 +45,10 @@ public class CustomMatchServiceImpl implements CustomMatchService {
         }
 
         GroupEntity groupEntity = groupService.getGroup(customMatchSaveRequest.getGroupSeq());
+        GroupSeasonEntity groupSeasonEntity = groupService.getGroupSeasonEntity(customMatchSaveRequest.getSeasonSeq());
         CustomMatchEntity entity = new CustomMatchEntity();
         entity.setGroup(groupEntity);
+        entity.setGroupSeason(groupSeasonEntity);
         entity = customMatchRepository.save(entity);
 
         for (CustomMatchResult it : customMatchSaveRequest.getMatchResult()) {

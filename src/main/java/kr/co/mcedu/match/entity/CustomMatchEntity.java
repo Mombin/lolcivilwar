@@ -2,6 +2,7 @@ package kr.co.mcedu.match.entity;
 
 import kr.co.mcedu.common.entity.BaseTimeEntity;
 import kr.co.mcedu.group.entity.GroupEntity;
+import kr.co.mcedu.group.entity.GroupSeasonEntity;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.Fetch;
@@ -37,4 +38,7 @@ public class CustomMatchEntity extends BaseTimeEntity {
     @Column(name = "del_yn", columnDefinition = "boolean default false")
     private boolean delYn = false;
 
+    @ManyToOne
+    @JoinColumn(name = "group_season_seq", referencedColumnName = "group_season_seq")
+    private GroupSeasonEntity groupSeason;
 }

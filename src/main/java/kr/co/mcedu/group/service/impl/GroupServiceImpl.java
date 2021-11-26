@@ -29,6 +29,7 @@ import kr.co.mcedu.user.entity.WebUserEntity;
 import kr.co.mcedu.user.service.WebUserService;
 import kr.co.mcedu.utils.LocalCacheManager;
 import kr.co.mcedu.utils.SessionUtils;
+import kr.co.mcedu.utils.TransactionUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -37,6 +38,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import javax.annotation.PostConstruct;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
@@ -56,6 +58,39 @@ public class GroupServiceImpl implements GroupService {
     private final SummonerService summonerService;
     private final GroupManageRepository groupManageRepository;
     private final MatchRepository matchRepository;
+    private final TransactionUtils transactionUtils;
+
+
+    @Deprecated
+    @PostConstruct
+    public void init() {
+        transactionUtils.transaction(this::seasonDb);
+    }
+
+    @Deprecated
+    public void seasonDb() {
+        List<GroupEntity> all = groupRepository.findAll();
+        List<Long> groupSeqs = all.stream().map(GroupEntity::getGroupSeq).collect(Collectors.toList());
+
+        Map<Long, List<GroupSeasonEntity>> groupSeasonMap = groupManageRepository.getGroupSeasonsByGroupSeqs(groupSeqs).stream()
+                                                                                 .collect(Collectors.groupingBy(
+                                                                                         it -> it.getGroup()
+                                                                                                 .getGroupSeq()));
+
+        all.forEach(group -> {
+            List<GroupSeasonEntity> list = groupSeasonMap.get(group.getGroupSeq());
+            if (list == null) {
+                WebUserEntity owner = null;
+                Optional<GroupAuthEntity> groupAuth = groupAuthRepository.findByGroupAndGroupAuth(group, GroupAuthEnum.OWNER);
+                if (groupAuth.isPresent()) {
+                    owner = groupAuth.get().getWebUser();
+                }
+                GroupSeasonEntity groupSeasonEntity = GroupSeasonEntity.defaultSeason(owner, group);
+                GroupSeasonEntity save = groupManageRepository.save(groupSeasonEntity);
+                groupManageRepository.updateAllGroupSeason(save);
+            }
+        });
+    }
 
     /**
      * groupSeq를 이용하여 해당 GroupEntity 가져옴
@@ -96,6 +131,8 @@ public class GroupServiceImpl implements GroupService {
         groupEntity.addGroupAuth(groupAuth);
         groupEntity.setOwner(userId);
         GroupEntity result = groupRepository.save(groupEntity);
+        GroupSeasonEntity groupSeasonEntity = GroupSeasonEntity.defaultSeason(webUserEntity, result);
+        groupManageRepository.save(groupSeasonEntity);
         log.info(result.toString());
         return result.getGroupSeq();
     }
@@ -112,6 +149,11 @@ public class GroupServiceImpl implements GroupService {
         groupEntities.forEach(groupEntity -> {
             GroupResponse groupResponse = groupEntity.toGroupResponse();
             groupResponse.setAuth(groupAuth.get(groupEntity.getGroupSeq()).getGroupAuth());
+            Optional<GroupSeasonEntity> defaultGroupSeason = groupManageRepository.getGroupSeasonsByGroupSeqs(
+                                                                                          Collections.singleton(groupEntity.getGroupSeq())).stream()
+                                                                                  .filter(GroupSeasonEntity::getDefaultSeason)
+                                                                                  .findFirst();
+            defaultGroupSeason.ifPresent(groupResponse::setSeasonEntity);
             list.add(groupResponse);
         });
         list.forEach(groupResponse -> groupResponse.getCustomUser().parallelStream().forEach(customUserResponse -> {
@@ -436,5 +478,21 @@ public class GroupServiceImpl implements GroupService {
             }
             customUserEntity.setTierPoint(Optional.ofNullable(it.getTierPoint()).orElse(0L));
         });
+    }
+
+    @Override
+    @Transactional
+    public GroupSeasonEntity getGroupSeasonEntity(Long seasonSeq) throws DataNotExistException {
+        if (seasonSeq == null) {
+            throw new DataNotExistException("시즌정보가 잘못되었습니다.");
+        }
+
+        List<GroupSeasonEntity> groupSeasons = groupManageRepository.getGroupSeasons(Collections.singleton(seasonSeq));
+
+        if (groupSeasons.isEmpty()) {
+            throw new DataNotExistException("시즌정보가 잘못되었습니다.");
+        }
+
+        return groupSeasons.get(0);
     }
 }

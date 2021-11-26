@@ -4,7 +4,7 @@ import kr.co.mcedu.config.exception.AccessDeniedException;
 import kr.co.mcedu.config.exception.AlreadyDataExistException;
 import kr.co.mcedu.config.exception.DataNotExistException;
 import kr.co.mcedu.config.exception.ServiceException;
-import kr.co.mcedu.group.entity.CustomUserResponse;
+import kr.co.mcedu.group.model.response.CustomUserResponse;
 import kr.co.mcedu.group.entity.GroupAuthEnum;
 import kr.co.mcedu.group.model.GroupResponse;
 import kr.co.mcedu.group.model.GroupSaveRequest;

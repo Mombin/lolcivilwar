@@ -13,5 +13,6 @@ import java.util.List;
 @ToString
 public class CustomMatchSaveRequest {
     private Long groupSeq;
+    private Long seasonSeq;
     private List<CustomMatchResult> matchResult = new ArrayList<>();
 }

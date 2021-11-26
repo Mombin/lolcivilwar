@@ -49,10 +49,6 @@ public class GroupEntity extends BaseTimeEntity {
         customUser.setGroup(null);
     }
 
-    public final GroupResponse toGroupResponse() {
-        return new GroupResponse().setEntity(this);
-    }
-
     public GroupEntity(GroupEntity groupEntity) {
         this.groupSeq = groupEntity.groupSeq;
         this.groupName = groupEntity.groupName;

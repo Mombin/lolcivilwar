@@ -47,4 +47,8 @@ public enum GroupAuthEnum {
         }
 
     }
+
+    public static boolean isViewAbleAuth(final GroupAuthEnum groupAuth) {
+        return groupAuth != NONE;
+    }
 }

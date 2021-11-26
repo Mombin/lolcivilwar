@@ -9,13 +9,12 @@ import kr.co.mcedu.group.model.GroupAuthDto;
 import kr.co.mcedu.group.model.GroupResponse;
 import kr.co.mcedu.group.model.GroupSaveRequest;
 import kr.co.mcedu.group.model.request.*;
-import kr.co.mcedu.group.model.response.CustomUserSynergyResponse;
-import kr.co.mcedu.group.model.response.GroupAuthResponse;
-import kr.co.mcedu.group.model.response.PersonalResultResponse;
+import kr.co.mcedu.group.model.response.*;
 import kr.co.mcedu.group.repository.CustomUserRepository;
 import kr.co.mcedu.group.repository.GroupAuthRepository;
 import kr.co.mcedu.group.repository.GroupManageRepository;
 import kr.co.mcedu.group.repository.GroupRepository;
+import kr.co.mcedu.group.service.GroupResultService;
 import kr.co.mcedu.group.service.GroupService;
 import kr.co.mcedu.match.entity.CustomMatchEntity;
 import kr.co.mcedu.match.entity.MatchAttendeesEntity;
@@ -56,6 +55,7 @@ public class GroupServiceImpl implements GroupService {
     private final SummonerService summonerService;
     private final GroupManageRepository groupManageRepository;
     private final MatchRepository matchRepository;
+    private final GroupResultService groupResultService;
 
     /**
      * groupSeq를 이용하여 해당 GroupEntity 가져옴
@@ -96,6 +96,8 @@ public class GroupServiceImpl implements GroupService {
         groupEntity.addGroupAuth(groupAuth);
         groupEntity.setOwner(userId);
         GroupEntity result = groupRepository.save(groupEntity);
+        GroupSeasonEntity groupSeasonEntity = GroupSeasonEntity.defaultSeason(webUserEntity, result);
+        groupManageRepository.save(groupSeasonEntity);
         log.info(result.toString());
         return result.getGroupSeq();
     }
@@ -105,13 +107,27 @@ public class GroupServiceImpl implements GroupService {
      */
     @Transactional
     @Override
-    public List<GroupResponse> findMyGroups() {
+    public List<GroupResponse> findMyGroupsWithDefaultSeason() {
         Map<Long, GroupAuthDto> groupAuth = SessionUtils.getGroupAuth();
         List<GroupEntity> groupEntities = groupManageRepository.getGroupEntities(groupAuth.keySet());
         ArrayList<GroupResponse> list = new ArrayList<>();
         groupEntities.forEach(groupEntity -> {
-            GroupResponse groupResponse = groupEntity.toGroupResponse();
+            GroupResponse groupResponse = new GroupResponse();
+            Optional<GroupSeasonEntity> defaultGroupSeason = groupManageRepository.getGroupSeasonsByGroupSeqs(
+                                                                                          Collections.singleton(groupEntity.getGroupSeq())).stream()
+                                                                                  .filter(GroupSeasonEntity::getDefaultSeason)
+                                                                                  .findFirst();
+            defaultGroupSeason.ifPresent(groupResponse::setSeasonEntity);
+            groupResponse.setGroupEntity(groupEntity);
+            try {
+                List<CustomUserResponse> customUserResponses = groupResultService.getCustomUserBySeason(new GroupResultRequest(groupEntity.getGroupSeq(), groupResponse.getDefaultSeason().getSeasonSeq()));
+                groupResponse.setCustomUser(customUserResponses);
+            } catch (DataNotExistException exception) {
+                log.error("", exception);
+                groupResponse.setCustomUser(Collections.emptyList());
+            }
             groupResponse.setAuth(groupAuth.get(groupEntity.getGroupSeq()).getGroupAuth());
+
             list.add(groupResponse);
         });
         list.forEach(groupResponse -> groupResponse.getCustomUser().parallelStream().forEach(customUserResponse -> {
@@ -437,4 +453,44 @@ public class GroupServiceImpl implements GroupService {
             customUserEntity.setTierPoint(Optional.ofNullable(it.getTierPoint()).orElse(0L));
         });
     }
+
+    @Override
+    @Transactional
+    public GroupSeasonEntity getGroupSeasonEntity(Long seasonSeq) throws DataNotExistException {
+        if (seasonSeq == null) {
+            throw new DataNotExistException("시즌정보가 잘못되었습니다.");
+        }
+
+        List<GroupSeasonEntity> groupSeasons = groupManageRepository.getGroupSeasons(Collections.singleton(seasonSeq));
+
+        if (groupSeasons.isEmpty()) {
+            throw new DataNotExistException("시즌정보가 잘못되었습니다.");
+        }
+
+        return groupSeasons.get(0);
+    }
+
+    @Override
+    @Transactional
+    public List<GroupResponse> findMyGroups() {
+        Map<Long, GroupAuthDto> groupAuth = SessionUtils.getGroupAuth();
+        List<GroupEntity> groupEntities = groupManageRepository.getGroupEntities(groupAuth.keySet());
+        ArrayList<GroupResponse> list = new ArrayList<>();
+        groupEntities.forEach(groupEntity -> {
+            GroupResponse groupResponse = new GroupResponse();
+            List<GroupSeasonEntity> groupSeasonEntities = groupManageRepository.getGroupSeasonsByGroupSeqs(Collections.singleton(groupEntity.getGroupSeq()));
+            Optional<GroupSeasonEntity> defaultGroupSeason = groupSeasonEntities.stream()
+                                                                                .filter(GroupSeasonEntity::getDefaultSeason)
+                                                                                .findFirst();
+            defaultGroupSeason.ifPresent(groupResponse::setSeasonEntity);
+            groupResponse.setSeasons(groupSeasonEntities.stream().map(GroupSeasonEntity::toResponse)
+                                                        .sorted(Comparator.comparing(GroupSeasonResponse::getSeasonSeq).reversed())
+                                                        .collect(Collectors.toList()));
+            groupResponse.setGroupEntity(groupEntity);
+            groupResponse.setAuth(groupAuth.get(groupEntity.getGroupSeq()).getGroupAuth());
+            list.add(groupResponse);
+        });
+        return list;
+    }
+
 }

@@ -6,7 +6,12 @@
       layout:decorate="~{layout/default}">
 <body>
 <div layout:fragment="content">
-    <div th:replace="~{fragments/fragments :: groupSelector}"></div>
+    <div style="display: flex">
+        <div th:replace="~{fragments/fragments :: groupSelector}"></div>
+        <select id="season" class="form-select" aria-label="Default select example" style="width: 20%; margin-left: auto; margin-top: 20px;">
+            <option value="0" selected disabled>시즌을 선택해주세요</option>
+        </select>
+    </div>
     <ul class="nav nav-tabs" style="margin-top: 20px" id="position">
         <li class="nav-item">
             <a class="nav-link active" href="#" data-position="total">종합</a>

@@ -64,7 +64,7 @@ public class ViewController {
             return ERROR_PAGE;
         }
         urlLogger("popup", path1, path2);
-        return "/popup/" + path1 + "_" + path2;
+        return "popup/" + path1 + "_" + path2;
     }
 
     private void urlLogger(String... url) {

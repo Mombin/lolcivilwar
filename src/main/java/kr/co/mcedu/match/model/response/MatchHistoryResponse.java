@@ -62,7 +62,7 @@ public class MatchHistoryResponse implements Serializable {
         return this;
     }
 
-    private String teamFlip(String team) {
+    public static String teamFlip(String team) {
         if("A".equals(team)) {
             return "B";
         } else {
@@ -71,7 +71,7 @@ public class MatchHistoryResponse implements Serializable {
     }
     @Getter
     @Setter
-    static class MatchHistoryElement implements Serializable {
+    public static class MatchHistoryElement implements Serializable {
         private Long matchNumber = 0L;
         private String winner = "";
         private String date = "";

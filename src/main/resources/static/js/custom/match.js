@@ -33,7 +33,8 @@ function setMatchEvents() {
 
         const param = {
             groupSeq: currentGroupSeq,
-            matchResult: matchResult
+            matchResult: matchResult,
+            seasonSeq: $("#seasonName").data('seasonSeq')
         }
 
         common_ajax.call("/api/custom/match", "PUT", true, param, function (res) {

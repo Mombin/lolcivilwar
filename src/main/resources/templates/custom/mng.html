@@ -9,6 +9,7 @@
     <div id="team" style="border: 1px; margin-top: 20px" class="row team">
         <div class="input-group" sec:authorize="hasRole('ROLE_USER')" style="margin-bottom: 20px">
             <div style="width: 100%">
+                <input type="text" class="form-control" id="seasonName" style="width: 10%; display: inline;" placeholder="시즌명" readonly>
                 <input type="button" class="btn btn-danger f-r" value="티어표 OFF" id="toggleTierPoint" data-tier-toggle="off">
             </div>
         </div>

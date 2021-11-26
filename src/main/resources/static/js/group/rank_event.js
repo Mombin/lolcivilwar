@@ -7,6 +7,7 @@ $(document).ready(function () {
 // 객체 바인딩
 function bindObject() {
     $groupSelector = $("#groupSelector")
+    $seasonSelector = $('#season');
 }
 
 // 이벤트 바인딩
@@ -16,14 +17,21 @@ function bindEvent() {
         $(this).addClass('active');
         let position = $(this).data('position');
         let list = [];
-        $.each(currentGroup.customUser, function (index, item) {
+
+        if (currentGroup.customUser[$seasonSelector.val()] === undefined) {
+            currentGroup.customUser[$seasonSelector.val()] = [];
+            callRankData()
+        }
+        $.each(currentGroup.customUser[$seasonSelector.val()], function (index, item) {
             let date = (item.lastDate || []).slice();
             let lastDate;
             if (date) {
                 date[1] = date[1] - 1;
                 lastDate = moment(date.slice(0, 6));
-                if (moment().diff(lastDate, 'day') > 10) {
-                    return;
+                if (Number($seasonSelector.val()) === currentGroup.defaultSeason.seasonSeq) {
+                    if (moment().diff(lastDate, 'day') > 10) {
+                        return;
+                    }
                 }
             } else {
                 return;
@@ -63,10 +71,13 @@ function bindEvent() {
         });
         setList(list);
     });
+    $seasonSelector.on('change', function () {
+        $("#position .nav-link.active").trigger('click');
+    });
 
     $groupSelector.on('change', changeGroupSelect);
 }
 
 function init() {
-    callMyGroup('/api/group/my', groupChangeFunction);
+    callMyGroup('/api/group/v1/my', groupChangeFunction);
 }

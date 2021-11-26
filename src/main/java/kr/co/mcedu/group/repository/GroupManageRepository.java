@@ -5,6 +5,8 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import kr.co.mcedu.group.entity.CustomUserEntity;
 import kr.co.mcedu.group.entity.GroupAuthEntity;
 import kr.co.mcedu.group.entity.GroupEntity;
+import kr.co.mcedu.group.entity.GroupSeasonEntity;
+import kr.co.mcedu.match.entity.CustomMatchEntity;
 import kr.co.mcedu.match.entity.MatchAttendeesEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -19,6 +21,7 @@ import java.util.*;
 import static kr.co.mcedu.group.entity.QCustomUserEntity.customUserEntity;
 import static kr.co.mcedu.group.entity.QGroupAuthEntity.groupAuthEntity;
 import static kr.co.mcedu.group.entity.QGroupEntity.groupEntity;
+import static kr.co.mcedu.group.entity.QGroupSeasonEntity.groupSeasonEntity;
 import static kr.co.mcedu.match.entity.QCustomMatchEntity.customMatchEntity;
 import static kr.co.mcedu.match.entity.QMatchAttendeesEntity.matchAttendeesEntity;
 import static kr.co.mcedu.summoner.entity.QSummonerEntity.summonerEntity;
@@ -96,5 +99,40 @@ public class GroupManageRepository {
 
     public void delete(final GroupAuthEntity groupAuthEntity) {
         entityManager.remove(groupAuthEntity);
+    }
+
+    public List<MatchAttendeesEntity> getMatchAttendees(Collection<Long> matchSeqs) {
+        if (matchSeqs.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        return queryFactory.selectFrom(matchAttendeesEntity)
+                           .where(matchAttendeesEntity.customMatch.matchSeq.in(matchSeqs)).fetch();
+    }
+
+    public List<GroupSeasonEntity> getGroupSeasonsByGroupSeqs(Collection<Long> groupSeqs) {
+        if (groupSeqs.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return queryFactory.selectFrom(groupSeasonEntity).where(groupSeasonEntity.group.groupSeq.in(groupSeqs)).fetch();
+    }
+
+    public GroupSeasonEntity save(final GroupSeasonEntity groupSeasonEntity) {
+        return entityManager.merge(groupSeasonEntity);
+    }
+
+    public void updateAllGroupSeason(GroupSeasonEntity groupSeasonEntity) {
+        queryFactory.update(customMatchEntity).set(customMatchEntity.groupSeason, groupSeasonEntity)
+                    .where(customMatchEntity.group.eq(groupSeasonEntity.getGroup()))
+                    .execute();
+    }
+
+    public List<GroupSeasonEntity> getGroupSeasons(final Set<Long> seasonSeqs) {
+        return queryFactory.selectFrom(groupSeasonEntity).where(groupSeasonEntity.groupSeasonSeq.in(seasonSeqs)).fetch();
+    }
+
+    public List<CustomMatchEntity> getCustomMatchByGroupSeqAndSeasonSeq(long groupSeq, Long seasonSeq) {
+        return queryFactory.selectFrom(customMatchEntity).where(customMatchEntity.group.groupSeq.eq(groupSeq),
+                customMatchEntity.groupSeason.groupSeasonSeq.eq(seasonSeq)).fetch();
     }
 }

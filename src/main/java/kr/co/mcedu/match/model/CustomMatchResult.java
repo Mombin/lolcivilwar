@@ -5,9 +5,11 @@ import kr.co.mcedu.match.entity.CustomMatchEntity;
 import kr.co.mcedu.match.entity.MatchAttendeesEntity;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @Setter
+@ToString
 public class CustomMatchResult {
     private String user;
     private String team;

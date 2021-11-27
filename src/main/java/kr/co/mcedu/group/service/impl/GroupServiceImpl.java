@@ -9,7 +9,10 @@ import kr.co.mcedu.group.model.GroupAuthDto;
 import kr.co.mcedu.group.model.GroupResponse;
 import kr.co.mcedu.group.model.GroupSaveRequest;
 import kr.co.mcedu.group.model.request.*;
-import kr.co.mcedu.group.model.response.*;
+import kr.co.mcedu.group.model.response.CustomUserResponse;
+import kr.co.mcedu.group.model.response.GroupAuthResponse;
+import kr.co.mcedu.group.model.response.GroupSeasonResponse;
+import kr.co.mcedu.group.model.response.PersonalResultResponse;
 import kr.co.mcedu.group.repository.CustomUserRepository;
 import kr.co.mcedu.group.repository.GroupAuthRepository;
 import kr.co.mcedu.group.repository.GroupManageRepository;
@@ -21,7 +24,6 @@ import kr.co.mcedu.match.entity.MatchAttendeesEntity;
 import kr.co.mcedu.match.model.response.MatchHistoryResponse;
 import kr.co.mcedu.match.repository.CustomMatchRepository;
 import kr.co.mcedu.match.repository.MatchAttendeesRepository;
-import kr.co.mcedu.match.repository.MatchRepository;
 import kr.co.mcedu.summoner.entity.SummonerEntity;
 import kr.co.mcedu.summoner.service.SummonerService;
 import kr.co.mcedu.user.entity.WebUserEntity;
@@ -211,76 +213,6 @@ public class GroupServiceImpl implements GroupService {
         groupRepository.save(groupEntity);
     }
 
-    @Transactional
-    @Override
-    public MatchHistoryResponse getMatches(Long groupSeq, Integer pageNum) throws Exception {
-        GroupEntity group = this.getGroup(groupSeq);
-        Map<Integer, MatchHistoryResponse> map = cacheManager.getMatchHistoryCache()
-                                                                 .get(groupSeq.toString(), HashMap::new);
-        Optional<MatchHistoryResponse> result = Optional.ofNullable(map.get(pageNum));
-        if (result.isPresent()) {
-            return result.get();
-        }
-
-        Page<CustomMatchEntity> page = customMatchRepository.findByGroupOrderByMatchSeqDesc(group,  PageRequest.of(pageNum, 10));
-
-        MatchHistoryResponse matchHistoryResponse = this.setMatchHistoryResponse(page);
-
-        map.put(pageNum, matchHistoryResponse);
-        cacheManager.getMatchHistoryCache().put(groupSeq.toString(), map);
-        return matchHistoryResponse;
-    }
-
-    private MatchHistoryResponse setMatchHistoryResponse(Page<CustomMatchEntity> page) {
-        MatchHistoryResponse matchHistoryResponse = new MatchHistoryResponse();
-        matchHistoryResponse.setTotalPage(page.getTotalPages());
-        final AtomicLong matchNumber = new AtomicLong(page.getTotalElements() - ((long) page.getNumber() * page.getSize()));
-        List<Long> matchSeqs = page.get().map(CustomMatchEntity::getMatchSeq).collect(Collectors.toList());
-        Map<Long, List<MatchAttendeesEntity>> matchAttendeesMap =
-                groupManageRepository.getMatchAttendees(matchSeqs)
-                                     .stream()
-                                     .collect(Collectors.groupingBy(it -> it.getCustomMatch().getMatchSeq()));
-
-
-
-        page.get().forEach(it -> {
-            List<String> aList = new ArrayList<>();
-            List<String> bList = new ArrayList<>();
-
-            List<MatchAttendeesEntity> matchAttendees = matchAttendeesMap.getOrDefault(it.getMatchSeq(), Collections.emptyList());
-            matchAttendees.forEach(matchAttendeesEntity -> {
-                List<String> currentTeamList;
-                if ("A".equals(matchAttendeesEntity.getTeam())) {
-                    currentTeamList = aList;
-                } else {
-                    currentTeamList = bList;
-                }
-                String nickname = Optional.ofNullable(matchAttendeesEntity.getCustomUserEntity())
-                                          .map(CustomUserEntity::getNickname).orElse("");
-                currentTeamList.add(nickname);
-            });
-
-            MatchHistoryResponse.MatchHistoryElement matchHistoryElement = new MatchHistoryResponse.MatchHistoryElement();
-            matchHistoryElement.setMatchNumber(matchNumber.getAndDecrement());
-            matchHistoryElement.setDate(Optional.ofNullable(it.getCreatedDate())
-                                                .map(localDateTime -> localDateTime.format(
-                                                        DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
-                                                .orElse(""));
-            matchHistoryElement.setAList(aList);
-            matchHistoryElement.setBList(bList);
-            MatchAttendeesEntity matchAttendeesEntity = it.getMatchAttendees().get(0);
-            String winner = matchAttendeesEntity.getTeam();
-            if(!matchAttendeesEntity.isMatchResult()) {
-                winner = MatchHistoryResponse.teamFlip(winner);
-            }
-            matchHistoryElement.setWinner(winner);
-            matchHistoryElement.setMatchSeq(Optional.ofNullable(it.getMatchSeq()).orElse(0L));
-            matchHistoryResponse.getList().add(matchHistoryElement);
-        });
-
-        return matchHistoryResponse;
-    }
-
     /**
      * 매치 삭제
      * @param matchSeq 매치 번호
@@ -301,8 +233,8 @@ public class GroupServiceImpl implements GroupService {
             cacheManager.invalidSynergyCache(customUserSeq + "_" + seasonSeq);
         });
         customMatchRepository.delete(matchEntity);
-        cacheManager.getMatchHistoryCache().invalidate(
-                (Optional.ofNullable(matchEntity.getGroup()).map(GroupEntity::getGroupSeq).orElse(0L)).toString());
+        String cacheKey = (Optional.ofNullable(matchEntity.getGroup()).map(GroupEntity::getGroupSeq).orElse(0L)).toString();
+        cacheManager.invalidMatchHistoryCache(cacheKey);
         matchEntity.getMatchAttendees().forEach(it -> cacheManager.getPersonalResultHistoryCache().invalidate(
                 Optional.ofNullable(it.getCustomUserEntity()).map(CustomUserEntity::getSeq).orElse(0L).toString()));
 

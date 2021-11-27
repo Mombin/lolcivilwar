@@ -1,7 +1,7 @@
 package kr.co.mcedu.group.controller;
 
+import kr.co.mcedu.config.exception.AccessDeniedException;
 import kr.co.mcedu.config.exception.ServiceException;
-import kr.co.mcedu.group.model.request.CustomUserSynergyRequest;
 import kr.co.mcedu.group.model.request.GroupResultRequest;
 import kr.co.mcedu.group.model.response.CustomUserSynergyResponse;
 import kr.co.mcedu.group.service.GroupResultService;
@@ -9,6 +9,8 @@ import kr.co.mcedu.utils.ResponseWrapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Arrays;
 
 @Slf4j
 @RestController
@@ -41,7 +43,13 @@ public class GroupResultRestController {
         return new ResponseWrapper().setData(data).build();
     }
 
-    private void requestLog(Object param) {
-        log.info("request: {}", param.toString());
+    @PostMapping("/match/{groupSeq}/{page}")
+    public Object getMatch(@PathVariable Long groupSeq, @PathVariable Integer page) throws AccessDeniedException {
+        this.requestLog(groupSeq, page);
+        return new ResponseWrapper().setData(groupResultService.getMatches(groupSeq, page)).build();
+    }
+
+    private void requestLog(Object... param) {
+        log.info("request: {}", Arrays.toString(param));
     }
 }

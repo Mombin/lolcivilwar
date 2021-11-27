@@ -59,4 +59,22 @@ public class LocalCacheManager {
     public CustomUserSynergyResponse getSynergy(String cacheKey) {
         return synergyCache.getIfPresent(cacheKey);
     }
+
+    public Map<Integer, MatchHistoryResponse> getMatchHistory(String cacheKey) {
+        Map<Integer, MatchHistoryResponse> map = matchHistoryCache.getIfPresent(cacheKey);
+        if (map == null) {
+            map = new HashMap<>();
+        }
+        return map;
+    }
+
+    public void putMatchHistoryCache(String cacheKey, Map<Integer, MatchHistoryResponse> map) {
+        matchHistoryCache.put(cacheKey, map);
+        log.info("Put MatchHistory Cache : {}", cacheKey);
+    }
+
+    public void invalidMatchHistoryCache(final String cacheKey) {
+        matchHistoryCache.invalidate(cacheKey);
+        log.info("Invalid MatchHistory Cache : {}", cacheKey);
+    }
 }

@@ -25,6 +25,7 @@ public class PersonalResultResponse implements Serializable {
             PersonalResultElement result = new PersonalResultElement();
             result.setDate(Optional.ofNullable(it.getCreatedDate()).map(localDateTime -> localDateTime.format(
                     DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))).orElse(""));
+            result.setSeasonName(it.getCustomMatch().getGroupSeason().getSeasonName());
             result.setPosition(it.getPosition());
             result.setWinYn(it.isMatchResult() ? "Y" : "N");
 
@@ -47,9 +48,10 @@ public class PersonalResultResponse implements Serializable {
     @Getter
     @Setter
     static class PersonalResultElement implements Serializable {
-        private String date = "";
-        private String position = "";
-        private String winYn = "";
-        private String matchUser = "";
+        private String date;
+        private String seasonName;
+        private String position;
+        private String winYn;
+        private String matchUser;
     }
 }

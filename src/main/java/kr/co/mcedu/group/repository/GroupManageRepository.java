@@ -1,5 +1,6 @@
 package kr.co.mcedu.group.repository;
 
+import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -122,12 +123,17 @@ public class GroupManageRepository {
     }
 
     public List<CustomUserResponse> getMatchAttendeesByGroupSeqAndSeasonSeq(final Long seasonSeq) {
+        BooleanBuilder booleanBuilder = new BooleanBuilder();
+        if (seasonSeq != -1) {
+            booleanBuilder.and(customMatchEntity.groupSeason.groupSeasonSeq.eq(seasonSeq));
+        }
+
         return queryFactory.select(Projections.bean(CustomUserResponse.class, customUserEntity.nickname, customUserEntity.summonerName, customUserEntity.seq))
                            .distinct()
                            .from(customMatchEntity)
                            .innerJoin(matchAttendeesEntity).on(matchAttendeesEntity.customMatch.matchSeq.eq(customMatchEntity.matchSeq))
-                           .innerJoin(customUserEntity).on(matchAttendeesEntity.customUserEntity.eq(customUserEntity))
-                           .where(customMatchEntity.groupSeason.groupSeasonSeq.eq(seasonSeq))
+                           .innerJoin(customUserEntity).on(matchAttendeesEntity.customUserEntity.eq(customUserEntity), customUserEntity.delYn.eq(false))
+                           .where(booleanBuilder)
                            .fetch();
     }
 }

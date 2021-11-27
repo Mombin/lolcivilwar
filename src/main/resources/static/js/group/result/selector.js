@@ -1,9 +1,5 @@
 let currentUserSeq, currentPage = 0, $list, $customUserSelect;
 
-function init() {
-    callMyGroup('/api/group/my', groupChangeFunction);
-}
-
 function groupChangeFunction(groupList) {
     for (let i = 0; i < groupList.length; i++) {
         if (groupList[i].auth === GROUP_AUTH.OWNER) {
@@ -18,6 +14,9 @@ function groupChangeFunction(groupList) {
 function changeGroupSelect() {
     currentUserSeq = -1;
     currentGroup = $(this).find('option:selected').data('group');
+    if (currentGroup.customUser === undefined || currentGroup.customUser.length === 0) {
+        getMatchAttendees(-1)
+    }
     $customUserSelect.empty();
     $customUserSelect.append($('<option>').val(0).attr('selected', true).attr('disabled', true).html('닉네임을 선택해주세요'));
     $("#synergy").empty();
@@ -51,6 +50,7 @@ function getList(page) {
 
             let $tr = $('<tr>')
                 .append($('<td>').css('text-align', 'center').html(item.date))
+                .append($('<td>').css('text-align', 'center').html(item.seasonName))
                 .append($('<td>').css('text-align', 'center').html(POSITION[item.position]))
                 .append($('<td>').css('text-align', 'center').html(item.matchUser))
                 .append($('<td>').css('text-align', 'center').addClass(item.winYn === 'Y' ? 'table-primary' : 'table-danger').html(item.winYn === 'Y' ? '승' : '패'))

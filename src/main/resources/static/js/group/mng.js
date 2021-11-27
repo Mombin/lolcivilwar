@@ -1,5 +1,4 @@
-let currentGroup
-    , selectedUser = {}
+let selectedUser = {}
     , openerData = {};
 function init() {
     callMyGroup('/api/group/my', groupChangeFunction);

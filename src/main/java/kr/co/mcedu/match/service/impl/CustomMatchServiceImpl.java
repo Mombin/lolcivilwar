@@ -62,7 +62,7 @@ public class CustomMatchServiceImpl implements CustomMatchService {
                                                           .filter(customUser -> searchTarget.equals(
                                                                   customUser.getNickname())).findFirst();
             if (!customUserOpt.isPresent()) {
-                break;
+                continue;
             }
 
             CustomUserEntity customUserEntity = customUserOpt.get();

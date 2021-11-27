@@ -82,6 +82,17 @@ class GroupRestController {
         return new ResponseWrapper().setData(groupService.getAuthUserList(groupSeq)).build();
     }
 
+    @PostMapping("/invite")
+    public Object inviteGroup(@RequestBody InviteGroupRequest inviteGroupRequest) {
+        try {
+            groupService.inviteGroup(inviteGroupRequest);
+        } catch (ServiceException e) {
+            return ResponseWrapper.fail(e.getViewMessage()).build();
+        }
+        return new ResponseWrapper().build();
+    }
+
+
     /**
      * 새로운 유저를 그룹에 등록함
      *

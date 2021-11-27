@@ -25,6 +25,7 @@ import kr.co.mcedu.match.repository.MatchRepository;
 import kr.co.mcedu.summoner.entity.SummonerEntity;
 import kr.co.mcedu.summoner.service.SummonerService;
 import kr.co.mcedu.user.entity.WebUserEntity;
+import kr.co.mcedu.user.service.UserAlarmService;
 import kr.co.mcedu.user.service.WebUserService;
 import kr.co.mcedu.utils.LocalCacheManager;
 import kr.co.mcedu.utils.SessionUtils;
@@ -56,6 +57,7 @@ public class GroupServiceImpl implements GroupService {
     private final GroupManageRepository groupManageRepository;
     private final MatchRepository matchRepository;
     private final GroupResultService groupResultService;
+    private final UserAlarmService userAlarmService;
 
     /**
      * groupSeq를 이용하여 해당 GroupEntity 가져옴
@@ -114,9 +116,9 @@ public class GroupServiceImpl implements GroupService {
         groupEntities.forEach(groupEntity -> {
             GroupResponse groupResponse = new GroupResponse();
             Optional<GroupSeasonEntity> defaultGroupSeason = groupManageRepository.getGroupSeasonsByGroupSeqs(
-                                                                                          Collections.singleton(groupEntity.getGroupSeq())).stream()
-                                                                                  .filter(GroupSeasonEntity::getDefaultSeason)
-                                                                                  .findFirst();
+                            Collections.singleton(groupEntity.getGroupSeq())).stream()
+                    .filter(GroupSeasonEntity::getDefaultSeason)
+                    .findFirst();
             defaultGroupSeason.ifPresent(groupResponse::setSeasonEntity);
             groupResponse.setGroupEntity(groupEntity);
             try {
@@ -146,6 +148,7 @@ public class GroupServiceImpl implements GroupService {
 
     /**
      * 그룹에 새로운 내전인원 등록
+     *
      * @param customUserSaveRequest 내전등록 Request
      */
     @Transactional
@@ -154,7 +157,7 @@ public class GroupServiceImpl implements GroupService {
         SessionUtils.groupManageableAuthCheck(customUserSaveRequest.getGroupSeq());
 
         GroupEntity group = this.getGroup(customUserSaveRequest.getGroupSeq());
-        if (group.getCustomUser().stream().anyMatch(it -> it.getNickname().equals(customUserSaveRequest.getNickname()))){
+        if (group.getCustomUser().stream().anyMatch(it -> it.getNickname().equals(customUserSaveRequest.getNickname()))) {
             throw new AlreadyDataExistException("이미 저장된 닉네임입니다.");
         }
 
@@ -166,6 +169,7 @@ public class GroupServiceImpl implements GroupService {
 
     /**
      * 내전그룹원 삭제 요청
+     *
      * @param customUserDeleteRequest 삭제 요청 Request
      */
     @Transactional
@@ -175,9 +179,9 @@ public class GroupServiceImpl implements GroupService {
 
         GroupEntity groupEntity = this.getGroup(customUserDeleteRequest.getGroupSeq());
         List<CustomUserEntity> list = groupEntity.getCustomUser().stream()
-                                                 .filter(it -> customUserDeleteRequest.getUserSeqArray()
-                                                                                      .contains(it.getSeq()))
-                                                 .collect(Collectors.toList());
+                .filter(it -> customUserDeleteRequest.getUserSeqArray()
+                        .contains(it.getSeq()))
+                .collect(Collectors.toList());
         list.forEach(it -> {
             matchAttendeesRepository.deleteAllByCustomUserEntity(it);
             groupEntity.removeCustomUser(it);
@@ -214,6 +218,7 @@ public class GroupServiceImpl implements GroupService {
 
     /**
      * 시너지/상성 계산
+     *
      * @param customUserSynergyRequest 요청 request
      * @return 계산 결과
      * @throws ServiceException
@@ -243,27 +248,27 @@ public class GroupServiceImpl implements GroupService {
         Map<Long, SynergyModel> badSynergy = new HashMap<>();
         // 쿼리 조회를 줄이기 위해 전체한번에 조회
         List<Long> matchSeqs = matchList.stream().map(MatchAttendeesEntity::getCustomMatch)
-                                      .map(CustomMatchEntity::getMatchSeq).collect(Collectors.toList());
+                .map(CustomMatchEntity::getMatchSeq).collect(Collectors.toList());
         Map<Long, List<MatchAttendeesEntity>> matchMap = matchRepository.findAllByCustomMatchs(matchSeqs).stream()
-                                                                        .collect(Collectors.groupingBy(it -> it.getCustomMatch().getMatchSeq()));
+                .collect(Collectors.groupingBy(it -> it.getCustomMatch().getMatchSeq()));
         matchList.forEach(target -> {
             List<MatchAttendeesEntity> allList = matchMap.getOrDefault(target.getCustomMatch().getMatchSeq(), Collections.emptyList());
 
             allList.stream()
-                   .filter(matchAttendeesEntity -> !matchAttendeesEntity.getAttendeesSeq().equals(target.getAttendeesSeq()))
-                   .forEach(matchAttendeesEntity -> {
-                       Map<Long, SynergyModel> targetSynergy;
-                       if (matchAttendeesEntity.getTeam().equals(target.getTeam())) {
-                           targetSynergy = synergy;
-                       } else {
-                           targetSynergy = badSynergy;
-                       }
-                       Long userSeq = Optional.ofNullable(matchAttendeesEntity.getCustomUserEntity())
-                                              .map(CustomUserEntity::getSeq).orElse(0L);
-                       SynergyModel synergyModel = targetSynergy.computeIfAbsent(userSeq, a -> new SynergyModel());
-                       synergyModel.add(matchAttendeesEntity);
-                       targetSynergy.put(userSeq, synergyModel);
-                   });
+                    .filter(matchAttendeesEntity -> !matchAttendeesEntity.getAttendeesSeq().equals(target.getAttendeesSeq()))
+                    .forEach(matchAttendeesEntity -> {
+                        Map<Long, SynergyModel> targetSynergy;
+                        if (matchAttendeesEntity.getTeam().equals(target.getTeam())) {
+                            targetSynergy = synergy;
+                        } else {
+                            targetSynergy = badSynergy;
+                        }
+                        Long userSeq = Optional.ofNullable(matchAttendeesEntity.getCustomUserEntity())
+                                .map(CustomUserEntity::getSeq).orElse(0L);
+                        SynergyModel synergyModel = targetSynergy.computeIfAbsent(userSeq, a -> new SynergyModel());
+                        synergyModel.add(matchAttendeesEntity);
+                        targetSynergy.put(userSeq, synergyModel);
+                    });
         });
         result = new CustomUserSynergyResponse();
         result.setGroupSeq(requestGroupSeq);
@@ -279,13 +284,13 @@ public class GroupServiceImpl implements GroupService {
     public MatchHistoryResponse getMatches(Long groupSeq, Integer pageNum) throws Exception {
         GroupEntity group = this.getGroup(groupSeq);
         Map<Integer, MatchHistoryResponse> map = cacheManager.getMatchHistoryCache()
-                                                                 .get(groupSeq.toString(), HashMap::new);
+                .get(groupSeq.toString(), HashMap::new);
         Optional<MatchHistoryResponse> result = Optional.ofNullable(map.get(pageNum));
         if (result.isPresent()) {
             return result.get();
         }
 
-        Page<CustomMatchEntity> page = customMatchRepository.findByGroupOrderByMatchSeqDesc(group,  PageRequest.of(pageNum, 10));
+        Page<CustomMatchEntity> page = customMatchRepository.findByGroupOrderByMatchSeqDesc(group, PageRequest.of(pageNum, 10));
 
         MatchHistoryResponse matchHistoryResponse = this.setMatchHistoryResponse(page);
 
@@ -301,9 +306,8 @@ public class GroupServiceImpl implements GroupService {
         List<Long> matchSeqs = page.get().map(CustomMatchEntity::getMatchSeq).collect(Collectors.toList());
         Map<Long, List<MatchAttendeesEntity>> matchAttendeesMap =
                 groupManageRepository.getMatchAttendees(matchSeqs)
-                                     .stream()
-                                     .collect(Collectors.groupingBy(it -> it.getCustomMatch().getMatchSeq()));
-
+                        .stream()
+                        .collect(Collectors.groupingBy(it -> it.getCustomMatch().getMatchSeq()));
 
 
         page.get().forEach(it -> {
@@ -319,21 +323,21 @@ public class GroupServiceImpl implements GroupService {
                     currentTeamList = bList;
                 }
                 String nickname = Optional.ofNullable(matchAttendeesEntity.getCustomUserEntity())
-                                          .map(CustomUserEntity::getNickname).orElse("");
+                        .map(CustomUserEntity::getNickname).orElse("");
                 currentTeamList.add(nickname);
             });
 
             MatchHistoryResponse.MatchHistoryElement matchHistoryElement = new MatchHistoryResponse.MatchHistoryElement();
             matchHistoryElement.setMatchNumber(matchNumber.getAndDecrement());
             matchHistoryElement.setDate(Optional.ofNullable(it.getCreatedDate())
-                                                .map(localDateTime -> localDateTime.format(
-                                                        DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
-                                                .orElse(""));
+                    .map(localDateTime -> localDateTime.format(
+                            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
+                    .orElse(""));
             matchHistoryElement.setAList(aList);
             matchHistoryElement.setBList(bList);
             MatchAttendeesEntity matchAttendeesEntity = it.getMatchAttendees().get(0);
             String winner = matchAttendeesEntity.getTeam();
-            if(!matchAttendeesEntity.isMatchResult()) {
+            if (!matchAttendeesEntity.isMatchResult()) {
                 winner = MatchHistoryResponse.teamFlip(winner);
             }
             matchHistoryElement.setWinner(winner);
@@ -346,6 +350,7 @@ public class GroupServiceImpl implements GroupService {
 
     /**
      * 매치 삭제
+     *
      * @param matchSeq 매치 번호
      * @return result
      */
@@ -376,8 +381,8 @@ public class GroupServiceImpl implements GroupService {
         SessionUtils.groupManageableAuthCheck(groupSeq);
         GroupEntity groupEntity = this.getGroup(groupSeq);
         return GroupAuthResponse.of(groupEntity.getGroupAuthList()).stream()
-                                .sorted(Comparator.comparingInt(o -> o.getGroupAuth().ordinal()))
-                                .collect(Collectors.toList());
+                .sorted(Comparator.comparingInt(o -> o.getGroupAuth().ordinal()))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -406,7 +411,7 @@ public class GroupServiceImpl implements GroupService {
             throw new DataNotExistException();
         }
         CustomUserEntity customUserEntity = customUser.get();
-        if (!Objects.equals(customUserEntity.getGroup().getGroupSeq(), group.getGroupSeq())){
+        if (!Objects.equals(customUserEntity.getGroup().getGroupSeq(), group.getGroupSeq())) {
             throw new DataNotExistException();
         }
         if (Objects.isNull(request.getPage())) {
@@ -480,17 +485,34 @@ public class GroupServiceImpl implements GroupService {
             GroupResponse groupResponse = new GroupResponse();
             List<GroupSeasonEntity> groupSeasonEntities = groupManageRepository.getGroupSeasonsByGroupSeqs(Collections.singleton(groupEntity.getGroupSeq()));
             Optional<GroupSeasonEntity> defaultGroupSeason = groupSeasonEntities.stream()
-                                                                                .filter(GroupSeasonEntity::getDefaultSeason)
-                                                                                .findFirst();
+                    .filter(GroupSeasonEntity::getDefaultSeason)
+                    .findFirst();
             defaultGroupSeason.ifPresent(groupResponse::setSeasonEntity);
             groupResponse.setSeasons(groupSeasonEntities.stream().map(GroupSeasonEntity::toResponse)
-                                                        .sorted(Comparator.comparing(GroupSeasonResponse::getSeasonSeq).reversed())
-                                                        .collect(Collectors.toList()));
+                    .sorted(Comparator.comparing(GroupSeasonResponse::getSeasonSeq).reversed())
+                    .collect(Collectors.toList()));
             groupResponse.setGroupEntity(groupEntity);
             groupResponse.setAuth(groupAuth.get(groupEntity.getGroupSeq()).getGroupAuth());
             list.add(groupResponse);
         });
         return list;
+    }
+
+    @Override
+    @Transactional
+    public void inviteGroup(InviteGroupRequest inviteGroupRequest) throws ServiceException {
+        WebUserEntity invitedUserEntity = webUserService.findWebUserEntityByLolcwTag(inviteGroupRequest.getLolcwTag());
+        GroupEntity groupEntity = groupRepository.getOne(inviteGroupRequest.getGroupSeq());
+
+        if (invitedUserEntity == null) {
+            new ServiceException("해당배틀태그의 사용자는 존재하지 않습니다.");
+        } else {
+            GroupInvite groupInvite = new GroupInvite();
+            groupInvite.setGroupSeq(inviteGroupRequest.getGroupSeq());
+            groupInvite.setUserSeq(invitedUserEntity.getUserSeq());
+            groupInvite.setInvitedUserSeq(inviteGroupRequest.getInvitedUserSeq());
+            userAlarmService.sendInviteAlarm(invitedUserEntity,String.format("[%s] 에서 당신을 초대하였습니다.",groupEntity.getGroupName()));
+        }
     }
 
 }

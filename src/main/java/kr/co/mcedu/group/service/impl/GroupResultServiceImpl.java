@@ -8,8 +8,10 @@ import kr.co.mcedu.group.entity.GroupAuthEnum;
 import kr.co.mcedu.group.entity.GroupEntity;
 import kr.co.mcedu.group.entity.SynergyModel;
 import kr.co.mcedu.group.model.request.GroupResultRequest;
+import kr.co.mcedu.group.model.request.PersonalResultRequest;
 import kr.co.mcedu.group.model.response.CustomUserResponse;
 import kr.co.mcedu.group.model.response.CustomUserSynergyResponse;
+import kr.co.mcedu.group.model.response.PersonalResultResponse;
 import kr.co.mcedu.group.repository.CustomUserRepository;
 import kr.co.mcedu.group.repository.GroupManageRepository;
 import kr.co.mcedu.group.service.GroupResultService;
@@ -241,5 +243,34 @@ public class GroupResultServiceImpl
         });
 
         return matchHistoryResponse;
+    }
+
+    @Override
+    @Transactional
+    public PersonalResultResponse getPersonalResult(PersonalResultRequest request) throws Exception {
+        SessionUtils.groupAuthorityCheck(request.getGroupSeq(), GroupAuthEnum::isViewAbleAuth);
+
+        if (Objects.isNull(request.getPage())) {
+            throw new ServiceException("올바르지 않는 페이지입니다.");
+        }
+
+        Map<Integer, PersonalResultResponse> map = cacheManager.getPersonalResultHistory(request.getCustomUserSeq().toString());
+
+        Optional<PersonalResultResponse> result = Optional.ofNullable(map.get(request.getPage()));
+        if (result.isPresent()) {
+            log.info("GetFrom tPersonalResultHistoryCache : {} , {}", request.getCustomUserSeq(), request.getPage());
+            return result.get();
+        }
+        Optional<CustomUserEntity> customUser = groupManageRepository.customUserFetch(request.getCustomUserSeq());
+        if (!customUser.isPresent()) {
+            throw new DataNotExistException();
+        }
+        CustomUserEntity customUserEntity = customUser.get();
+
+        Page<MatchAttendeesEntity> attendeesPage = groupManageRepository.findAllPersonalMatchResult(customUserEntity, PageRequest.of(request.getPage(), 10));
+        PersonalResultResponse personalResultResponse = new PersonalResultResponse().setPage(attendeesPage);
+        map.put(request.getPage(), personalResultResponse);
+        cacheManager.putPersonalResultHistory(request.getCustomUserSeq().toString(), map);
+        return personalResultResponse;
     }
 }

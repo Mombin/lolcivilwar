@@ -1,6 +1,4 @@
-let currentGroup = {}
-    , $customUserSelect
-  , $seasonSelector = null;
+let $customUserSelect;
 
 function changeCustomUser() {
     const param = {
@@ -80,25 +78,9 @@ function changeSeasonSelect() {
     $("#badSynergy").empty();
     if (currentGroup.customUser[$seasonSelector.val()] === undefined) {
         currentGroup.customUser[$seasonSelector.val()] = [];
-        callRankData()
+        getMatchAttendees($seasonSelector.val())
     }
     $.each(currentGroup.customUser[$seasonSelector.val()], function(index, item) {
         $customUserSelect.append($('<option>').val(item.seq).html(`${item.nickname}[${item.summonerName}]`))
-    });
-}
-
-function callRankData() {
-    const param = {
-        groupSeq: currentGroup.groupSeq,
-        seasonSeq: $seasonSelector.val()
-    }
-    common_ajax.call('/api/group/v1/match_attendees', 'POST', false, param, function (res) {
-        if (res.code !== API_RESULT.SUCCESS) {
-            toast.error(res.message)
-            return;
-        }
-        $.each(res.data, function (idx, obj) {
-            currentGroup.customUser[$seasonSelector.val()].push(obj);
-        })
     });
 }

@@ -3,7 +3,7 @@ let myGroup
     , currentPage = 0;
 
 function init() {
-    callMyGroup('/api/group/my', groupChangeFunction);
+    callMyGroup('/api/group/v1/my', groupChangeFunction);
 }
 
 function groupChangeFunction(groupList) {

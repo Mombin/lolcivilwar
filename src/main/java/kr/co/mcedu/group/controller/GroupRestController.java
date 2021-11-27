@@ -137,12 +137,6 @@ class GroupRestController {
         return new ResponseWrapper().build();
     }
 
-    @GetMapping("/v1/personal/result")
-    public Object personalResult(@ModelAttribute PersonalResultRequest request) throws Exception {
-        log.info("GroupRestController  > personalResult: {}", request.toString());
-        return new ResponseWrapper().setData(groupService.getPersonalResult(request)).build();
-    }
-
     @PostMapping("/tier-point")
     public Object saveTierPoint(@RequestBody List<SaveTierPointRequest> request) throws AccessDeniedException {
         log.info("GroupRestController > saveTierPoint: {}", request.toString());

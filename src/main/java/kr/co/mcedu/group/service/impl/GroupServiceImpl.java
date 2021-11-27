@@ -270,35 +270,6 @@ public class GroupServiceImpl implements GroupService {
 
     @Override
     @Transactional
-    public PersonalResultResponse getPersonalResult(PersonalResultRequest request) throws Exception {
-        GroupEntity group = this.getGroup(request.getGroupSeq());
-        Optional<CustomUserEntity> customUser = groupManageRepository.customUserFetch(request.getCustomUserSeq());
-        if (!customUser.isPresent()) {
-            throw new DataNotExistException();
-        }
-        CustomUserEntity customUserEntity = customUser.get();
-        if (!Objects.equals(customUserEntity.getGroup().getGroupSeq(), group.getGroupSeq())){
-            throw new DataNotExistException();
-        }
-        if (Objects.isNull(request.getPage())) {
-            throw new ServiceException("올바르지 않는 페이지입니다.");
-        }
-
-        HashMap<Integer, PersonalResultResponse> map = cacheManager.getPersonalResultHistoryCache().get(request.getCustomUserSeq().toString(), HashMap::new);
-        Optional<PersonalResultResponse> result = Optional.ofNullable(map.get(request.getPage()));
-        if (result.isPresent()) {
-            return result.get();
-        }
-        Page<MatchAttendeesEntity> attendeesPage = groupManageRepository.findAllPersonalMatchResult(
-                customUserEntity, PageRequest.of(request.getPage(), 10));
-        PersonalResultResponse personalResultResponse = new PersonalResultResponse().setPage(attendeesPage);
-        map.put(request.getPage(), personalResultResponse);
-        cacheManager.getPersonalResultHistoryCache().put(request.getCustomUserSeq().toString(), map);
-        return personalResultResponse;
-    }
-
-    @Override
-    @Transactional
     public void saveTierPoint(final List<SaveTierPointRequest> request) throws AccessDeniedException {
         if (CollectionUtils.isEmpty(request)) {
             return;

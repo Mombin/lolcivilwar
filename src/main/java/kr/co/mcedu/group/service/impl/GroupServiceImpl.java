@@ -54,7 +54,6 @@ public class GroupServiceImpl implements GroupService {
     private final WebUserService webUserService;
     private final SummonerService summonerService;
     private final GroupManageRepository groupManageRepository;
-    private final MatchRepository matchRepository;
     private final GroupResultService groupResultService;
 
     /**
@@ -212,68 +211,6 @@ public class GroupServiceImpl implements GroupService {
         groupRepository.save(groupEntity);
     }
 
-    /**
-     * 시너지/상성 계산
-     * @param customUserSynergyRequest 요청 request
-     * @return 계산 결과
-     * @throws ServiceException
-     */
-    @Override
-    @Transactional
-    public CustomUserSynergyResponse calculateSynergy(CustomUserSynergyRequest customUserSynergyRequest)
-            throws ServiceException {
-        Long customUserSeq = Optional.ofNullable(customUserSynergyRequest.getCustomUserSeq()).orElse(0L);
-        CustomUserSynergyResponse result = cacheManager.getSynergyCache().getIfPresent(customUserSeq.toString());
-        Long requestGroupSeq = customUserSynergyRequest.getGroupSeq();
-        if (result != null && Objects.equals(result.getGroupSeq(), requestGroupSeq)) {
-            return result;
-        }
-        Optional<CustomUserEntity> userEntityOpt = customUserRepository.findById(customUserSeq);
-        if (!userEntityOpt.isPresent()) {
-            throw new DataNotExistException("잘못된 요청입니다.");
-        }
-        CustomUserEntity entity = userEntityOpt.get();
-        Optional<GroupEntity> groupEntity = Optional.ofNullable(entity.getGroup());
-        if (!groupEntity.isPresent() || !groupEntity.get().getGroupSeq().equals(requestGroupSeq)) {
-            throw new ServiceException("잘못된 요청입니다.");
-        }
-
-        List<MatchAttendeesEntity> matchList = matchRepository.findAllByCustomUserEntity(entity);
-        Map<Long, SynergyModel> synergy = new HashMap<>();
-        Map<Long, SynergyModel> badSynergy = new HashMap<>();
-        // 쿼리 조회를 줄이기 위해 전체한번에 조회
-        List<Long> matchSeqs = matchList.stream().map(MatchAttendeesEntity::getCustomMatch)
-                                      .map(CustomMatchEntity::getMatchSeq).collect(Collectors.toList());
-        Map<Long, List<MatchAttendeesEntity>> matchMap = matchRepository.findAllByCustomMatchs(matchSeqs).stream()
-                                                                        .collect(Collectors.groupingBy(it -> it.getCustomMatch().getMatchSeq()));
-        matchList.forEach(target -> {
-            List<MatchAttendeesEntity> allList = matchMap.getOrDefault(target.getCustomMatch().getMatchSeq(), Collections.emptyList());
-
-            allList.stream()
-                   .filter(matchAttendeesEntity -> !matchAttendeesEntity.getAttendeesSeq().equals(target.getAttendeesSeq()))
-                   .forEach(matchAttendeesEntity -> {
-                       Map<Long, SynergyModel> targetSynergy;
-                       if (matchAttendeesEntity.getTeam().equals(target.getTeam())) {
-                           targetSynergy = synergy;
-                       } else {
-                           targetSynergy = badSynergy;
-                       }
-                       Long userSeq = Optional.ofNullable(matchAttendeesEntity.getCustomUserEntity())
-                                              .map(CustomUserEntity::getSeq).orElse(0L);
-                       SynergyModel synergyModel = targetSynergy.computeIfAbsent(userSeq, a -> new SynergyModel());
-                       synergyModel.add(matchAttendeesEntity);
-                       targetSynergy.put(userSeq, synergyModel);
-                   });
-        });
-        result = new CustomUserSynergyResponse();
-        result.setGroupSeq(requestGroupSeq);
-        result.getSynergy().addAll(synergy.values());
-        result.getBadSynergy().addAll(badSynergy.values());
-
-        cacheManager.getSynergyCache().put(customUserSeq.toString(), result);
-        return result;
-    }
-
     @Transactional
     @Override
     public MatchHistoryResponse getMatches(Long groupSeq, Integer pageNum) throws Exception {
@@ -358,9 +295,11 @@ public class GroupServiceImpl implements GroupService {
         }
         CustomMatchEntity matchEntity = match.get();
         SessionUtils.groupManageableAuthCheck(matchEntity.getGroup().getGroupSeq());
-
-        matchEntity.getMatchAttendees().forEach(it -> cacheManager.getSynergyCache().invalidate(
-                (Optional.ofNullable(it.getCustomUserEntity()).map(CustomUserEntity::getSeq).orElse(0L)).toString()));
+        Long seasonSeq = matchEntity.getGroupSeason().getGroupSeasonSeq();
+        matchEntity.getMatchAttendees().forEach(it -> {
+            Long customUserSeq = Optional.ofNullable(it.getCustomUserEntity()).map(CustomUserEntity::getSeq).orElse(0L);
+            cacheManager.invalidSynergyCache(customUserSeq + "_" + seasonSeq);
+        });
         customMatchRepository.delete(matchEntity);
         cacheManager.getMatchHistoryCache().invalidate(
                 (Optional.ofNullable(matchEntity.getGroup()).map(GroupEntity::getGroupSeq).orElse(0L)).toString());

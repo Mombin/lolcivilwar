@@ -11,6 +11,7 @@ import java.util.List;
 @Setter
 public class CustomUserSynergyResponse {
     private Long groupSeq;
+    private Long seasonSeq;
     private List<SynergyModel> synergy;
     private List<SynergyModel> badSynergy;
     public CustomUserSynergyResponse() {

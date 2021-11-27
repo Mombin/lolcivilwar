@@ -28,9 +28,6 @@ public interface GroupService {
 
     void modifySummonerInGroup(CustomUserModifyRequest customUserModifyRequest) throws ServiceException;
 
-    CustomUserSynergyResponse calculateSynergy(CustomUserSynergyRequest customUserSynergyRequest)
-            throws ServiceException;
-
     MatchHistoryResponse getMatches(Long groupSeq, Integer pageNum) throws Exception;
 
     Object deleteMatch(Long matchSeq) throws ServiceException;

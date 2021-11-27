@@ -125,14 +125,6 @@ class GroupRestController {
         return new ResponseWrapper().build();
     }
 
-    @GetMapping("/synergy")
-    public Object getSynergy(@ModelAttribute CustomUserSynergyRequest customUserSynergyRequest)
-            throws ServiceException {
-        log.info("GroupRestController > getSynergy : {}", customUserSynergyRequest.toString());
-        CustomUserSynergyResponse data = groupService.calculateSynergy(customUserSynergyRequest);
-        return new ResponseWrapper().setData(data).build();
-    }
-
     @PostMapping("/match/{groupSeq}/{page}")
     public Object getMatch(@PathVariable Long groupSeq, @PathVariable Integer page) throws Exception {
         return new ResponseWrapper().setData(groupService.getMatches(groupSeq, page)).build();

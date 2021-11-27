@@ -1,10 +1,12 @@
 package kr.co.mcedu.group.repository;
 
 import com.querydsl.core.QueryResults;
+import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import kr.co.mcedu.group.entity.CustomUserEntity;
 import kr.co.mcedu.group.entity.GroupEntity;
 import kr.co.mcedu.group.entity.GroupSeasonEntity;
+import kr.co.mcedu.group.model.response.CustomUserResponse;
 import kr.co.mcedu.match.entity.CustomMatchEntity;
 import kr.co.mcedu.match.entity.MatchAttendeesEntity;
 import lombok.RequiredArgsConstructor;
@@ -117,5 +119,15 @@ public class GroupManageRepository {
     public List<CustomMatchEntity> getCustomMatchByGroupSeqAndSeasonSeq(long groupSeq, Long seasonSeq) {
         return queryFactory.selectFrom(customMatchEntity).where(customMatchEntity.group.groupSeq.eq(groupSeq),
                 customMatchEntity.groupSeason.groupSeasonSeq.eq(seasonSeq)).fetch();
+    }
+
+    public List<CustomUserResponse> getMatchAttendeesByGroupSeqAndSeasonSeq(final Long seasonSeq) {
+        return queryFactory.select(Projections.bean(CustomUserResponse.class, customUserEntity.nickname, customUserEntity.summonerName, customUserEntity.seq))
+                           .distinct()
+                           .from(customMatchEntity)
+                           .innerJoin(matchAttendeesEntity).on(matchAttendeesEntity.customMatch.matchSeq.eq(customMatchEntity.matchSeq))
+                           .innerJoin(customUserEntity).on(matchAttendeesEntity.customUserEntity.eq(customUserEntity))
+                           .where(customMatchEntity.groupSeason.groupSeasonSeq.eq(seasonSeq))
+                           .fetch();
     }
 }

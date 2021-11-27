@@ -6,6 +6,7 @@ import kr.co.mcedu.group.model.response.CustomUserSynergyResponse;
 import kr.co.mcedu.group.model.response.PersonalResultResponse;
 import kr.co.mcedu.match.model.response.MatchHistoryResponse;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import java.util.HashMap;
 import java.util.Map;
@@ -14,6 +15,7 @@ import javax.annotation.PostConstruct;
 
 @Component
 @Getter
+@Slf4j
 public class LocalCacheManager {
     private Cache<String, CustomUserSynergyResponse> synergyCache;
     private Cache<String, Map<Integer, MatchHistoryResponse>> matchHistoryCache;
@@ -42,5 +44,19 @@ public class LocalCacheManager {
         alarmCountCache = CacheBuilder.newBuilder()
                 .expireAfterAccess(1, TimeUnit.HOURS)
                 .build();
+    }
+
+    public void invalidSynergyCache(final String invalidCacheKey) {
+        synergyCache.invalidate(invalidCacheKey);
+        log.info("Invalid Synergy Cache : {}", invalidCacheKey);
+    }
+
+    public void putSynergyCache(String cacheKey, CustomUserSynergyResponse object) {
+        synergyCache.put(cacheKey, object);
+        log.info("Put Synergy Cache : {}", cacheKey);
+    }
+
+    public CustomUserSynergyResponse getSynergy(String cacheKey) {
+        return synergyCache.getIfPresent(cacheKey);
     }
 }

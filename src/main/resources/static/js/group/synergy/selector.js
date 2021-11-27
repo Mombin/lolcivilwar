@@ -1,12 +1,12 @@
-let currentGroup = {}
-    , $customUserSelect;
+let $customUserSelect;
 
 function changeCustomUser() {
     const param = {
         groupSeq: currentGroup.groupSeq,
-        customUserSeq: $(this).val()
+        customUserSeq: $(this).val(),
+        seasonSeq: $seasonSelector.val()
     }
-    common_ajax.call('/api/group/synergy', 'GET', true, param, function (res) {
+    common_ajax.call('/api/group/v1/synergy', 'GET', true, param, function (res) {
         const data = res.data;
         const synergy = data.synergy;
         const badSynergy = data.badSynergy;
@@ -46,13 +46,7 @@ function tableSet($id, list) {
 // 그룹 변경시 데이터 세팅
 function changeGroupSelect() {
     currentGroup = $(this).find('option:selected').data('group');
-    $customUserSelect.empty();
-    $customUserSelect.append($('<option>').val(0).attr('selected', true).attr('disabled', true).html('닉네임을 선택해주세요'));
-    $("#synergy").empty();
-    $("#badSynergy").empty();
-    $.each(currentGroup.customUser, function(index, item) {
-        $customUserSelect.append($('<option>').val(item.seq).html(`${item.nickname}[${item.summonerName}]`))
-    });
+    setSeasons();
 }
 
 function groupChangeFunction(groupList) {
@@ -63,4 +57,30 @@ function groupChangeFunction(groupList) {
             return;
         }
     }
+}
+
+function setSeasons() {
+    $seasonSelector.empty();
+    $.each(currentGroup.seasons, function (idx, season) {
+        let option = $('<option>').val(season.seasonSeq).html(season.seasonName);
+        if (season.seasonSeq === currentGroup.defaultSeason.seasonSeq) {
+            option.attr('selected', true);
+        }
+        $seasonSelector.append(option);
+    });
+    $seasonSelector.trigger('change')
+}
+
+function changeSeasonSelect() {
+    $customUserSelect.empty();
+    $customUserSelect.append($('<option>').val(0).attr('selected', true).attr('disabled', true).html('닉네임을 선택해주세요'));
+    $("#synergy").empty();
+    $("#badSynergy").empty();
+    if (currentGroup.customUser[$seasonSelector.val()] === undefined) {
+        currentGroup.customUser[$seasonSelector.val()] = [];
+        getMatchAttendees($seasonSelector.val())
+    }
+    $.each(currentGroup.customUser[$seasonSelector.val()], function(index, item) {
+        $customUserSelect.append($('<option>').val(item.seq).html(`${item.nickname}[${item.summonerName}]`))
+    });
 }

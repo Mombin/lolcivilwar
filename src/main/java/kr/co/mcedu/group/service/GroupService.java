@@ -28,18 +28,11 @@ public interface GroupService {
 
     void modifySummonerInGroup(CustomUserModifyRequest customUserModifyRequest) throws ServiceException;
 
-    CustomUserSynergyResponse calculateSynergy(CustomUserSynergyRequest customUserSynergyRequest)
-            throws ServiceException;
-
-    MatchHistoryResponse getMatches(Long groupSeq, Integer pageNum) throws Exception;
-
     Object deleteMatch(Long matchSeq) throws ServiceException;
 
     List<GroupAuthResponse> getAuthUserList(Long groupSeq) throws ServiceException;
 
     void linkSummoner(LinkSummonerRequest request) throws DataNotExistException;
-
-    PersonalResultResponse getPersonalResult(PersonalResultRequest request) throws Exception;
 
     void saveTierPoint(List<SaveTierPointRequest> request) throws AccessDeniedException;
 

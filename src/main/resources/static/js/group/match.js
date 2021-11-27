@@ -3,7 +3,7 @@ let myGroup
     , currentPage = 0;
 
 function init() {
-    callMyGroup('/api/group/my', groupChangeFunction);
+    callMyGroup('/api/group/v1/my', groupChangeFunction);
 }
 
 function groupChangeFunction(groupList) {
@@ -38,6 +38,7 @@ function getList(page) {
             let $tr = $('<tr>')
                 .append($('<td>').html(item.matchNumber))
                 .append($('<td>').html(item.date))
+                .append($('<td>').html(item.seasonName))
                 .append($('<td>').html(`${item.winner}팀`))
                 .append($('<td>').addClass(item.winner === 'A' ? 'table-primary' : '').html(item.alist.join(', ')))
                 .append($('<td>').addClass(item.winner === 'B' ? 'table-danger' : '').html(item.blist.join(', ')))

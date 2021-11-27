@@ -1,4 +1,4 @@
-let $groupSelector
+let $groupSelector, $seasonSelector, currentGroup = {}
 
 function callMyGroup(url, changeFn, changeFnParam) {
     $groupSelector = $("#groupSelector");
@@ -20,4 +20,25 @@ function callMyGroup(url, changeFn, changeFnParam) {
     if (typeof changeFn === 'function') {
         changeFn(groupList, changeFnParam);
     }
+}
+
+// -1 일경우 전체시즌
+function getMatchAttendees(seasonSeq) {
+    const param = {
+        groupSeq: currentGroup.groupSeq,
+        seasonSeq: seasonSeq
+    }
+    common_ajax.call('/api/group/v1/match_attendees', 'POST', false, param, function (res) {
+        if (res.code !== API_RESULT.SUCCESS) {
+            toast.error(res.message)
+            return;
+        }
+        $.each(res.data, function (idx, obj) {
+            if (seasonSeq === -1) {
+                currentGroup.customUser.push(obj);
+            } else {
+                currentGroup.customUser[seasonSeq].push(obj);
+            }
+        })
+    });
 }

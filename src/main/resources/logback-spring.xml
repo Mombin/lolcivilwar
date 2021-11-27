@@ -8,13 +8,13 @@
 
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>[%d{yyyy-MM-dd HH:mm:ss}][%thread] %-5level %logger{35} - %msg%n</pattern>
+            <pattern>[%d{yyyy-MM-dd HH:mm:ss}][%thread][%-5level] %msg%n</pattern>
         </encoder>
     </appender>
     <appender name="ROLLING" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOG_PATH}/lolcw.log</file>
         <encoder>
-            <pattern>[%d{yyyy-MM-dd HH:mm:ss}][%thread] %-5level %logger{35} - %msg%n</pattern>
+            <pattern>[%d{yyyy-MM-dd HH:mm:ss}][%thread][%-5level] %msg%n</pattern>
         </encoder>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <fileNamePattern>${LOG_PATH}/lol.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>

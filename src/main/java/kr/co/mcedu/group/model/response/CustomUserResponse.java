@@ -5,6 +5,7 @@ import kr.co.mcedu.group.entity.CustomUserEntity;
 import kr.co.mcedu.group.entity.GroupEntity;
 import kr.co.mcedu.summoner.entity.SummonerEntity;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.util.Pair;
 
@@ -15,6 +16,7 @@ import java.util.Optional;
 
 @Getter
 @Setter
+@NoArgsConstructor
 public class CustomUserResponse {
    private long seq;
    private Long groupSeq;

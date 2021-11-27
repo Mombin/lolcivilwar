@@ -125,11 +125,6 @@ class GroupRestController {
         return new ResponseWrapper().build();
     }
 
-    @PostMapping("/match/{groupSeq}/{page}")
-    public Object getMatch(@PathVariable Long groupSeq, @PathVariable Integer page) throws Exception {
-        return new ResponseWrapper().setData(groupService.getMatches(groupSeq, page)).build();
-    }
-
     @DeleteMapping("/match/{matchSeq}")
     public Object deleteMatch(@PathVariable Long matchSeq) throws ServiceException {
         return new ResponseWrapper().setData(groupService.deleteMatch(matchSeq)).build();

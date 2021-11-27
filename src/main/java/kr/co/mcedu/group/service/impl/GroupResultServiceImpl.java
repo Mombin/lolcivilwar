@@ -15,17 +15,23 @@ import kr.co.mcedu.group.repository.GroupManageRepository;
 import kr.co.mcedu.group.service.GroupResultService;
 import kr.co.mcedu.match.entity.CustomMatchEntity;
 import kr.co.mcedu.match.entity.MatchAttendeesEntity;
+import kr.co.mcedu.match.model.response.MatchHistoryResponse;
+import kr.co.mcedu.match.repository.CustomMatchRepository;
 import kr.co.mcedu.match.repository.MatchRepository;
 import kr.co.mcedu.utils.LocalCacheManager;
 import kr.co.mcedu.utils.SessionUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -38,6 +44,7 @@ public class GroupResultServiceImpl
     private final GroupManageRepository groupManageRepository;
     private final CustomUserRepository customUserRepository;
     private final MatchRepository matchRepository;
+    private final CustomMatchRepository customMatchRepository;
 
     @Override
     @Transactional
@@ -164,5 +171,75 @@ public class GroupResultServiceImpl
 
         cacheManager.putSynergyCache(customUserSeq + "_" + seasonSeq, result);
         return result;
+    }
+
+    @Transactional
+    @Override
+    public MatchHistoryResponse getMatches(Long groupSeq, Integer pageNum) throws AccessDeniedException {
+        SessionUtils.groupAuthorityCheck(groupSeq, GroupAuthEnum::isViewAbleAuth);
+        Map<Integer, MatchHistoryResponse> map = cacheManager.getMatchHistory(groupSeq.toString());
+        Optional<MatchHistoryResponse> result = Optional.ofNullable(map.get(pageNum));
+        if (result.isPresent()) {
+            log.info("GetFrom MatchHistoryCache : {} , {}", groupSeq, pageNum);
+            return result.get();
+        }
+
+        Page<CustomMatchEntity> page = customMatchRepository.findByGroup_GroupSeqOrderByMatchSeqDesc(groupSeq,  PageRequest.of(pageNum, 10));
+
+        MatchHistoryResponse matchHistoryResponse = this.setMatchHistoryResponse(page);
+
+        map.put(pageNum, matchHistoryResponse);
+        cacheManager.putMatchHistoryCache(groupSeq.toString(), map);
+
+        return matchHistoryResponse;
+    }
+
+    private MatchHistoryResponse setMatchHistoryResponse(Page<CustomMatchEntity> page) {
+        MatchHistoryResponse matchHistoryResponse = new MatchHistoryResponse();
+        matchHistoryResponse.setTotalPage(page.getTotalPages());
+        final AtomicLong matchNumber = new AtomicLong(page.getTotalElements() - ((long) page.getNumber() * page.getSize()));
+        List<Long> matchSeqs = page.get().map(CustomMatchEntity::getMatchSeq).collect(Collectors.toList());
+        Map<Long, List<MatchAttendeesEntity>> matchAttendeesMap =
+                groupManageRepository.getMatchAttendees(matchSeqs)
+                                     .stream()
+                                     .collect(Collectors.groupingBy(it -> it.getCustomMatch().getMatchSeq()));
+
+        page.get().forEach(it -> {
+            List<String> aList = new ArrayList<>();
+            List<String> bList = new ArrayList<>();
+
+            List<MatchAttendeesEntity> matchAttendees = matchAttendeesMap.getOrDefault(it.getMatchSeq(), Collections.emptyList());
+            matchAttendees.forEach(matchAttendeesEntity -> {
+                List<String> currentTeamList;
+                if ("A".equals(matchAttendeesEntity.getTeam())) {
+                    currentTeamList = aList;
+                } else {
+                    currentTeamList = bList;
+                }
+                String nickname = Optional.ofNullable(matchAttendeesEntity.getCustomUserEntity())
+                                          .map(CustomUserEntity::getNickname).orElse("");
+                currentTeamList.add(nickname);
+            });
+
+            MatchHistoryResponse.MatchHistoryElement matchHistoryElement = new MatchHistoryResponse.MatchHistoryElement();
+            matchHistoryElement.setMatchNumber(matchNumber.getAndDecrement());
+            matchHistoryElement.setDate(Optional.ofNullable(it.getCreatedDate())
+                                                .map(localDateTime -> localDateTime.format(
+                                                        DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
+                                                .orElse(""));
+            matchHistoryElement.setSeasonName(it.getGroupSeason().getSeasonName());
+            matchHistoryElement.setAList(aList);
+            matchHistoryElement.setBList(bList);
+            MatchAttendeesEntity matchAttendeesEntity = it.getMatchAttendees().get(0);
+            String winner = matchAttendeesEntity.getTeam();
+            if(!matchAttendeesEntity.isMatchResult()) {
+                winner = MatchHistoryResponse.teamFlip(winner);
+            }
+            matchHistoryElement.setWinner(winner);
+            matchHistoryElement.setMatchSeq(Optional.ofNullable(it.getMatchSeq()).orElse(0L));
+            matchHistoryResponse.getList().add(matchHistoryElement);
+        });
+
+        return matchHistoryResponse;
     }
 }

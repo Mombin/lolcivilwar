@@ -72,7 +72,7 @@ public class CustomMatchServiceImpl implements CustomMatchService {
             it.setCustomMatch(entity);
             matchAttendeesRepository.save(it.toEntity());
         }
-        cacheManager.getMatchHistoryCache().invalidate(groupEntity.getGroupSeq().toString());
+        cacheManager.invalidMatchHistoryCache(groupEntity.getGroupSeq().toString());
     }
 
     @Override

@@ -28,8 +28,6 @@ public interface GroupService {
 
     void modifySummonerInGroup(CustomUserModifyRequest customUserModifyRequest) throws ServiceException;
 
-    MatchHistoryResponse getMatches(Long groupSeq, Integer pageNum) throws Exception;
-
     Object deleteMatch(Long matchSeq) throws ServiceException;
 
     List<GroupAuthResponse> getAuthUserList(Long groupSeq) throws ServiceException;

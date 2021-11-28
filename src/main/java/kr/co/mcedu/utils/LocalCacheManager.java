@@ -92,4 +92,18 @@ public class LocalCacheManager {
         personalResultHistoryCache.put(cacheKey, map);
         log.info("Put PersonalResultHistory Cache : {}", cacheKey);
     }
+
+    public void invalidAlarmCountCache(String cacheKey) {
+        alarmCountCache.invalidate(cacheKey);
+        log.info("Invalid AlarmCount Cache : {}", cacheKey);
+    }
+
+    public Long getAlarmCount(final String userId) {
+        return alarmCountCache.getIfPresent(userId);
+    }
+
+    public void putAlarmCountCache(final String userId, final Long count) {
+        alarmCountCache.put(userId, count);
+        log.info("Put AlarmCount Cache : {}", userId);
+    }
 }

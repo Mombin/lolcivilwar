@@ -129,8 +129,7 @@ public class UserDetailServiceImpl implements UserDetailsService {
         }
         localCacheManager.getUserIdCache().invalidate(request.getId());
         localCacheManager.getEmailCache().invalidate(request.getEmail());
-        userAlarmService.sendAlarm(entity,
-                String.format("회원가입 하신것을 축하드립니다 %s님.<br>[그룹]-[그룹관리] 에서 여러분의 첫번째 팀을 생성해보세요.", request.getId()));
+        userAlarmService.sendNormalAlarm(entity, String.format("회원가입 하신것을 축하드립니다 %s님.<br>[그룹]-[그룹관리] 에서 여러분의 첫번째 팀을 생성해보세요.", request.getId()));
         return true;
     }
 }

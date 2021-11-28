@@ -1,5 +1,6 @@
 package kr.co.mcedu.utils;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import kr.co.mcedu.config.exception.AccessDeniedException;
 import kr.co.mcedu.config.exception.ServiceException;
@@ -159,5 +160,9 @@ public class SessionUtils {
         } catch (ExpiredJwtException ignore) {
             return null;
         }
+
+    }
+    private static String getAccessToken() {
+        return jwtTokenProvider.parseTokenCookie(getRequest(),TokenType.ACCESS_TOKEN);
     }
 }

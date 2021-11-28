@@ -1,6 +1,7 @@
 package kr.co.mcedu.user.entity;
 
 import kr.co.mcedu.common.entity.BaseTimeEntity;
+import kr.co.mcedu.user.model.UserInfo;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -27,4 +28,12 @@ public class WebUserEntity extends BaseTimeEntity {
     private Boolean confirm = false;
     private String refreshToken;
     private String lolcwTag;
+
+    public UserInfo getUserInfo() {
+        UserInfo userInfo = new UserInfo();
+        userInfo.setUserId(userId);
+        userInfo.setLolcwTag(lolcwTag);
+        userInfo.setUserSeq(userSeq);
+        return userInfo;
+    }
 }

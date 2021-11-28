@@ -1,25 +1,26 @@
 package kr.co.mcedu.user.service.impl;
 
 import kr.co.mcedu.config.exception.AccessDeniedException;
+import kr.co.mcedu.config.exception.DataNotExistException;
 import kr.co.mcedu.config.exception.ServiceException;
 import kr.co.mcedu.config.security.AccessTokenField;
 import kr.co.mcedu.config.security.JwtTokenProvider;
 import kr.co.mcedu.config.security.TokenType;
 import kr.co.mcedu.user.entity.WebUserEntity;
 import kr.co.mcedu.user.model.UserAuthority;
+import kr.co.mcedu.user.model.UserInfo;
 import kr.co.mcedu.user.repository.UserRepository;
 import kr.co.mcedu.user.repository.WebUserRepository;
 import kr.co.mcedu.user.service.WebUserService;
+import kr.co.mcedu.utils.StringUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static kr.co.mcedu.user.model.UserAuthority.ADMIN;
@@ -97,5 +98,22 @@ public class WebUserServiceImpl implements WebUserService {
     @Override
     public void pushRefreshedUser(Long userSeq) {
         needRefreshed.put(userSeq, true);
+    }
+
+    /**
+     * LOLCW TAG로 사용자 찾기
+     * @param lolcwTag
+     * @return
+     * @throws ServiceException
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public UserInfo getUserInfoByLolcwTag(final String lolcwTag) throws ServiceException {
+        if (StringUtils.isEmpty(lolcwTag)) {
+            throw new DataNotExistException("태그를 입력해주세요");
+        }
+        Optional<WebUserEntity> webUserEntityByLolcwTag = webUserRepository.findWebUserEntityByLolcwTag(lolcwTag);
+        WebUserEntity userEntity = webUserEntityByLolcwTag.orElseThrow(() -> new DataNotExistException("존재하지 않는 사용자입니다."));
+        return userEntity.getUserInfo();
     }
 }

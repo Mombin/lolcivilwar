@@ -14,6 +14,16 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 @ControllerAdvice
 class ExceptionController {
 
+
+    /**
+     * ServiceException handler
+     */
+    @ExceptionHandler(DataNotExistException.class)
+    public ResponseEntity<Object> handleServiceException(DataNotExistException ex) {
+        log.error("error : {}", ex.getViewMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ResponseWrapper.fail(ex.getViewMessage()).build());
+    }
+
     /**
      * ServiceException handler
      */

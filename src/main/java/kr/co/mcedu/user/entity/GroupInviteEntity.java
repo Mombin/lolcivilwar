@@ -20,6 +20,7 @@ import java.time.LocalDateTime;
 @SequenceGenerator(sequenceName = "group_invite_seq", initialValue = 1, allocationSize = 1, name = "group_invite_seq_gen", schema = "lol")
 public class GroupInviteEntity {
     @Id
+    @Column(name = "group_invite_seq")
     @GeneratedValue(generator = "group_invite_seq_gen", strategy = GenerationType.SEQUENCE)
     private Long groupInviteSeq;
     @ManyToOne

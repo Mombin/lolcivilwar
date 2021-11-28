@@ -13,6 +13,7 @@ import kr.co.mcedu.group.service.GroupUserService;
 import kr.co.mcedu.user.entity.GroupInviteEntity;
 import kr.co.mcedu.user.entity.WebUserEntity;
 import kr.co.mcedu.user.repository.WebUserRepository;
+import kr.co.mcedu.user.service.UserAlarmService;
 import kr.co.mcedu.user.service.WebUserService;
 import kr.co.mcedu.utils.SessionUtils;
 import kr.co.mcedu.utils.StringUtils;
@@ -29,7 +30,9 @@ public class GroupUserServiceImpl
 
     private final GroupManageRepository groupManageRepository;
     private final WebUserRepository webUserRepository;
+
     private final WebUserService webUserService;
+    private final UserAlarmService userAlarmService;
 
     /**
      * 그룹에서 추방하기
@@ -88,6 +91,8 @@ public class GroupUserServiceImpl
         groupInviteEntity.setUser(currentUserEntity);
         groupInviteEntity.setExpireResult(false);
 
-        groupManageRepository.save(groupInviteEntity);
+        groupInviteEntity = groupManageRepository.save(groupInviteEntity);
+
+        userAlarmService.sendInviteAlarm(inviteUser, groupInviteEntity);
     }
 }

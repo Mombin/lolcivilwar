@@ -11,6 +11,7 @@ import kr.co.mcedu.group.entity.GroupSeasonEntity;
 import kr.co.mcedu.group.model.response.CustomUserResponse;
 import kr.co.mcedu.match.entity.CustomMatchEntity;
 import kr.co.mcedu.match.entity.MatchAttendeesEntity;
+import kr.co.mcedu.user.entity.GroupInviteEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -152,5 +153,9 @@ public class GroupManageRepository {
                            .innerJoin(customUserEntity).on(matchAttendeesEntity.customUserEntity.eq(customUserEntity), customUserEntity.delYn.eq(false))
                            .where(booleanBuilder)
                            .fetch();
+    }
+
+    public GroupInviteEntity save(GroupInviteEntity groupInviteEntity) {
+        return entityManager.merge(groupInviteEntity);
     }
 }

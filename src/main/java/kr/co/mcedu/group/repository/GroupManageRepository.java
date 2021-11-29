@@ -122,10 +122,12 @@ public class GroupManageRepository {
                 customMatchEntity.groupSeason.groupSeasonSeq.eq(seasonSeq)).fetch();
     }
 
-    public List<CustomUserResponse> getMatchAttendeesByGroupSeqAndSeasonSeq(final Long seasonSeq) {
+    public List<CustomUserResponse> getMatchAttendeesByGroupSeqAndSeasonSeq(Long groupSeq, Long seasonSeq) {
         BooleanBuilder booleanBuilder = new BooleanBuilder();
         if (seasonSeq != -1) {
             booleanBuilder.and(customMatchEntity.groupSeason.groupSeasonSeq.eq(seasonSeq));
+        } else {
+            booleanBuilder.and(customMatchEntity.groupSeason.group.groupSeq.eq(groupSeq));
         }
 
         return queryFactory.select(Projections.bean(CustomUserResponse.class, customUserEntity.nickname, customUserEntity.summonerName, customUserEntity.seq))

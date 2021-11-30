@@ -8,10 +8,14 @@ import kr.co.mcedu.group.entity.GroupAuthEnum;
 import kr.co.mcedu.group.entity.GroupEntity;
 import kr.co.mcedu.group.model.request.GroupExpelRequest;
 import kr.co.mcedu.group.model.request.GroupInviteRequest;
+import kr.co.mcedu.group.model.request.ReplyInviteRequest;
 import kr.co.mcedu.group.repository.GroupManageRepository;
 import kr.co.mcedu.group.service.GroupUserService;
 import kr.co.mcedu.user.entity.GroupInviteEntity;
+import kr.co.mcedu.user.entity.UserAlarmEntity;
 import kr.co.mcedu.user.entity.WebUserEntity;
+import kr.co.mcedu.user.model.UserAlarmType;
+import kr.co.mcedu.user.repository.UserAlarmRepository;
 import kr.co.mcedu.user.repository.WebUserRepository;
 import kr.co.mcedu.user.service.UserAlarmService;
 import kr.co.mcedu.user.service.WebUserService;
@@ -30,6 +34,7 @@ public class GroupUserServiceImpl
 
     private final GroupManageRepository groupManageRepository;
     private final WebUserRepository webUserRepository;
+    private final UserAlarmRepository userAlarmRepository;
 
     private final WebUserService webUserService;
     private final UserAlarmService userAlarmService;
@@ -94,5 +99,44 @@ public class GroupUserServiceImpl
         groupInviteEntity = groupManageRepository.save(groupInviteEntity);
 
         userAlarmService.sendInviteAlarm(inviteUser, groupInviteEntity);
+    }
+
+    /**
+     * 초대에 응답하기
+     * @param request
+     * @throws ServiceException
+     */
+    @Override
+    @Transactional
+    public void replyInviteMessage(ReplyInviteRequest request) throws ServiceException{
+        UserAlarmEntity userAlarmEntity = userAlarmRepository.findById(Optional.ofNullable(request.getAlarmSeq()).orElse(0L))
+                                                             .orElseThrow(DataNotExistException::new);
+        if (!userAlarmEntity.getWebUserEntity().getUserSeq().equals(SessionUtils.getUserSeq())) {
+            throw new AccessDeniedException("권한이 없습니다.");
+        }
+        GroupInviteEntity groupInviteEntity = userAlarmEntity.getGroupInviteEntity();
+        if (userAlarmEntity.getAlarmType() != UserAlarmType.INVITE || groupInviteEntity == null || !request.isValidRequest()) {
+            throw new AccessDeniedException();
+        }
+
+        userAlarmEntity.setIsRead(true);
+        if (Boolean.TRUE.equals(groupInviteEntity.getExpireResult())) {
+            throw new AccessDeniedException("이미 응답한 초대입니다.");
+        }
+
+        groupInviteEntity.setInviteResult("Y".equals(request.getResult()));
+        groupInviteEntity.setExpireResult(true);
+
+        modifyUserGroupAuth(groupInviteEntity.getGroup(), userAlarmEntity.getWebUserEntity(), GroupAuthEnum.USER);
+        SessionUtils.refreshAccessToken();
+    }
+
+    private void modifyUserGroupAuth(GroupEntity group, WebUserEntity webUserEntity, GroupAuthEnum auth) {
+        Optional<GroupAuthEntity> groupAuthEntityOpt = groupManageRepository.getGroupAuthByGroupSeqAndUserSeq(group.getGroupSeq(), webUserEntity.getUserSeq());
+        GroupAuthEntity groupAuthEntity = groupAuthEntityOpt.orElseGet(GroupAuthEntity::new);
+        groupAuthEntity.setGroup(group);
+        groupAuthEntity.setWebUser(webUserEntity);
+        groupAuthEntity.setGroupAuth(auth);
+        groupManageRepository.save(groupAuthEntity);
     }
 }

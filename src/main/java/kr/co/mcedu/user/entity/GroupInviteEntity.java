@@ -4,8 +4,10 @@ import kr.co.mcedu.group.entity.GroupEntity;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
@@ -14,6 +16,8 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @ToString
+@DynamicInsert
+@DynamicUpdate
 @Entity(name = "group_invite")
 @Table(schema = "lol", name = "group_invite")
 @EntityListeners(AuditingEntityListener.class)
@@ -31,7 +35,7 @@ public class GroupInviteEntity {
     private WebUserEntity user;
     @CreatedDate
     private LocalDateTime invitedDate;
-    @LastModifiedBy
+    @LastModifiedDate
     private LocalDateTime modifiedDate;
     @ManyToOne
     @JoinColumn(name = "invited_user_seq", referencedColumnName = "user_seq")

@@ -99,6 +99,7 @@ public class UserAlarmServiceImpl implements UserAlarmService {
     }
 
     @Override
+    @Transactional
     public Object readMessage(final Long alarmSeq) throws ServiceException {
         long userSeq = SessionUtils.getUserSeq();
         if (alarmSeq == null || userSeq == 0L) {

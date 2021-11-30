@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiOperation;
 import kr.co.mcedu.config.exception.ServiceException;
 import kr.co.mcedu.group.model.request.GroupExpelRequest;
 import kr.co.mcedu.group.model.request.GroupInviteRequest;
+import kr.co.mcedu.group.model.request.ReplyInviteRequest;
 import kr.co.mcedu.group.service.GroupUserService;
 import kr.co.mcedu.utils.ResponseWrapper;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +33,13 @@ public class GroupUserController {
     @PostMapping("/v1/invite-user")
     public Object inviteUser(@RequestBody GroupInviteRequest request) throws ServiceException {
         groupUserService.inviteUser(request);
+        return new ResponseWrapper().build();
+    }
+
+    @ApiOperation(value = "replyInviteMessage", tags = API_TAG, notes = "그룹 초대에 응답하기")
+    @PostMapping("/v1/invite-result")
+    public Object replyInviteMessage(@RequestBody ReplyInviteRequest request) throws ServiceException {
+        groupUserService.replyInviteMessage(request);
         return new ResponseWrapper().build();
     }
 }

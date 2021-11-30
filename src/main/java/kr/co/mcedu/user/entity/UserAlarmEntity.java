@@ -5,6 +5,8 @@ import kr.co.mcedu.user.model.UserAlarmType;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Where;
 import javax.persistence.*;
 
@@ -14,6 +16,8 @@ import javax.persistence.*;
 @Getter
 @Setter
 @ToString
+@DynamicUpdate
+@DynamicInsert
 @Entity(name = "user_alarm")
 @Table(schema = "lol", name = "user_alarm")
 @Where(clause = "is_delete = false")

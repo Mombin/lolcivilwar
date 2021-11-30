@@ -158,4 +158,8 @@ public class GroupManageRepository {
     public GroupInviteEntity save(GroupInviteEntity groupInviteEntity) {
         return entityManager.merge(groupInviteEntity);
     }
+
+    public GroupAuthEntity save(GroupAuthEntity groupAuthEntity) {
+        return entityManager.merge(groupAuthEntity);
+    }
 }

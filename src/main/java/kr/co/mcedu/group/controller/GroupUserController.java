@@ -42,4 +42,10 @@ public class GroupUserController {
         groupUserService.replyInviteMessage(request);
         return new ResponseWrapper().build();
     }
+
+    @ApiOperation(value = "getWebUserInGroup", tags = API_TAG, notes = "웹유저 리스트 가져오기")
+    @GetMapping("/v1/{groupSeq}/user")
+    public Object getWebUserInGroup(@PathVariable Long groupSeq) throws ServiceException {
+        return new ResponseWrapper().setData(groupUserService.getAuthUserList(groupSeq)).build();
+    }
 }

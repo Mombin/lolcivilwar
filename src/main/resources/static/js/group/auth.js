@@ -13,7 +13,7 @@ function groupChangeFunction(groupList) {
 // 그룹 권한 리스트
 function callGroupAuthList() {
     const currentGroup = $(this).find('option:selected').data('group')
-    common_ajax.call(`/api/group/auth/${currentGroup.groupSeq}`, 'GET', false, {}, function(res) {
+    common_ajax.call(`/api/group/v1/${currentGroup.groupSeq}/user`, 'GET', false, {}, function(res) {
         $groupAuthList.empty()
         if (res.code !== API_RESULT.SUCCESS) {
             toast.error(res.error);

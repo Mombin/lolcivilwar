@@ -9,6 +9,7 @@ import kr.co.mcedu.group.entity.GroupEntity;
 import kr.co.mcedu.group.model.request.GroupExpelRequest;
 import kr.co.mcedu.group.model.request.GroupInviteRequest;
 import kr.co.mcedu.group.model.request.ReplyInviteRequest;
+import kr.co.mcedu.group.model.response.GroupAuthResponse;
 import kr.co.mcedu.group.repository.GroupManageRepository;
 import kr.co.mcedu.group.service.GroupUserService;
 import kr.co.mcedu.user.entity.GroupInviteEntity;
@@ -23,9 +24,12 @@ import kr.co.mcedu.utils.SessionUtils;
 import kr.co.mcedu.utils.StringUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.transaction.Transactional;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -138,5 +142,20 @@ public class GroupUserServiceImpl
         groupAuthEntity.setWebUser(webUserEntity);
         groupAuthEntity.setGroupAuth(auth);
         groupManageRepository.save(groupAuthEntity);
+    }
+
+    /**
+     * 그룹권한 리스트 가져오기 
+     * @param groupSeq 그룹순번
+     * @return 그룹권한 리스트
+     */
+    @Override
+    @Transactional
+    public List<GroupAuthResponse> getAuthUserList(Long groupSeq) throws ServiceException {
+        SessionUtils.groupManageableAuthCheck(groupSeq);
+        List<GroupAuthEntity> groupAuthEntities = groupManageRepository.getGroupAuthByGroupSeq(groupSeq);
+        return groupAuthEntities.stream().map(GroupAuthResponse::new)
+                                .sorted(Comparator.comparing(o -> ((GroupAuthResponse) o).getGroupAuth().getOrder()).reversed())
+                                .collect(Collectors.toList());
     }
 }

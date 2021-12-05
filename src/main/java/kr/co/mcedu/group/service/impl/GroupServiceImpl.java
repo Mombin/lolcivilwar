@@ -10,9 +10,7 @@ import kr.co.mcedu.group.model.GroupResponse;
 import kr.co.mcedu.group.model.GroupSaveRequest;
 import kr.co.mcedu.group.model.request.*;
 import kr.co.mcedu.group.model.response.CustomUserResponse;
-import kr.co.mcedu.group.model.response.GroupAuthResponse;
 import kr.co.mcedu.group.model.response.GroupSeasonResponse;
-import kr.co.mcedu.group.model.response.PersonalResultResponse;
 import kr.co.mcedu.group.repository.CustomUserRepository;
 import kr.co.mcedu.group.repository.GroupAuthRepository;
 import kr.co.mcedu.group.repository.GroupManageRepository;
@@ -20,8 +18,6 @@ import kr.co.mcedu.group.repository.GroupRepository;
 import kr.co.mcedu.group.service.GroupResultService;
 import kr.co.mcedu.group.service.GroupService;
 import kr.co.mcedu.match.entity.CustomMatchEntity;
-import kr.co.mcedu.match.entity.MatchAttendeesEntity;
-import kr.co.mcedu.match.model.response.MatchHistoryResponse;
 import kr.co.mcedu.match.repository.CustomMatchRepository;
 import kr.co.mcedu.match.repository.MatchAttendeesRepository;
 import kr.co.mcedu.summoner.entity.SummonerEntity;
@@ -32,15 +28,11 @@ import kr.co.mcedu.utils.LocalCacheManager;
 import kr.co.mcedu.utils.SessionUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -239,16 +231,6 @@ public class GroupServiceImpl implements GroupService {
                 Optional.ofNullable(it.getCustomUserEntity()).map(CustomUserEntity::getSeq).orElse(0L).toString()));
 
         return "success";
-    }
-
-    @Transactional
-    @Override
-    public List<GroupAuthResponse> getAuthUserList(Long groupSeq) throws ServiceException {
-        SessionUtils.groupManageableAuthCheck(groupSeq);
-        GroupEntity groupEntity = this.getGroup(groupSeq);
-        return GroupAuthResponse.of(groupEntity.getGroupAuthList()).stream()
-                                .sorted(Comparator.comparingInt(o -> o.getGroupAuth().ordinal()))
-                                .collect(Collectors.toList());
     }
 
     @Override

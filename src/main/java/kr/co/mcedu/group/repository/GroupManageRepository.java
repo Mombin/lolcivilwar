@@ -4,10 +4,7 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import kr.co.mcedu.group.entity.CustomUserEntity;
-import kr.co.mcedu.group.entity.GroupAuthEntity;
-import kr.co.mcedu.group.entity.GroupEntity;
-import kr.co.mcedu.group.entity.GroupSeasonEntity;
+import kr.co.mcedu.group.entity.*;
 import kr.co.mcedu.group.model.response.CustomUserResponse;
 import kr.co.mcedu.match.entity.CustomMatchEntity;
 import kr.co.mcedu.match.entity.MatchAttendeesEntity;
@@ -161,5 +158,9 @@ public class GroupManageRepository {
 
     public GroupAuthEntity save(GroupAuthEntity groupAuthEntity) {
         return entityManager.merge(groupAuthEntity);
+    }
+
+    public List<GroupAuthEntity> getGroupAuthByGroupSeq(final Long groupSeq) {
+        return queryFactory.selectFrom(groupAuthEntity).where(groupAuthEntity.group.groupSeq.eq(groupSeq)).fetch();
     }
 }

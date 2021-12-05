@@ -2,6 +2,7 @@ package kr.co.mcedu.group.controller;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import kr.co.mcedu.config.exception.AccessDeniedException;
 import kr.co.mcedu.config.exception.ServiceException;
 import kr.co.mcedu.group.model.request.GroupExpelRequest;
 import kr.co.mcedu.group.model.request.GroupInviteRequest;
@@ -47,5 +48,12 @@ public class GroupUserController {
     @GetMapping("/v1/{groupSeq}/user")
     public Object getWebUserInGroup(@PathVariable Long groupSeq) throws ServiceException {
         return new ResponseWrapper().setData(groupUserService.getAuthUserList(groupSeq)).build();
+    }
+
+    @ApiOperation(value = "getInviteHistory", tags = API_TAG, notes = "초대이력 가져오기")
+    @GetMapping("/v1/invite-user")
+    public Object getInviteHistory(@RequestParam Long groupSeq, @RequestParam Integer page)
+            throws AccessDeniedException {
+        return new ResponseWrapper().setData(groupUserService.getInviteUserHistory(groupSeq, page)).build();
     }
 }

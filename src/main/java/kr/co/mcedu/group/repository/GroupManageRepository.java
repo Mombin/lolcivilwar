@@ -4,7 +4,10 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import kr.co.mcedu.group.entity.*;
+import kr.co.mcedu.group.entity.CustomUserEntity;
+import kr.co.mcedu.group.entity.GroupAuthEntity;
+import kr.co.mcedu.group.entity.GroupEntity;
+import kr.co.mcedu.group.entity.GroupSeasonEntity;
 import kr.co.mcedu.group.model.response.CustomUserResponse;
 import kr.co.mcedu.match.entity.CustomMatchEntity;
 import kr.co.mcedu.match.entity.MatchAttendeesEntity;
@@ -26,6 +29,8 @@ import static kr.co.mcedu.group.entity.QGroupSeasonEntity.groupSeasonEntity;
 import static kr.co.mcedu.match.entity.QCustomMatchEntity.customMatchEntity;
 import static kr.co.mcedu.match.entity.QMatchAttendeesEntity.matchAttendeesEntity;
 import static kr.co.mcedu.summoner.entity.QSummonerEntity.summonerEntity;
+import static kr.co.mcedu.user.entity.QGroupInviteEntity.groupInviteEntity;
+import static kr.co.mcedu.user.entity.QWebUserEntity.webUserEntity;
 
 @Repository
 @RequiredArgsConstructor
@@ -162,5 +167,17 @@ public class GroupManageRepository {
 
     public List<GroupAuthEntity> getGroupAuthByGroupSeq(final Long groupSeq) {
         return queryFactory.selectFrom(groupAuthEntity).where(groupAuthEntity.group.groupSeq.eq(groupSeq)).fetch();
+    }
+
+    public QueryResults<GroupInviteEntity> getGroupInviteHistory(final Long groupSeq, final Pageable page) {
+        return queryFactory.select(groupInviteEntity)
+                           .from(groupInviteEntity)
+                           .innerJoin(groupInviteEntity.user, webUserEntity).fetchJoin()
+                           .innerJoin(groupInviteEntity.invitedUser, webUserEntity).fetchJoin()
+                           .where(groupInviteEntity.group.groupSeq.eq(groupSeq))
+                           .offset(page.getOffset())
+                           .limit(page.getPageSize())
+                           .orderBy(groupInviteEntity.invitedDate.desc())
+                           .fetchResults();
     }
 }

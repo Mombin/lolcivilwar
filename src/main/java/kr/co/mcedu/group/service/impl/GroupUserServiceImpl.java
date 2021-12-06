@@ -1,5 +1,8 @@
 package kr.co.mcedu.group.service.impl;
 
+import com.querydsl.core.QueryResults;
+import kr.co.mcedu.common.model.PageRequest;
+import kr.co.mcedu.common.model.PageWrapper;
 import kr.co.mcedu.config.exception.AccessDeniedException;
 import kr.co.mcedu.config.exception.DataNotExistException;
 import kr.co.mcedu.config.exception.ServiceException;
@@ -10,6 +13,7 @@ import kr.co.mcedu.group.model.request.GroupExpelRequest;
 import kr.co.mcedu.group.model.request.GroupInviteRequest;
 import kr.co.mcedu.group.model.request.ReplyInviteRequest;
 import kr.co.mcedu.group.model.response.GroupAuthResponse;
+import kr.co.mcedu.group.model.response.GroupInviteHistoryResponse;
 import kr.co.mcedu.group.repository.GroupManageRepository;
 import kr.co.mcedu.group.service.GroupUserService;
 import kr.co.mcedu.user.entity.GroupInviteEntity;
@@ -157,5 +161,24 @@ public class GroupUserServiceImpl
         return groupAuthEntities.stream().map(GroupAuthResponse::new)
                                 .sorted(Comparator.comparing(o -> ((GroupAuthResponse) o).getGroupAuth().getOrder()).reversed())
                                 .collect(Collectors.toList());
+    }
+
+    /**
+     * 초대이력 리스트 가져오기
+     * @param groupSeq 그룹순번
+     * @param page 페이지 0 ->
+     * @return 초대이력
+     */
+    @Override
+    @Transactional
+    public PageWrapper<GroupInviteHistoryResponse> getInviteUserHistory(final Long groupSeq, Integer page) throws AccessDeniedException {
+        SessionUtils.groupManageableAuthCheck(groupSeq);
+        if (page == null) {
+            page = 0;
+        }
+        PageRequest pageRequest = new PageRequest(page, 10);
+        QueryResults<GroupInviteEntity> groupInviteHistory = groupManageRepository.getGroupInviteHistory(groupSeq, pageRequest);
+        PageWrapper<GroupInviteEntity> result = PageWrapper.of(groupInviteHistory);
+        return result.change(GroupInviteHistoryResponse::new);
     }
 }

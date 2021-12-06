@@ -1,4 +1,14 @@
 let $groupAuthList;
+let $groupAutheListHeader;
+let currentGroup = {}
+let $inviteHistoryTable;
+let $manageAuthTable;
+
+// 그룹 선택 이벤트
+function changeGroupSelect() {
+    currentGroup = $(this).find('option:selected').data('group');
+    $('#position .nav-link.active').trigger('click');
+}
 
 function groupChangeFunction(groupList) {
     for (let i = 0; i < groupList.length; i++) {
@@ -10,11 +20,16 @@ function groupChangeFunction(groupList) {
     }
 }
 
+
 // 그룹 권한 리스트
 function callGroupAuthList() {
-    const currentGroup = $(this).find('option:selected').data('group')
+    $manageAuthTable.show();
+    $('.table').not($manageAuthTable).hide();
+    let authCall = $manageAuthTable.isAuthCall || {};
+    if (authCall[currentGroup.groupSeq]) {
+        return;
+    }
     common_ajax.call(`/api/group/auth/${currentGroup.groupSeq}`, 'GET', false, {}, function(res) {
-        $groupAuthList.empty()
         if (res.code !== API_RESULT.SUCCESS) {
             toast.error(res.error);
             return;
@@ -46,4 +61,9 @@ function callGroupAuthList() {
             }
         });
     });
+}
+
+function callGroupInviteList(){
+    $inviteHistoryTable.show();
+    $(".table").not($inviteHistoryTable).hide();
 }

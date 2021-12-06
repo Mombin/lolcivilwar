@@ -3,17 +3,26 @@
       xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{layout/default}" >
+      layout:decorate="~{layout/default}">
 <body>
+
 <div layout:fragment="content">
     <div th:replace="~{fragments/fragments :: groupSelector}"></div>
-    <table class="table">
+    <ul class="nav nav-tabs" style="margin-top: 20px" id="position">
+        <li class="nav-item">
+            <a class="nav-link active" href="#" data-position="manageAuth">권한관리</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#" data-position="invite">초대 이력</a>
+        </li>
+    </ul>
+    <table class="table" id="manageAuthTable">
         <colgroup>
             <col width="10%">
             <col width="80%">
             <col width="10%">
         </colgroup>
-        <thead>
+        <thead id="groupAutheListHeader">
         <tr>
             <th scope="col">#</th>
             <th scope="col">User</th>
@@ -23,9 +32,45 @@
         <tbody id="groupAuthList">
         </tbody>
     </table>
-<!--    <button type="button" class="btn btn-success" id="saveAuth" style="margin-top: 10px; float: right">권한저장</button>-->
+
+    <table class="table" id="inviteHistoryTable" style="display: none">
+        <colgroup>
+            <col width="10%">
+            <col width="50%">
+            <col width="10%">
+            <col width="10%">
+            <col width="10%">
+        </colgroup>
+        <thead>
+        <tr>
+            <th scope="col">아이디</th>
+            <th scope="col">수락여부</th>
+            <th scope="col">초대일자</th>
+            <th scope="col">응답일자</th>
+            <th scope="col">초대취소</th>
+        </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+
+    <div id="modifyAuth" style="float:right">
+        <form class="form-inline" id="modifyForm" style="display: none">
+            <button type="button" class="btn btn-primary">저장</button>
+        </form>
+    </div>
+    <div id="inviteTab" style="float:right">
+        <form class="form-inline" id="inviteForm" style="display: none">
+            <input type="text" id="lolcwTag" placeholder="LOLCWTAG 입력">
+            <button type="button" class="btn btn-primary">검색</button>
+            <button type="button" class="btn btn-primary">초대하기</button>
+        </form>
+    </div>
 </div>
 </body>
+<script>
+    $('a[href="#settings"]').tab('show');
+</script>
 <th:block layout:fragment="script">
     <script type="text/javascript" th:src="@{/static/js/group/groupSelector.js}"></script>
     <script type="text/javascript" th:src="@{/static/js/group/auth.js}"></script>

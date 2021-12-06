@@ -166,7 +166,10 @@ public class GroupManageRepository {
     }
 
     public List<GroupAuthEntity> getGroupAuthByGroupSeq(final Long groupSeq) {
-        return queryFactory.selectFrom(groupAuthEntity).where(groupAuthEntity.group.groupSeq.eq(groupSeq)).fetch();
+        return queryFactory.select(groupAuthEntity)
+                .innerJoin(groupAuthEntity.webUser, webUserEntity).fetchJoin()
+                .where(groupAuthEntity.group.groupSeq.eq(groupSeq))
+                .fetch();
     }
 
     public QueryResults<GroupInviteEntity> getGroupInviteHistory(final Long groupSeq, final Pageable page) {

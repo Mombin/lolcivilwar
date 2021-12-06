@@ -15,11 +15,29 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 class ExceptionController {
 
     /**
+     * DataNotExistException handler
+     */
+    @ExceptionHandler(DataNotExistException.class)
+    public ResponseEntity<Object> handleServiceException(DataNotExistException ex) {
+        logError(ex.getViewMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ResponseWrapper.fail(ex.getViewMessage()).build());
+    }
+
+    /**
+     * AccessDeniedException handler
+     */
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<Object> handleServiceException(AccessDeniedException ex) {
+        logError(ex.getViewMessage());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ResponseWrapper.fail(ex.getViewMessage()).build());
+    }
+
+    /**
      * ServiceException handler
      */
     @ExceptionHandler(ServiceException.class)
     public ResponseEntity<Object> handleServiceException(ServiceException ex) {
-        log.error("error : {}", ex.getViewMessage());
+        logError(ex.getViewMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseWrapper.fail(ex.getViewMessage()).build());
     }
 
@@ -30,5 +48,9 @@ class ExceptionController {
     public ResponseEntity<Object> handleAll(Exception ex) {
         log.error("error : ", ex);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ResponseWrapper.fail().build());
+    }
+
+    private void logError(final String viewMessage) {
+        log.error("error : {}", viewMessage);
     }
 }

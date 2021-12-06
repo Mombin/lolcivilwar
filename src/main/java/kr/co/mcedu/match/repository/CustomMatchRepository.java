@@ -9,5 +9,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface CustomMatchRepository extends PagingAndSortingRepository<CustomMatchEntity, Long> {
-    Page<CustomMatchEntity> findByGroupOrderByMatchSeqDesc(GroupEntity group, Pageable pageable);
+    Page<CustomMatchEntity> findByGroup_GroupSeqOrderByMatchSeqDesc(Long groupSeq, Pageable pageable);
 }

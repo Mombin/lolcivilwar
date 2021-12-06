@@ -66,18 +66,17 @@ public class CustomMatchServiceImpl implements CustomMatchService {
             }
 
             CustomUserEntity customUserEntity = customUserOpt.get();
-            cacheManager.getSynergyCache().invalidate(String.valueOf(customUserEntity.getSeq()));
+            cacheManager.invalidSynergyCache(customUserEntity.getSeq() + "_" + customMatchSaveRequest.getSeasonSeq());
             cacheManager.getPersonalResultHistoryCache().invalidate(String.valueOf(customUserEntity.getSeq()));
             it.setCustomUser(customUserEntity);
             it.setCustomMatch(entity);
             matchAttendeesRepository.save(it.toEntity());
         }
-        cacheManager.getMatchHistoryCache().invalidate(groupEntity.getGroupSeq().toString());
+        cacheManager.invalidMatchHistoryCache(groupEntity.getGroupSeq().toString());
     }
 
     @Override
     public Map<String, DiceResponse> randomDice(DiceRequest request) throws ServiceException {
-        log.info("CustomMatchService >randomDice : {}",request.toString());
         Map<String, DiceResponse> positionMap = new HashMap<>();
         Position[] values = Position.values();
         boolean allFlag = true;

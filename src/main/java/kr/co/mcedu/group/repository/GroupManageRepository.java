@@ -1,13 +1,17 @@
 package kr.co.mcedu.group.repository;
 
+import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.QueryResults;
+import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import kr.co.mcedu.group.entity.CustomUserEntity;
 import kr.co.mcedu.group.entity.GroupAuthEntity;
 import kr.co.mcedu.group.entity.GroupEntity;
 import kr.co.mcedu.group.entity.GroupSeasonEntity;
+import kr.co.mcedu.group.model.response.CustomUserResponse;
 import kr.co.mcedu.match.entity.CustomMatchEntity;
 import kr.co.mcedu.match.entity.MatchAttendeesEntity;
+import kr.co.mcedu.user.entity.GroupInviteEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -25,6 +29,8 @@ import static kr.co.mcedu.group.entity.QGroupSeasonEntity.groupSeasonEntity;
 import static kr.co.mcedu.match.entity.QCustomMatchEntity.customMatchEntity;
 import static kr.co.mcedu.match.entity.QMatchAttendeesEntity.matchAttendeesEntity;
 import static kr.co.mcedu.summoner.entity.QSummonerEntity.summonerEntity;
+import static kr.co.mcedu.user.entity.QGroupInviteEntity.groupInviteEntity;
+import static kr.co.mcedu.user.entity.QWebUserEntity.webUserEntity;
 
 @Repository
 @RequiredArgsConstructor
@@ -134,5 +140,44 @@ public class GroupManageRepository {
     public List<CustomMatchEntity> getCustomMatchByGroupSeqAndSeasonSeq(long groupSeq, Long seasonSeq) {
         return queryFactory.selectFrom(customMatchEntity).where(customMatchEntity.group.groupSeq.eq(groupSeq),
                 customMatchEntity.groupSeason.groupSeasonSeq.eq(seasonSeq)).fetch();
+    }
+
+    public List<CustomUserResponse> getMatchAttendeesByGroupSeqAndSeasonSeq(final Long seasonSeq) {
+        BooleanBuilder booleanBuilder = new BooleanBuilder();
+        if (seasonSeq != -1) {
+            booleanBuilder.and(customMatchEntity.groupSeason.groupSeasonSeq.eq(seasonSeq));
+        }
+
+        return queryFactory.select(Projections.bean(CustomUserResponse.class, customUserEntity.nickname, customUserEntity.summonerName, customUserEntity.seq))
+                           .distinct()
+                           .from(customMatchEntity)
+                           .innerJoin(matchAttendeesEntity).on(matchAttendeesEntity.customMatch.matchSeq.eq(customMatchEntity.matchSeq))
+                           .innerJoin(customUserEntity).on(matchAttendeesEntity.customUserEntity.eq(customUserEntity), customUserEntity.delYn.eq(false))
+                           .where(booleanBuilder)
+                           .fetch();
+    }
+
+    public GroupInviteEntity save(GroupInviteEntity groupInviteEntity) {
+        return entityManager.merge(groupInviteEntity);
+    }
+
+    public GroupAuthEntity save(GroupAuthEntity groupAuthEntity) {
+        return entityManager.merge(groupAuthEntity);
+    }
+
+    public List<GroupAuthEntity> getGroupAuthByGroupSeq(final Long groupSeq) {
+        return queryFactory.selectFrom(groupAuthEntity).where(groupAuthEntity.group.groupSeq.eq(groupSeq)).fetch();
+    }
+
+    public QueryResults<GroupInviteEntity> getGroupInviteHistory(final Long groupSeq, final Pageable page) {
+        return queryFactory.select(groupInviteEntity)
+                           .from(groupInviteEntity)
+                           .innerJoin(groupInviteEntity.user, webUserEntity).fetchJoin()
+                           .innerJoin(groupInviteEntity.invitedUser, webUserEntity).fetchJoin()
+                           .where(groupInviteEntity.group.groupSeq.eq(groupSeq))
+                           .offset(page.getOffset())
+                           .limit(page.getPageSize())
+                           .orderBy(groupInviteEntity.invitedDate.desc())
+                           .fetchResults();
     }
 }

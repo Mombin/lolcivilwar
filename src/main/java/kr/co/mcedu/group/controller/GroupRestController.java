@@ -4,12 +4,11 @@ import kr.co.mcedu.config.exception.AccessDeniedException;
 import kr.co.mcedu.config.exception.AlreadyDataExistException;
 import kr.co.mcedu.config.exception.DataNotExistException;
 import kr.co.mcedu.config.exception.ServiceException;
-import kr.co.mcedu.group.model.response.CustomUserResponse;
 import kr.co.mcedu.group.entity.GroupAuthEnum;
 import kr.co.mcedu.group.model.GroupResponse;
 import kr.co.mcedu.group.model.GroupSaveRequest;
 import kr.co.mcedu.group.model.request.*;
-import kr.co.mcedu.group.model.response.CustomUserSynergyResponse;
+import kr.co.mcedu.group.model.response.CustomUserResponse;
 import kr.co.mcedu.group.service.GroupService;
 import kr.co.mcedu.utils.ResponseWrapper;
 import kr.co.mcedu.utils.SessionUtils;
@@ -77,22 +76,6 @@ class GroupRestController {
         return new ResponseWrapper().setData(list).build();
     }
 
-    @GetMapping("/auth/{groupSeq}")
-    public Object getAuthUserList(@PathVariable Long groupSeq) throws ServiceException {
-        return new ResponseWrapper().setData(groupService.getAuthUserList(groupSeq)).build();
-    }
-
-    @PostMapping("/invite")
-    public Object inviteGroup(@RequestBody InviteGroupRequest inviteGroupRequest) {
-        try {
-            groupService.inviteGroup(inviteGroupRequest);
-        } catch (ServiceException e) {
-            return ResponseWrapper.fail(e.getViewMessage()).build();
-        }
-        return new ResponseWrapper().build();
-    }
-
-
     /**
      * 새로운 유저를 그룹에 등록함
      *
@@ -136,19 +119,6 @@ class GroupRestController {
         return new ResponseWrapper().build();
     }
 
-    @GetMapping("/synergy")
-    public Object getSynergy(@ModelAttribute CustomUserSynergyRequest customUserSynergyRequest)
-            throws ServiceException {
-        log.info("GroupRestController > getSynergy : {}", customUserSynergyRequest.toString());
-        CustomUserSynergyResponse data = groupService.calculateSynergy(customUserSynergyRequest);
-        return new ResponseWrapper().setData(data).build();
-    }
-
-    @PostMapping("/match/{groupSeq}/{page}")
-    public Object getMatch(@PathVariable Long groupSeq, @PathVariable Integer page) throws Exception {
-        return new ResponseWrapper().setData(groupService.getMatches(groupSeq, page)).build();
-    }
-
     @DeleteMapping("/match/{matchSeq}")
     public Object deleteMatch(@PathVariable Long matchSeq) throws ServiceException {
         return new ResponseWrapper().setData(groupService.deleteMatch(matchSeq)).build();
@@ -159,12 +129,6 @@ class GroupRestController {
         log.info("GroupRestController > linkSummoner: {}", request.toString());
         groupService.linkSummoner(request);
         return new ResponseWrapper().build();
-    }
-
-    @GetMapping("/v1/personal/result")
-    public Object personalResult(@ModelAttribute PersonalResultRequest request) throws Exception {
-        log.info("GroupRestController  > personalResult: {}", request.toString());
-        return new ResponseWrapper().setData(groupService.getPersonalResult(request)).build();
     }
 
     @PostMapping("/tier-point")

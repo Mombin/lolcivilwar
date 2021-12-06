@@ -1,5 +1,3 @@
-let currentGroup = {}, $seasonSelector = null;
-
 function setList(list) {
     const $list = $("#list")
     $list.empty();

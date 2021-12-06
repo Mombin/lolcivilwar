@@ -4,6 +4,10 @@ $(document).ready(function() {
     init();
 });
 
+function init() {
+    callMyGroup('/api/group/v1/my', groupChangeFunction);
+}
+
 function bindObject() {
     $list = $("#list");
     $customUserSelect = $("#customUserSelect");

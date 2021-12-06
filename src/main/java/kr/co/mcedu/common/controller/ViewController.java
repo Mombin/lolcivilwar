@@ -40,7 +40,6 @@ public class ViewController {
             response.sendRedirect(MAIN_PAGE);
             return MAIN_PAGE;
         }
-        urlLogger(path1);
         return path1;
     }
 
@@ -54,7 +53,6 @@ public class ViewController {
             mav.setViewName(ERROR_PAGE);
             return mav;
         }
-        urlLogger(path1, path2);
         mav.setViewName(path1 + "/" + path2);
         mav.addObject("userInfo", SessionUtils.getUserInfo());
         return mav;
@@ -68,13 +66,9 @@ public class ViewController {
         if(isExplorer(request)) {
             return ERROR_PAGE;
         }
-        urlLogger("popup", path1, path2);
-        return "/popup/" + path1 + "_" + path2;
+        return "popup/" + path1 + "_" + path2;
     }
 
-    private void urlLogger(String... url) {
-        log.info("request URL : /{}, ip : {}", String.join("/", url), SessionUtils.getIp());
-    }
 
     private boolean isExplorer(HttpServletRequest request) {
         String agent = request.getHeader("User-Agent");

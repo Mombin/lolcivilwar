@@ -34,5 +34,4 @@ public interface GroupService {
 
     List<GroupResponse> findMyGroups();
 
-    void inviteGroup(InviteGroupRequest inviteGroupRequest)throws ServiceException;
 }

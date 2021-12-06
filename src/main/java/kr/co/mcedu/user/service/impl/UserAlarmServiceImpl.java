@@ -69,19 +69,6 @@ public class UserAlarmServiceImpl implements UserAlarmService {
     }
 
     /**
-     * 초대 메시지 알람 전송
-     */
-    @Override
-    @Transactional(rollbackOn = Exception.class)
-    public void sendInviteAlarm(WebUserEntity webUserEntity, String message) {
-        UserAlarmEntity userAlarmEntity = new UserAlarmEntity();
-        userAlarmEntity.setWebUserEntity(webUserEntity);
-        userAlarmEntity.setMessage(message);
-        userAlarmEntity.setAlarmType(UserAlarmType.INVITE);
-        userAlarmRepository.save(userAlarmEntity);
-        localCacheManager.getAlarmCountCache().invalidate(webUserEntity.getUserId());
-    }
-    /**
      * 안읽은 Alarm 갯수
      */
     @Override

@@ -166,7 +166,4 @@ public class SessionUtils {
         }
 
     }
-    private static String getAccessToken() {
-        return jwtTokenProvider.parseTokenCookie(getRequest(),TokenType.ACCESS_TOKEN);
-    }
 }

@@ -1,6 +1,5 @@
 let $groupAuthList;
 let $groupAutheListHeader;
-let currentGroup = {}
 let $inviteHistoryTable;
 let $manageAuthTable;
 

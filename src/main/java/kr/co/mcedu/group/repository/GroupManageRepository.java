@@ -166,7 +166,7 @@ public class GroupManageRepository {
     }
 
     public List<GroupAuthEntity> getGroupAuthByGroupSeq(final Long groupSeq) {
-        return queryFactory.select(groupAuthEntity)
+        return queryFactory.selectFrom(groupAuthEntity)
                 .innerJoin(groupAuthEntity.webUser, webUserEntity).fetchJoin()
                 .where(groupAuthEntity.group.groupSeq.eq(groupSeq))
                 .fetch();

@@ -2,6 +2,9 @@ let $groupAuthList;
 let $groupAutheListHeader;
 let $inviteHistoryTable;
 let $manageAuthTable;
+let userSeq;
+let userId;
+let lolcwTag;
 
 // 그룹 선택 이벤트
 function changeGroupSelect() {
@@ -22,6 +25,8 @@ function groupChangeFunction(groupList) {
 // 그룹 권한 리스트
 function callGroupAuthList() {
     $manageAuthTable.show();
+    $('#inviteForm').hide();
+    $('#modifyForm').show();
     $('.table').not($manageAuthTable).hide();
     let authCall = $manageAuthTable.isAuthCall || {};
     if (authCall[currentGroup.groupSeq]) {
@@ -64,4 +69,39 @@ function callGroupAuthList() {
 function callGroupInviteList(){
     $inviteHistoryTable.show();
     $(".table").not($inviteHistoryTable).hide();
+    $('#modifyForm').hide();
+    $('#inviteForm').show();
+}
+
+function groupInvite(){
+    const param = {
+        groupSeq: currentGroup.groupSeq,
+        userSeq: userSeq,
+        lolcwTag: lolcwTag
+    }
+    common_ajax.call(`/api/group/v1/invite-user`, 'POST', false, param, function(res) {
+        if (res.code === API_RESULT.SUCCESS) {
+            toast.success("초대가 완료되었습니다");
+        } else {
+            toast.success(res);
+            toast.error()
+        }
+    });
+}
+
+function getUserByLolTag(){
+        lolcwTag = $('input[name=lolcwTag]').val();
+    common_ajax.call(`/api/user/by-tag/${lolcwTag}`, 'GET', false, {}, function(res) {
+        if (res.code !== API_RESULT.SUCCESS) {
+            toast.error(res.error);
+            return;
+        }
+
+        userSeq = res.data.userSeq;
+        userId  = res.data.userId;
+        $('input[name=userId]').val(res.data.userId);
+        $('input[name=userSeq]').val(res.data.userSeq);
+        $('input[name=inviteUser]').attr('disabled',false);
+        $('input[name=searchUser]').attr('disabled',true);
+    });
 }

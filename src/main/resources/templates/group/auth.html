@@ -61,9 +61,11 @@
     </div>
     <div id="inviteTab" style="float:right">
         <form class="form-inline" id="inviteForm" style="display: none">
-            <input type="text" id="lolcwTag" placeholder="LOLCWTAG 입력">
-            <button type="button" class="btn btn-primary">검색</button>
-            <button type="button" class="btn btn-primary">초대하기</button>
+            <input type="text" name="lolcwTag" placeholder="LOLCWTAG 입력">
+            <input type="button" class="btn btn-primary" name="searchUser"  onclick="getUserByLolTag()" value="검색"/>
+            <input type="text" name="userId" placeholder="유저아이디" readonly>
+            <input type="hidden" name="userSeq">
+            <input type="button" class="btn btn-primary" name="inviteUser" disabled="disabled" onclick="groupInvite()" value="초대하기"/>
         </form>
     </div>
 </div>

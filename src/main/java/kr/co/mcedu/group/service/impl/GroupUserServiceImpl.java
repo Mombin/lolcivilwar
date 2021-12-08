@@ -113,23 +113,25 @@ public class GroupUserServiceImpl
      * 초대에 응답하기
      * @param request
      * @throws ServiceException
+     * @return
      */
     @Override
     @Transactional
-    public void replyInviteMessage(ReplyInviteRequest request) throws ServiceException{
+    public String replyInviteMessage(ReplyInviteRequest request) throws ServiceException{
         UserAlarmEntity userAlarmEntity = userAlarmRepository.findById(Optional.ofNullable(request.getAlarmSeq()).orElse(0L))
                                                              .orElseThrow(DataNotExistException::new);
         if (!userAlarmEntity.getWebUserEntity().getUserSeq().equals(SessionUtils.getUserSeq())) {
             throw new AccessDeniedException("권한이 없습니다.");
         }
         GroupInviteEntity groupInviteEntity = userAlarmEntity.getGroupInviteEntity();
-        if (userAlarmEntity.getAlarmType() != UserAlarmType.INVITE || groupInviteEntity == null || !request.isValidRequest()) {
+        if (!request.isValidRequest() || userAlarmEntity.getAlarmType() != UserAlarmType.INVITE || groupInviteEntity == null
+                || !request.getInviteSeq().equals(groupInviteEntity.getGroupInviteSeq())) {
             throw new AccessDeniedException();
         }
 
         userAlarmEntity.setIsRead(true);
         if (Boolean.TRUE.equals(groupInviteEntity.getExpireResult())) {
-            throw new AccessDeniedException("이미 응답한 초대입니다.");
+            return "EXPIRED";
         }
 
         groupInviteEntity.setInviteResult("Y".equals(request.getResult()));
@@ -137,6 +139,7 @@ public class GroupUserServiceImpl
 
         modifyUserGroupAuth(groupInviteEntity.getGroup(), userAlarmEntity.getWebUserEntity(), GroupAuthEnum.USER);
         SessionUtils.refreshAccessToken();
+        return "SUCCESS";
     }
 
     private void modifyUserGroupAuth(GroupEntity group, WebUserEntity webUserEntity, GroupAuthEnum auth) {

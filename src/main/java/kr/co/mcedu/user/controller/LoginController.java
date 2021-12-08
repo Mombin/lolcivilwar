@@ -1,7 +1,9 @@
 package kr.co.mcedu.user.controller;
 
+import kr.co.mcedu.config.exception.ServiceException;
 import kr.co.mcedu.user.model.request.JwtRequest;
 import kr.co.mcedu.user.model.request.UserRegisterRequest;
+import kr.co.mcedu.user.service.WebUserService;
 import kr.co.mcedu.user.service.impl.UserDetailServiceImpl;
 import kr.co.mcedu.utils.ResponseWrapper;
 import lombok.RequiredArgsConstructor;
@@ -24,20 +26,30 @@ import static kr.co.mcedu.config.security.TokenType.REFRESH_TOKEN;
 @RequiredArgsConstructor
 public class LoginController {
     private final UserDetailServiceImpl userDetailsService;
+    private final WebUserService webUserService;
+
     @PostMapping("/authenticate")
     public ResponseEntity<Object> createAuthenticationToken(@RequestBody JwtRequest jwtRequest) {
         Map<String, String> result = new HashMap<>();
-        String token = "";
+        String refreshToken = "";
         try {
-            token = userDetailsService.login(jwtRequest);
+            refreshToken = userDetailsService.login(jwtRequest);
         } catch (Exception e) {
             result.put("code", "99999");
             result.put("error", e.getMessage());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(result);
         }
-        ResponseCookie cookie = ResponseCookie.from(REFRESH_TOKEN.getCookieName(), token).path("/").httpOnly(true).build();
+        ResponseEntity.BodyBuilder bodyBuilder = ResponseEntity.ok();
+        ResponseCookie refreshTokenCookie = ResponseCookie.from(REFRESH_TOKEN.getCookieName(), refreshToken).path("/").httpOnly(true).build();
+        try {
+            ResponseCookie accessToken = ResponseCookie.from(ACCESS_TOKEN.getCookieName(), webUserService.getAccessToken(refreshToken)).path("/").httpOnly(true).build();
+            bodyBuilder.header(HttpHeaders.SET_COOKIE, accessToken.toString());
+        } catch (ServiceException exception) {
+            log.error("", exception);
+        }
+
         result.put("code", "00000");
-        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).body(result);
+        return bodyBuilder.header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString()).body(result);
     }
 
     @PostMapping("/authenticate/out")

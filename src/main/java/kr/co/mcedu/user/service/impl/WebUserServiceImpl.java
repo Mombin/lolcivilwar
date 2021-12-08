@@ -53,14 +53,6 @@ public class WebUserServiceImpl implements WebUserService {
         return webUserRepository.findById(userSeq).orElseThrow(() -> new AccessDeniedException("없는 사용자입니다."));
     }
 
-    /**
-     * lolcwTag 를 이용하여 WebUserEntity 검색
-     */
-    @Override
-    public WebUserEntity findWebUserEntityByLolcwTag(String lolcwTag) throws AccessDeniedException {
-        return webUserRepository.findWebUserEntityByLolcwTag(lolcwTag).orElseThrow(() -> new AccessDeniedException("없는 사용자입니다."));
-    }
-
     private List<GrantedAuthority> getAuthorities(String userAuthority) {
         ArrayList<GrantedAuthority> authorities = new ArrayList<>();
         switch (UserAuthority.valueOf(userAuthority)) {

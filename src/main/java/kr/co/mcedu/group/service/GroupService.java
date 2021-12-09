@@ -33,4 +33,5 @@ public interface GroupService {
     GroupSeasonEntity getGroupSeasonEntity(Long seasonSeq) throws DataNotExistException;
 
     List<GroupResponse> findMyGroups();
+
 }

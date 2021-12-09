@@ -8,6 +8,7 @@ import kr.co.mcedu.user.model.UserInfo;
 public interface WebUserService {
     WebUserEntity findWebUserEntityByUserId(String userId) throws AccessDeniedException;
     WebUserEntity findWebUserEntity(Long userSeq) throws AccessDeniedException;
+
     String getAccessToken(String refreshToken) throws ServiceException;
     boolean isRefreshedUser(Long userSeq);
     void pushRefreshedUser(Long userSeq);

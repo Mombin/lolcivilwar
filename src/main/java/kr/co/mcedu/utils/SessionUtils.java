@@ -116,6 +116,10 @@ public class SessionUtils {
         }
     }
 
+    private static String getAccessToken() {
+        return jwtTokenProvider.parseTokenCookie(getRequest(),TokenType.ACCESS_TOKEN);
+    }
+
     public static String refreshAccessToken() {
         return refreshProcess(getRequest(), getResponse());
     }
@@ -161,8 +165,5 @@ public class SessionUtils {
             return null;
         }
 
-    }
-    private static String getAccessToken() {
-        return jwtTokenProvider.parseTokenCookie(getRequest(),TokenType.ACCESS_TOKEN);
     }
 }

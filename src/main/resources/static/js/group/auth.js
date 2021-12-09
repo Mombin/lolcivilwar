@@ -2,6 +2,7 @@ let $groupAuthList;
 let $groupAutheListHeader;
 let $inviteHistoryTable;
 let $manageAuthTable;
+let $inviteHistory;
 let userSeq;
 let userId;
 let lolcwTag;
@@ -63,14 +64,39 @@ function callGroupAuthList() {
                 $select.attr('disabled', true);
             }
         });
+        authCall[currentGroup.groupSeq] = true;
+        $manageAuthTable.isAuthCall = authCall;
     });
 }
 
-function callGroupInviteList(){
+function callGroupInviteList(page){
     $inviteHistoryTable.show();
     $(".table").not($inviteHistoryTable).hide();
     $('#modifyForm').hide();
     $('#inviteForm').show();
+    const param = {
+        groupSeq: currentGroup.groupSeq,
+        page: page
+    }
+    common_ajax.call(`/api/group/v1/invite-user`, 'GET', false, param, function(res) {
+        console.log(res.data.list);
+        if (res.code !== API_RESULT.SUCCESS) {
+            toast.error(res.error);
+            return;
+        }
+
+        $inviteHistory.empty();
+        $.each(res.data.list, function (index, item) {
+            let row = $('<tr>').append($('<th>').attr('scope', 'row').html(index + 1))
+                .append($('<td>').html(item.invitedUserId))
+                .append($('<td>').html(item.invitedDate))
+                .append($('<td>').html(item.modifiedDate));
+            if (item.expireResult === "N") {
+                row.append($('<td>').append("<input type='button' class='btn btn-primary' name='cancelInvite' onclick='cancelInvite()' value='초대취소'/>"))
+            }
+            $inviteHistory.append(row)
+        });
+    });
 }
 
 function groupInvite(){
@@ -82,16 +108,16 @@ function groupInvite(){
     common_ajax.call(`/api/group/v1/invite-user`, 'POST', false, param, function(res) {
         if (res.code === API_RESULT.SUCCESS) {
             toast.success("초대가 완료되었습니다");
-        } else {
-            toast.success(res);
-            toast.error()
+            return;
         }
+            toast.success(res);
+            toast.error();
     });
 }
 
 function getUserByLolTag(){
         lolcwTag = $('input[name=lolcwTag]').val();
-    common_ajax.call(`/api/user/by-tag/${lolcwTag}`, 'GET', false, {}, function(res) {
+        common_ajax.call(`/api/user/by-tag/${lolcwTag}`, 'GET', false, {}, function(res) {
         if (res.code !== API_RESULT.SUCCESS) {
             toast.error(res.error);
             return;
@@ -104,4 +130,8 @@ function getUserByLolTag(){
         $('input[name=inviteUser]').attr('disabled',false);
         $('input[name=searchUser]').attr('disabled',true);
     });
+}
+
+function cancelInvite(){
+
 }

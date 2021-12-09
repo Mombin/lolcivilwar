@@ -35,6 +35,7 @@ class WebUserController {
     /**
      * 알림 리스트
      */
+    @ApiOperation(value = "unreadMessage", tags = API_TAG, notes = "안읽은 메시지 가져오기")
     @GetMapping("/alarm")
     public Object getUnreadMessage() throws AccessDeniedException {
         return new ResponseWrapper().setData(userAlarmService.getUnreadMessage()).build();

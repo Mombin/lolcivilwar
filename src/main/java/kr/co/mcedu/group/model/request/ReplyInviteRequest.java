@@ -13,8 +13,10 @@ public class ReplyInviteRequest {
     private Long alarmSeq;
     @ApiModelProperty(value = "응답 Y/N", example = "Y", dataType = "String")
     private String result;
+    @ApiModelProperty(value = "초대 순번", example = "12", dataType = "Long")
+    private Long inviteSeq;
 
     public boolean isValidRequest() {
-        return "Y".equals(result) || "N".equals(result);
+        return "Y".equals(result) || "N".equals(result) || alarmSeq != null || inviteSeq != null;
     }
 }

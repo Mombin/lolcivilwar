@@ -27,8 +27,26 @@ function readMessage() {
             toast.error(msg)
             return;
         }
-        $this.parent().parent().remove();
     });
+    getUnreadMessage();
+    callAlarmCount();
+}
+
+function replyInvite() {
+    let $this = $(this)
+      , param = $this.data();
+
+    common_ajax.call('/api/group/v1/invite-result', 'POST', false, param, function (res) {
+        if (res.code !== API_RESULT.SUCCESS) {
+            let msg = "읽기에 실패하였습니다.\n관리자에게 문의해주세요."
+            if (res.message) {
+                msg = res.message;
+            }
+            toast.error(msg)
+            return;
+        }
+        toast.success("응답완료")
+    })
     getUnreadMessage();
     callAlarmCount();
 }

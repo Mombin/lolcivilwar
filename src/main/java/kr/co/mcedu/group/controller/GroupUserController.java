@@ -40,7 +40,10 @@ public class GroupUserController {
     @ApiOperation(value = "replyInviteMessage", tags = API_TAG, notes = "그룹 초대에 응답하기")
     @PostMapping("/v1/invite-result")
     public Object replyInviteMessage(@RequestBody ReplyInviteRequest request) throws ServiceException {
-        groupUserService.replyInviteMessage(request);
+        String result = groupUserService.replyInviteMessage(request);
+        if ("EXPIRED".equals(result)) {
+            throw new AccessDeniedException("이미 응답한 초대입니다.");
+        }
         return new ResponseWrapper().build();
     }
 

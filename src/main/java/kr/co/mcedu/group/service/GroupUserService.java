@@ -16,7 +16,7 @@ public interface GroupUserService {
 
     void inviteUser(GroupInviteRequest request) throws ServiceException;
 
-    void replyInviteMessage(ReplyInviteRequest request) throws ServiceException;
+    String replyInviteMessage(ReplyInviteRequest request) throws ServiceException;
 
     List<GroupAuthResponse> getAuthUserList(Long groupSeq) throws ServiceException;
 

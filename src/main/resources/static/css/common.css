@@ -18,4 +18,5 @@
 
 /* 기본 css */
 .f-r { float: right !important; }
+.mr10 { margin-right: 10px; }
 .ta-c { text-align: center !important; }

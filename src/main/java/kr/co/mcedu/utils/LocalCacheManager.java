@@ -2,7 +2,9 @@ package kr.co.mcedu.utils;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import kr.co.mcedu.common.model.PageWrapper;
 import kr.co.mcedu.group.model.response.CustomUserSynergyResponse;
+import kr.co.mcedu.group.model.response.GroupInviteHistoryResponse;
 import kr.co.mcedu.group.model.response.PersonalResultResponse;
 import kr.co.mcedu.match.model.response.MatchHistoryResponse;
 import lombok.Getter;
@@ -25,6 +27,7 @@ public class LocalCacheManager {
     private Cache<String, Boolean> userIdCache;
     private Cache<String, Boolean> emailCache;
     private Cache<String, Long> alarmCountCache;
+    private Cache<String, Map<Integer, PageWrapper<GroupInviteHistoryResponse>>> groupInviteHistoryCache;
 
     @PostConstruct
     public void after() {
@@ -44,6 +47,9 @@ public class LocalCacheManager {
                 .expireAfterAccess(1, TimeUnit.HOURS)
                 .build();
         alarmCountCache = CacheBuilder.newBuilder()
+                .expireAfterAccess(1, TimeUnit.HOURS)
+                .build();
+        groupInviteHistoryCache= CacheBuilder.newBuilder()
                 .expireAfterAccess(1, TimeUnit.HOURS)
                 .build();
     }
@@ -106,4 +112,25 @@ public class LocalCacheManager {
         alarmCountCache.put(userId, count);
         log.info("Put AlarmCount Cache : {}", userId);
     }
+
+    public void putGroupInviteHistoryCache(final String groupSeq, Integer page, PageWrapper<GroupInviteHistoryResponse> pageWrapper) {
+        Map<Integer, PageWrapper<GroupInviteHistoryResponse>> groupInviteHistoryCacheMap = getGroupInviteHistoryCache(groupSeq);
+        groupInviteHistoryCacheMap.put(page, pageWrapper);
+        groupInviteHistoryCache.put(groupSeq, groupInviteHistoryCacheMap);
+        log.info("Put GroupInviteHistory Cache : {}, page : {}", groupSeq, page);
+    }
+
+    public Map<Integer, PageWrapper<GroupInviteHistoryResponse>> getGroupInviteHistoryCache(String groupSeq) {
+        Map<Integer, PageWrapper<GroupInviteHistoryResponse>> map = groupInviteHistoryCache.getIfPresent(groupSeq);
+        if (map == null) {
+            map = new HashMap<>();
+        }
+        return map;
+    }
+
+    public void invalidGroupInviteHistoryCache(String groupSeq) {
+        groupInviteHistoryCache.invalidate(groupSeq);
+        log.info("Invalid GroupInviteHistoryCache Cache : {}", groupSeq);
+    }
+
 }

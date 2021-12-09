@@ -24,9 +24,11 @@ import kr.co.mcedu.user.repository.UserAlarmRepository;
 import kr.co.mcedu.user.repository.WebUserRepository;
 import kr.co.mcedu.user.service.UserAlarmService;
 import kr.co.mcedu.user.service.WebUserService;
+import kr.co.mcedu.utils.LocalCacheManager;
 import kr.co.mcedu.utils.SessionUtils;
 import kr.co.mcedu.utils.StringUtils;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,6 +38,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class GroupUserServiceImpl
         implements GroupUserService {
@@ -46,6 +49,8 @@ public class GroupUserServiceImpl
 
     private final WebUserService webUserService;
     private final UserAlarmService userAlarmService;
+
+    private final LocalCacheManager cacheManager;
 
     /**
      * 그룹에서 추방하기
@@ -107,6 +112,8 @@ public class GroupUserServiceImpl
         groupInviteEntity = groupManageRepository.save(groupInviteEntity);
 
         userAlarmService.sendInviteAlarm(inviteUser, groupInviteEntity);
+
+        cacheManager.invalidGroupInviteHistoryCache(groupEntity.getGroupSeq().toString());
     }
 
     /**
@@ -136,6 +143,8 @@ public class GroupUserServiceImpl
 
         groupInviteEntity.setInviteResult("Y".equals(request.getResult()));
         groupInviteEntity.setExpireResult(true);
+
+        cacheManager.invalidGroupInviteHistoryCache(groupInviteEntity.getGroup().getGroupSeq().toString());
 
         modifyUserGroupAuth(groupInviteEntity.getGroup(), userAlarmEntity.getWebUserEntity(), GroupAuthEnum.USER);
         SessionUtils.refreshAccessToken();
@@ -179,9 +188,17 @@ public class GroupUserServiceImpl
         if (page == null) {
             page = 0;
         }
+        PageWrapper<GroupInviteHistoryResponse> cachedPageWrapper = cacheManager.getGroupInviteHistoryCache(groupSeq.toString()).get(page);
+        if (cachedPageWrapper != null) {
+            log.info("GetFrom GroupInviteHistoryCache : {} , {}", groupSeq, page);
+            return cachedPageWrapper;
+        }
+
         PageRequest pageRequest = new PageRequest(page, 10);
         QueryResults<GroupInviteEntity> groupInviteHistory = groupManageRepository.getGroupInviteHistory(groupSeq, pageRequest);
         PageWrapper<GroupInviteEntity> result = PageWrapper.of(groupInviteHistory);
-        return result.change(GroupInviteHistoryResponse::new);
+        PageWrapper<GroupInviteHistoryResponse> responsePageWrapper = result.change(GroupInviteHistoryResponse::new);
+        cacheManager.putGroupInviteHistoryCache(groupSeq.toString(), page, responsePageWrapper);
+        return responsePageWrapper;
     }
 }

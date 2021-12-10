@@ -81,7 +81,7 @@ function callGroupInviteList(page){
     common_ajax.call(`/api/group/v1/invite-user`, 'GET', false, param, function(res) {
         console.log(res.data.list);
         if (res.code !== API_RESULT.SUCCESS) {
-            toast.error(res.error);
+            toast.error(res.message);
             return;
         }
 
@@ -106,12 +106,11 @@ function groupInvite(){
         lolcwTag: lolcwTag
     }
     common_ajax.call(`/api/group/v1/invite-user`, 'POST', false, param, function(res) {
-        if (res.code === API_RESULT.SUCCESS) {
-            toast.success("초대가 완료되었습니다");
+        if (res.code !== API_RESULT.SUCCESS) {
+            toast.error(res.message);
             return;
         }
-            toast.success(res);
-            toast.error();
+        toast.success("초대가 완료되었습니다");
     });
 }
 

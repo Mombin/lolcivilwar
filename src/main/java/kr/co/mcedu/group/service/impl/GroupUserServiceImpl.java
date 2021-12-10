@@ -4,6 +4,7 @@ import com.querydsl.core.QueryResults;
 import kr.co.mcedu.common.model.PageRequest;
 import kr.co.mcedu.common.model.PageWrapper;
 import kr.co.mcedu.config.exception.AccessDeniedException;
+import kr.co.mcedu.config.exception.AlreadyDataExistException;
 import kr.co.mcedu.config.exception.DataNotExistException;
 import kr.co.mcedu.config.exception.ServiceException;
 import kr.co.mcedu.group.entity.GroupAuthEntity;
@@ -27,11 +28,14 @@ import kr.co.mcedu.user.service.WebUserService;
 import kr.co.mcedu.utils.LocalCacheManager;
 import kr.co.mcedu.utils.SessionUtils;
 import kr.co.mcedu.utils.StringUtils;
+import kr.co.mcedu.utils.TimeUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -98,6 +102,24 @@ public class GroupUserServiceImpl
         if (!inviteUser.getUserSeq().equals(request.getUserSeq())) {
             throw new ServiceException("잘못된 요청입니다.");
         }
+
+        if(groupManageRepository.getGroupAuthByGroupSeqAndUserSeq(request.getGroupSeq(), request.getUserSeq()).isPresent()) {
+            throw new AlreadyDataExistException("이미 초대되어있는 사용자입니다.");
+        }
+
+        Optional<GroupInviteEntity> alreadyInviteCheck = groupManageRepository.getAlreadyInviteCheck(request.getGroupSeq(), request.getUserSeq());
+        if (alreadyInviteCheck.isPresent()) {
+            if (Boolean.FALSE.equals(alreadyInviteCheck.get().getExpireResult())) {
+                throw new ServiceException("응답하지 않은 초대가 이미 존재합니다.");
+            }
+            LocalDateTime available = alreadyInviteCheck.get().getModifiedDate().plusDays(1);
+            Pair<String, Long> pair = TimeUtils.diffFromCurrent(available);
+            String unit = pair.getFirst();
+            Long between = pair.getSecond();
+
+            throw new ServiceException("다음 초대가능 시간까지 : " + between + unit);
+        }
+
         WebUserEntity currentUserEntity = webUserService.findWebUserEntity(SessionUtils.getUserSeq());
 
         GroupEntity groupEntity = groupManageRepository.findByIdFetch(request.getGroupSeq())

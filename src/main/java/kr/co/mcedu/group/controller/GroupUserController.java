@@ -59,4 +59,11 @@ public class GroupUserController {
             throws AccessDeniedException {
         return new ResponseWrapper().setData(groupUserService.getInviteUserHistory(groupSeq, page)).build();
     }
+
+    @ApiOperation(value = "cancelInvite", tags = API_TAG, notes = "초대 취소하기")
+    @DeleteMapping("/v1/invite-result/{groupInviteSeq}")
+    public Object cancelInvite(@PathVariable Long groupInviteSeq) throws ServiceException{
+        groupUserService.cancelInvite(groupInviteSeq);
+        return new ResponseWrapper().build();
+    }
 }

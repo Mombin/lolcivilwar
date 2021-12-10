@@ -201,4 +201,14 @@ public class GroupUserServiceImpl
         cacheManager.putGroupInviteHistoryCache(groupSeq.toString(), page, responsePageWrapper);
         return responsePageWrapper;
     }
+
+    @Override
+    @Transactional
+    public void cancelInvite(Long groupInviteSeq) throws ServiceException {
+        GroupInviteEntity groupInviteEntity = groupManageRepository.getGroupInvite(groupInviteSeq).orElseThrow(DataNotExistException::new);
+        SessionUtils.groupManageableAuthCheck(groupInviteEntity.getGroup().getGroupSeq());
+        groupInviteEntity.setExpireResult(true);
+
+        cacheManager.invalidGroupInviteHistoryCache(groupInviteEntity.getGroup().getGroupSeq().toString());
+    }
 }

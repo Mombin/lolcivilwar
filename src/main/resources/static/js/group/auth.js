@@ -139,7 +139,7 @@ function groupInvite() {
         }
         toast.success("초대가 완료되었습니다");
         resetInviteForm();
-        $('input[name=lolcwTag]').val();
+        $('input[name=lolcwTag]').val('');
         $inviteHistory.empty();
         callGroupInviteList(0);
     });

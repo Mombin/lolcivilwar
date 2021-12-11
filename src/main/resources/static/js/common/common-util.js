@@ -161,5 +161,14 @@ function popupOpen(url, w, h) {
     const systemZoom = width / window.screen.availWidth;
     const left = (width - w) / 2 / systemZoom + dualScreenLeft
     const top = (height - h) / 2 / systemZoom + dualScreenTop
-    return window.open(url, '롤내전도우미', `menubar=no, status=no, width=${w / systemZoom}, height=${h / systemZoom}, left=${left}, top=${top}`)
+    return window.open(url, 'LoL Civil War', `menubar=no, status=no, width=${w / systemZoom}, height=${h / systemZoom}, left=${left}, top=${top}`)
+}
+
+function copyToClipboard(val) {
+    const t = document.createElement("textarea");
+    document.body.appendChild(t);
+    t.value = val;
+    t.select();
+    document.execCommand('copy');
+    document.body.removeChild(t);
 }

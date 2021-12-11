@@ -77,7 +77,6 @@ public class CustomMatchServiceImpl implements CustomMatchService {
 
     @Override
     public Map<String, DiceResponse> randomDice(DiceRequest request) throws ServiceException {
-        log.info("CustomMatchService >randomDice : {}",request.toString());
         Map<String, DiceResponse> positionMap = new HashMap<>();
         Position[] values = Position.values();
         boolean allFlag = true;

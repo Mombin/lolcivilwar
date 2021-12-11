@@ -5,11 +5,13 @@ import com.querydsl.core.QueryResults;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import kr.co.mcedu.group.entity.CustomUserEntity;
+import kr.co.mcedu.group.entity.GroupAuthEntity;
 import kr.co.mcedu.group.entity.GroupEntity;
 import kr.co.mcedu.group.entity.GroupSeasonEntity;
 import kr.co.mcedu.group.model.response.CustomUserResponse;
 import kr.co.mcedu.match.entity.CustomMatchEntity;
 import kr.co.mcedu.match.entity.MatchAttendeesEntity;
+import kr.co.mcedu.user.entity.GroupInviteEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -18,14 +20,18 @@ import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
 import javax.persistence.EntityManager;
+import java.time.LocalDateTime;
 import java.util.*;
 
 import static kr.co.mcedu.group.entity.QCustomUserEntity.customUserEntity;
+import static kr.co.mcedu.group.entity.QGroupAuthEntity.groupAuthEntity;
 import static kr.co.mcedu.group.entity.QGroupEntity.groupEntity;
 import static kr.co.mcedu.group.entity.QGroupSeasonEntity.groupSeasonEntity;
 import static kr.co.mcedu.match.entity.QCustomMatchEntity.customMatchEntity;
 import static kr.co.mcedu.match.entity.QMatchAttendeesEntity.matchAttendeesEntity;
 import static kr.co.mcedu.summoner.entity.QSummonerEntity.summonerEntity;
+import static kr.co.mcedu.user.entity.QGroupInviteEntity.groupInviteEntity;
+import static kr.co.mcedu.user.entity.QWebUserEntity.webUserEntity;
 
 @Repository
 @RequiredArgsConstructor
@@ -87,6 +93,21 @@ public class GroupManageRepository {
                            .where(groupEntity.groupSeq.in(groupSeqs)).fetch();
     }
 
+    public Optional<GroupAuthEntity> getGroupAuthByGroupSeqAndUserSeq(Long groupSeq, Long userSeq) {
+        if (userSeq == null) {
+            return Optional.empty();
+        }
+
+        return Optional.ofNullable(queryFactory.select(groupAuthEntity).from(groupAuthEntity)
+                                               .where(groupAuthEntity.group.groupSeq.eq(groupSeq),
+                                                       groupAuthEntity.webUser.userSeq.eq(userSeq))
+                                               .fetchOne());
+    }
+
+    public void delete(final GroupAuthEntity groupAuthEntity) {
+        entityManager.remove(groupAuthEntity);
+    }
+
     public List<MatchAttendeesEntity> getMatchAttendees(Collection<Long> matchSeqs) {
         if (matchSeqs.isEmpty()) {
             return Collections.emptyList();
@@ -137,5 +158,50 @@ public class GroupManageRepository {
                            .innerJoin(customUserEntity).on(matchAttendeesEntity.customUserEntity.eq(customUserEntity), customUserEntity.delYn.eq(false))
                            .where(booleanBuilder)
                            .fetch();
+    }
+
+    public GroupInviteEntity save(GroupInviteEntity groupInviteEntity) {
+        return entityManager.merge(groupInviteEntity);
+    }
+
+    public GroupAuthEntity save(GroupAuthEntity groupAuthEntity) {
+        return entityManager.merge(groupAuthEntity);
+    }
+
+    public List<GroupAuthEntity> getGroupAuthByGroupSeq(final Long groupSeq) {
+        return queryFactory.selectFrom(groupAuthEntity)
+                .innerJoin(groupAuthEntity.webUser, webUserEntity).fetchJoin()
+                .where(groupAuthEntity.group.groupSeq.eq(groupSeq))
+                .fetch();
+    }
+
+    public QueryResults<GroupInviteEntity> getGroupInviteHistory(final Long groupSeq, final Pageable page) {
+        return queryFactory.select(groupInviteEntity)
+                           .from(groupInviteEntity)
+                           .innerJoin(groupInviteEntity.user, webUserEntity).fetchJoin()
+                           .innerJoin(groupInviteEntity.invitedUser, webUserEntity).fetchJoin()
+                           .where(groupInviteEntity.group.groupSeq.eq(groupSeq))
+                           .offset(page.getOffset())
+                           .limit(page.getPageSize())
+                           .orderBy(groupInviteEntity.invitedDate.desc())
+                           .fetchResults();
+    }
+
+    public Optional<GroupInviteEntity> getGroupInvite(Long groupInviteSeq){
+        if (groupInviteSeq == null) {
+            return Optional.empty();
+        }
+
+        return Optional.ofNullable(queryFactory.selectFrom(groupInviteEntity)
+                .where(groupInviteEntity.groupInviteSeq.eq(groupInviteSeq)).fetchOne());
+    }
+
+    public Optional<GroupInviteEntity> getAlreadyInviteCheck(Long groupSeq, Long userSeq) {
+        return Optional.ofNullable(queryFactory.select(groupInviteEntity)
+                                               .from(groupInviteEntity)
+                                               .where(groupInviteEntity.group.groupSeq.eq(groupSeq),
+                                                       groupInviteEntity.invitedUser.userSeq.eq(userSeq),
+                                                       groupInviteEntity.expireResult.isFalse().or(groupInviteEntity.modifiedDate.after(LocalDateTime.now().minusDays(1))))
+                                               .fetchFirst());
     }
 }

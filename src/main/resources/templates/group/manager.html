@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+<body>
+
+<div layout:fragment="content">
+    <div th:replace="~{fragments/fragments :: groupSelector}"></div>
+    <ul class="nav nav-tabs" style="margin-top: 20px" id="menuTab">
+        <li class="nav-item">
+            <a class="nav-link active" href="#" data-menu="manage-auth">권한관리</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#" data-menu="invite">초대 이력</a>
+        </li>
+    </ul>
+    <table class="table switch-group manage-auth" id="manageAuthTable">
+        <colgroup>
+            <col width="10%">
+            <col width="80%">
+            <col width="10%">
+        </colgroup>
+        <thead id="groupAutheListHeader">
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">User</th>
+            <th scope="col">권한</th>
+        </tr>
+        </thead>
+        <tbody id="groupAuthList">
+        </tbody>
+    </table>
+
+    <table class="table switch-group invite" id="inviteHistoryTable" style="display: none">
+        <colgroup>
+            <col width="10%">
+            <col width="20%">
+            <col width="30%">
+            <col width="30%">
+            <col width="10%">
+        </colgroup>
+        <thead>
+        <tr>
+            <th scope="col">아이디</th>
+            <th scope="col" class="ta-c">상태</th>
+            <th scope="col" class="ta-c">초대일자</th>
+            <th scope="col" class="ta-c">응답일자</th>
+            <th scope="col">초대취소</th>
+        </tr>
+        </thead>
+        <tbody id="inviteHistory">
+        </tbody>
+    </table>
+    <nav>
+        <ul class="pagination justify-content-center" id="pagination">
+            <li class="page-item disabled">
+                <a class="page-link" href="#">이전</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="#">다음</a>
+            </li>
+        </ul>
+    </nav>
+
+    <div id="modifyAuth" class="switch-group manage-auth" style="float:right">
+        <form class="form-inline">
+            <button type="button" class="btn btn-primary" onclick="authSave()">저장</button>
+        </form>
+    </div>
+    <div id="inviteTab" class="switch-group invite" style="float:right; display: none;" >
+        <form class="form-inline">
+            <input type="text" name="lolcwTag" placeholder="LOLCWTAG 입력">
+            <input type="button" class="btn btn-primary" name="searchUser"  onclick="getUserByLolTag()" value="검색"/>
+            <input type="text" name="userId" placeholder="유저아이디" readonly>
+            <input type="hidden" name="userSeq">
+            <input type="button" class="btn btn-primary" name="inviteUser" disabled="disabled" onclick="groupInvite()" value="초대하기"/>
+        </form>
+    </div>
+</div>
+</body>
+<th:block layout:fragment="script">
+    <script type="text/javascript" th:src="@{/static/js/group/groupSelector.js}"></script>
+    <script type="text/javascript" th:src="@{/static/js/group/auth.js}"></script>
+    <script type="text/javascript" th:src="@{/static/js/group/auth_event.js}"></script>
+    <script type="text/javascript" th:src="@{/static/js/group/manager/main.js}"></script>
+    <script type="text/javascript" th:src="@{/static/js/group/manager/auth.js}"></script>
+</th:block>
+</html>

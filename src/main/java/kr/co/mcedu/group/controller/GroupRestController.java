@@ -4,12 +4,11 @@ import kr.co.mcedu.config.exception.AccessDeniedException;
 import kr.co.mcedu.config.exception.AlreadyDataExistException;
 import kr.co.mcedu.config.exception.DataNotExistException;
 import kr.co.mcedu.config.exception.ServiceException;
-import kr.co.mcedu.group.model.response.CustomUserResponse;
 import kr.co.mcedu.group.entity.GroupAuthEnum;
 import kr.co.mcedu.group.model.GroupResponse;
 import kr.co.mcedu.group.model.GroupSaveRequest;
 import kr.co.mcedu.group.model.request.*;
-import kr.co.mcedu.group.model.response.CustomUserSynergyResponse;
+import kr.co.mcedu.group.model.response.CustomUserResponse;
 import kr.co.mcedu.group.service.GroupService;
 import kr.co.mcedu.utils.ResponseWrapper;
 import kr.co.mcedu.utils.SessionUtils;
@@ -75,11 +74,6 @@ class GroupRestController {
                                                .collect(Collectors.toList());
         list.forEach(it -> it.getCustomUser().clear());
         return new ResponseWrapper().setData(list).build();
-    }
-
-    @GetMapping("/auth/{groupSeq}")
-    public Object getAuthUserList(@PathVariable Long groupSeq) throws ServiceException {
-        return new ResponseWrapper().setData(groupService.getAuthUserList(groupSeq)).build();
     }
 
     /**

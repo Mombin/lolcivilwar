@@ -6,7 +6,7 @@
     <header layout:fragment="headerFragment">
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
             <div class="container-fluid">
-                <a class="navbar-brand" href="#">롤내전 도우미</a>
+                <a class="navbar-brand" href="#">LoL Civil War</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
@@ -21,12 +21,12 @@
                         <li class="nav-item dropdown" sec:authorize="hasRole('ROLE_USER')">
                             <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false" name="group">그룹</a>
                             <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="/group/mng">그룹관리</a></li>
+                                <li><a class="dropdown-item" href="/group/attendees">참가자관리</a></li>
                                 <li><a class="dropdown-item" href="/group/rank">라인별승률</a></li>
                                 <li><a class="dropdown-item" href="/group/synergy">시너지/상성</a></li>
                                 <li><a class="dropdown-item" href="/group/match">경기결과</a></li>
                                 <li><a class="dropdown-item" href="/group/result">전적검색</a></li>
-                                <li><a class="dropdown-item" href="/group/auth">권한관리</a></li>
+                                <li><a class="dropdown-item" href="/group/manager">그룹관리</a></li>
                             </ul>
                         </li>
                         <li class="nav-item">
@@ -45,6 +45,8 @@
                         <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                             <li><a class="dropdown-item" href="/user/message">알림<span class="badge bg-primary rounded-pill" name="messageAlarmCnt" style="margin-left: 5px"></span></a></li>
                             <li><a class="dropdown-item" onclick="logout()" href="#">로그아웃</a></li>
+
+                            <li><span id="lolcwTag" class="dropdown-item" onclick="copyLolcwTag()" th:attr="data-lolcw-tag=|${userInfo.lolcwTag}|">L-TAG : <span th:text="${userInfo.lolcwTag}" th:remove="tag"></span></span></li>
                         </ul>
                     </div>
                 </form>

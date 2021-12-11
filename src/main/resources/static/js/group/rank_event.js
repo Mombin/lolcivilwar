@@ -16,6 +16,7 @@ function bindEvent() {
         $("#position .nav-link.active").removeClass('active');
         $(this).addClass('active');
         let position = $(this).data('position');
+        console.log(position);
         let list = [];
 
         if (currentGroup.customUser[$seasonSelector.val()] === undefined) {

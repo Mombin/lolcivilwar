@@ -7,6 +7,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -39,7 +40,6 @@ public class ViewController {
             response.sendRedirect(MAIN_PAGE);
             return MAIN_PAGE;
         }
-        urlLogger(path1);
         return path1;
     }
 
@@ -47,12 +47,15 @@ public class ViewController {
      * View 2depth
      */
     @GetMapping("/{path1:[a-z]*}/{path2:[a-z]*}")
-    public String secondaryDepth(@PathVariable String path1, @PathVariable String path2, HttpServletRequest request) {
+    public ModelAndView secondaryDepth(@PathVariable String path1, @PathVariable String path2, HttpServletRequest request) {
+        ModelAndView mav = new ModelAndView();
         if(isExplorer(request)) {
-            return ERROR_PAGE;
+            mav.setViewName(ERROR_PAGE);
+            return mav;
         }
-        urlLogger(path1, path2);
-        return path1 + "/" + path2;
+        mav.setViewName(path1 + "/" + path2);
+        mav.addObject("userInfo", SessionUtils.getUserInfo());
+        return mav;
     }
 
     /**
@@ -63,13 +66,9 @@ public class ViewController {
         if(isExplorer(request)) {
             return ERROR_PAGE;
         }
-        urlLogger("popup", path1, path2);
         return "popup/" + path1 + "_" + path2;
     }
 
-    private void urlLogger(String... url) {
-        log.info("request URL : /{}, ip : {}", String.join("/", url), SessionUtils.getIp());
-    }
 
     private boolean isExplorer(HttpServletRequest request) {
         String agent = request.getHeader("User-Agent");

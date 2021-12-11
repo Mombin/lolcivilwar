@@ -3,6 +3,7 @@ package kr.co.mcedu.user.service.impl;
 import kr.co.mcedu.config.exception.AccessDeniedException;
 import kr.co.mcedu.config.exception.DataNotExistException;
 import kr.co.mcedu.config.exception.ServiceException;
+import kr.co.mcedu.user.entity.GroupInviteEntity;
 import kr.co.mcedu.user.entity.UserAlarmEntity;
 import kr.co.mcedu.user.entity.WebUserEntity;
 import kr.co.mcedu.user.model.UserAlarmMessage;
@@ -16,7 +17,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -36,28 +36,36 @@ public class UserAlarmServiceImpl implements UserAlarmService {
      */
     @Override
     @Transactional(rollbackOn = Exception.class)
-    public void sendAlarm(Long userSeq, String message) throws AccessDeniedException {
+    public void sendNormalAlarm(WebUserEntity webUserEntity, String message) {
         UserAlarmEntity userAlarmEntity = new UserAlarmEntity();
-        WebUserEntity webUserEntity = webUserService.findWebUserEntity(userSeq);
         userAlarmEntity.setWebUserEntity(webUserEntity);
         userAlarmEntity.setMessage(message);
         userAlarmEntity.setAlarmType(UserAlarmType.MESSAGE);
-        userAlarmRepository.save(userAlarmEntity);
-        localCacheManager.getAlarmCountCache().invalidate(webUserEntity.getUserId());
+        sendAlarm(userAlarmEntity);
     }
 
     /**
-     * 일반 메시지 알람 전송
+     * 초대 메시지 알람 전송
      */
     @Override
     @Transactional(rollbackOn = Exception.class)
-    public void sendAlarm(WebUserEntity webUserEntity, String message) {
+    public void sendInviteAlarm(WebUserEntity webUserEntity, GroupInviteEntity groupInviteEntity) {
         UserAlarmEntity userAlarmEntity = new UserAlarmEntity();
         userAlarmEntity.setWebUserEntity(webUserEntity);
-        userAlarmEntity.setMessage(message);
-        userAlarmEntity.setAlarmType(UserAlarmType.MESSAGE);
+        userAlarmEntity.setMessage(String.format(UserAlarmType.INVITE.getMessage(), groupInviteEntity.getGroup().getGroupName()));
+        userAlarmEntity.setAlarmType(UserAlarmType.INVITE);
+        userAlarmEntity.setGroupInviteEntity(groupInviteEntity);
+        sendAlarm(userAlarmEntity);
+    }
+    
+    /**
+     * 메시지 전송
+     */
+    @Override
+    @Transactional
+    public void sendAlarm(UserAlarmEntity userAlarmEntity) {
         userAlarmRepository.save(userAlarmEntity);
-        localCacheManager.getAlarmCountCache().invalidate(webUserEntity.getUserId());
+        localCacheManager.invalidAlarmCountCache(userAlarmEntity.getWebUserEntity().getUserId());
     }
 
     /**
@@ -66,11 +74,11 @@ public class UserAlarmServiceImpl implements UserAlarmService {
     @Override
     public Long getUnreadAlarmCount() throws AccessDeniedException {
         String userId = SessionUtils.getId();
-        Long count = localCacheManager.getAlarmCountCache().getIfPresent(userId);
+        Long count = localCacheManager.getAlarmCount(userId);
         if (count == null) {
             WebUserEntity webUserEntity = webUserService.findWebUserEntityByUserId(userId);
             count = userAlarmRepository.countUnreadAlarm(webUserEntity);
-            localCacheManager.getAlarmCountCache().put(userId, count);
+            localCacheManager.putAlarmCountCache(userId, count);
         }
         return count;
     }
@@ -91,6 +99,7 @@ public class UserAlarmServiceImpl implements UserAlarmService {
     }
 
     @Override
+    @Transactional
     public Object readMessage(final Long alarmSeq) throws ServiceException {
         long userSeq = SessionUtils.getUserSeq();
         if (alarmSeq == null || userSeq == 0L) {
@@ -102,7 +111,7 @@ public class UserAlarmServiceImpl implements UserAlarmService {
         }
         entity.read();
         userAlarmRepository.save(entity);
-        localCacheManager.getAlarmCountCache().invalidate(SessionUtils.getId());
+        localCacheManager.invalidAlarmCountCache(SessionUtils.getId());
         return "success";
     }
 }

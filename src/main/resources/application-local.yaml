@@ -27,8 +27,7 @@ spring:
   mvc:
     static-path-pattern: /static/**
 logging:
-  file:
-    path: classpath:/logback-local.xml
+  config: classpath:logback-local.xml
 
 security:
-  ignore-url: /static/**, /api/test/*, /favicon.ico, /user/checkId/*, /user/checkEmail/*
+  ignore-url: /static/**, /api/test/*, /favicon.ico, /user/checkId/*, /user/checkEmail/*,  /v2/api-docs, /configuration/**, /swagger*/**, /webjars/**

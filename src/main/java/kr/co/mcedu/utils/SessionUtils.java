@@ -1,5 +1,6 @@
 package kr.co.mcedu.utils;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import kr.co.mcedu.config.exception.AccessDeniedException;
 import kr.co.mcedu.config.exception.ServiceException;
@@ -8,6 +9,7 @@ import kr.co.mcedu.config.security.LolcwAuthentication;
 import kr.co.mcedu.config.security.TokenType;
 import kr.co.mcedu.group.entity.GroupAuthEnum;
 import kr.co.mcedu.group.model.GroupAuthDto;
+import kr.co.mcedu.user.model.UserInfo;
 import kr.co.mcedu.user.service.WebUserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
@@ -19,6 +21,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.security.Principal;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
@@ -53,7 +56,7 @@ public class SessionUtils {
      * @return id
      */
     public static String getId() {
-        return SecurityContextHolder.getContext().getAuthentication().getName();
+        return Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication()).map(Principal::getName).orElse("anonymous");
     }
 
     /**
@@ -104,14 +107,20 @@ public class SessionUtils {
                        .orElse(GroupAuthEnum.NONE);
     }
 
-    public static void groupManageableAuthCheck(Long groupSeq) throws AccessDeniedException {
-        groupAuthorityCheck(groupSeq, GroupAuthEnum::isManageableAuth);
+    public static GroupAuthEnum groupManageableAuthCheck(Long groupSeq) throws AccessDeniedException {
+        return groupAuthorityCheck(groupSeq, GroupAuthEnum::isManageableAuth);
     }
 
-    public static void groupAuthorityCheck(Long groupSeq, Predicate<GroupAuthEnum> authChecker) throws AccessDeniedException {
-        if(!authChecker.test(getGroupAuth(groupSeq))) {
+    public static GroupAuthEnum groupAuthorityCheck(Long groupSeq, Predicate<GroupAuthEnum> authChecker) throws AccessDeniedException {
+        GroupAuthEnum groupAuth = getGroupAuth(groupSeq);
+        if(!authChecker.test(groupAuth)) {
             throw new AccessDeniedException("권한이 부족합니다.");
         }
+        return groupAuth;
+    }
+
+    private static String getAccessToken() {
+        return jwtTokenProvider.parseTokenCookie(getRequest(),TokenType.ACCESS_TOKEN);
     }
 
     public static String refreshAccessToken() {
@@ -137,5 +146,27 @@ public class SessionUtils {
             jwtTokenProvider.deleteTokenCookie(response, TokenType.REFRESH_TOKEN);
         }
         return accessToken;
+    }
+
+    /**
+     * 웹에서 쓸 userInfo 생성
+     * @return userInfo
+     */
+    public static UserInfo getUserInfo() {
+        String accessToken = getAccessToken();
+        if (StringUtils.isEmpty(accessToken)) {
+            return null;
+        }
+        try {
+            Claims claim = jwtTokenProvider.getClaim(accessToken);
+            String lolcwTag = claim.get("lolcwTag", String.class);
+
+            UserInfo userInfo = new UserInfo();
+            userInfo.setLolcwTag(lolcwTag);
+            return userInfo;
+        } catch (ExpiredJwtException ignore) {
+            return null;
+        }
+
     }
 }

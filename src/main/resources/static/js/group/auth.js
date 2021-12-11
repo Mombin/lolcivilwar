@@ -41,8 +41,8 @@ function callGroupAuthList() {
             });
             $groupAuthList.append(
                 $('<tr>').append($('<th>').attr('scope', 'row').html(index + 1))
-                    .append($('<td>').html(item.userId))
-                    .append($('<td>').append($select))
+                    .append($('<td>').data('userSeq', item.userSeq).html(item.userId))
+                    .append($('<td>').data('currentAuth', item.groupAuth).append($select))
             )
             $select.val(item.groupAuth);
             if (currentGroup.groupAuth === GROUP_AUTH.MANAGER) {

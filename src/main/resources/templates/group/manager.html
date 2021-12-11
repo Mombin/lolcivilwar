@@ -55,12 +55,12 @@
     </table>
 
     <div id="modifyAuth" class="switch-group manage-auth" style="float:right">
-        <form class="form-inline" id="modifyForm">
-            <button type="button" class="btn btn-primary">저장</button>
+        <form class="form-inline">
+            <button type="button" class="btn btn-primary" onclick="authSave()">저장</button>
         </form>
     </div>
     <div id="inviteTab" class="switch-group invite" style="float:right; display: none;" >
-        <form class="form-inline" id="inviteForm">
+        <form class="form-inline">
             <input type="text" name="lolcwTag" placeholder="LOLCWTAG 입력">
             <input type="button" class="btn btn-primary" name="searchUser"  onclick="getUserByLolTag()" value="검색"/>
             <input type="text" name="userId" placeholder="유저아이디" readonly>
@@ -70,13 +70,11 @@
     </div>
 </div>
 </body>
-<script>
-    $('a[href="#settings"]').tab('show');
-</script>
 <th:block layout:fragment="script">
     <script type="text/javascript" th:src="@{/static/js/group/groupSelector.js}"></script>
     <script type="text/javascript" th:src="@{/static/js/group/auth.js}"></script>
     <script type="text/javascript" th:src="@{/static/js/group/auth_event.js}"></script>
     <script type="text/javascript" th:src="@{/static/js/group/manager/main.js}"></script>
+    <script type="text/javascript" th:src="@{/static/js/group/manager/auth.js}"></script>
 </th:block>
 </html>

@@ -37,6 +37,16 @@ const GROUP_AUTH = {
             MATCHER: '주최자',
             USER: '사용자'
         }
+    },
+    _orders: {
+        OWNER: 4,
+        MANAGER: 3,
+        MATCHER: 2,
+        USER: 1,
+        NONE: 0
+    },
+    getOrder: function (auth) {
+        return this._orders[auth] || 0;
     }
 }
 

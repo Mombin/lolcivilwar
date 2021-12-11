@@ -1,15 +1,10 @@
-let $groupAuthList;
-let $inviteHistoryTable;
-let $manageAuthTable;
-let $inviteHistory;
-let userSeq;
-let userId;
-let lolcwTag;
+let $groupAuthList, $inviteHistoryTable, $manageAuthTable, $inviteHistory, $switchGroup;
+let userSeq, userId, lolcwTag;
 
 // 그룹 선택 이벤트
 function changeGroupSelect() {
     currentGroup = $(this).find('option:selected').data('group');
-    $('#position .nav-link.active').trigger('click');
+    $('#menuTab .nav-link.active').trigger('click');
 }
 
 function groupChangeFunction(groupList) {
@@ -24,10 +19,6 @@ function groupChangeFunction(groupList) {
 
 // 그룹 권한 리스트
 function callGroupAuthList() {
-    $manageAuthTable.show();
-    $('#inviteForm').hide();
-    $('#modifyForm').show();
-    $('.table').not($manageAuthTable).hide();
     let authCall = $manageAuthTable.isAuthCall || {};
     if (authCall[currentGroup.groupSeq]) {
         return;
@@ -69,16 +60,11 @@ function callGroupAuthList() {
 }
 
 function callGroupInviteList(page){
-    $inviteHistoryTable.show();
-    $(".table").not($inviteHistoryTable).hide();
-    $('#modifyForm').hide();
-    $('#inviteForm').show();
     const param = {
         groupSeq: currentGroup.groupSeq,
         page: page
     }
     common_ajax.call(`/api/group/v1/invite-user`, 'GET', false, param, function(res) {
-        console.log(res.data.list);
         if (res.code !== API_RESULT.SUCCESS) {
             toast.error(res.message);
             return;

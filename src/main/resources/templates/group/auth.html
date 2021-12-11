@@ -8,15 +8,15 @@
 
 <div layout:fragment="content">
     <div th:replace="~{fragments/fragments :: groupSelector}"></div>
-    <ul class="nav nav-tabs" style="margin-top: 20px" id="position">
+    <ul class="nav nav-tabs" style="margin-top: 20px" id="menuTab">
         <li class="nav-item">
-            <a class="nav-link active" href="#" data-position="manageAuth">권한관리</a>
+            <a class="nav-link active" href="#" data-menu="manage-auth">권한관리</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="#" data-position="invite">초대 이력</a>
+            <a class="nav-link" href="#" data-menu="invite">초대 이력</a>
         </li>
     </ul>
-    <table class="table" id="manageAuthTable">
+    <table class="table switch-group manage-auth" id="manageAuthTable">
         <colgroup>
             <col width="10%">
             <col width="80%">
@@ -33,7 +33,7 @@
         </tbody>
     </table>
 
-    <table class="table" id="inviteHistoryTable" style="display: none">
+    <table class="table switch-group invite" id="inviteHistoryTable" style="display: none">
         <colgroup>
             <col width="10%">
             <col width="20%">
@@ -54,13 +54,13 @@
         </tbody>
     </table>
 
-    <div id="modifyAuth" style="float:right">
-        <form class="form-inline" id="modifyForm" style="display: none">
+    <div id="modifyAuth" class="switch-group manage-auth" style="float:right">
+        <form class="form-inline" id="modifyForm">
             <button type="button" class="btn btn-primary">저장</button>
         </form>
     </div>
-    <div id="inviteTab" style="float:right">
-        <form class="form-inline" id="inviteForm" style="display: none">
+    <div id="inviteTab" class="switch-group invite" style="float:right; display: none;" >
+        <form class="form-inline" id="inviteForm">
             <input type="text" name="lolcwTag" placeholder="LOLCWTAG 입력">
             <input type="button" class="btn btn-primary" name="searchUser"  onclick="getUserByLolTag()" value="검색"/>
             <input type="text" name="userId" placeholder="유저아이디" readonly>
@@ -77,5 +77,6 @@
     <script type="text/javascript" th:src="@{/static/js/group/groupSelector.js}"></script>
     <script type="text/javascript" th:src="@{/static/js/group/auth.js}"></script>
     <script type="text/javascript" th:src="@{/static/js/group/auth_event.js}"></script>
+    <script type="text/javascript" th:src="@{/static/js/group/auth/main.js}"></script>
 </th:block>
 </html>

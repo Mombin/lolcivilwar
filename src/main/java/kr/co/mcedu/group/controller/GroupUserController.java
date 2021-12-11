@@ -4,6 +4,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import kr.co.mcedu.config.exception.AccessDeniedException;
 import kr.co.mcedu.config.exception.ServiceException;
+import kr.co.mcedu.group.model.request.GroupAuthChangeRequest;
 import kr.co.mcedu.group.model.request.GroupExpelRequest;
 import kr.co.mcedu.group.model.request.GroupInviteRequest;
 import kr.co.mcedu.group.model.request.ReplyInviteRequest;
@@ -58,5 +59,12 @@ public class GroupUserController {
     public Object getInviteHistory(@RequestParam Long groupSeq, @RequestParam Integer page)
             throws AccessDeniedException {
         return new ResponseWrapper().setData(groupUserService.getInviteUserHistory(groupSeq, page)).build();
+    }
+
+    @ApiOperation(value = "changeGroupUserAuth", tags = API_TAG, notes = "유저 권한 변경하기")
+    @PutMapping("/v1/user/auth")
+    public Object modifyUserAuth(@RequestBody GroupAuthChangeRequest request) throws ServiceException {
+        groupUserService.modifyUserAuth(request);
+        return new ResponseWrapper().build();
     }
 }

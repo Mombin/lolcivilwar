@@ -28,8 +28,7 @@ spring:
     static-path-pattern: /static/**
 
 logging:
-  file:
-    path: classpath:/logback-spring.xml
+  config: classpath:logback-prod.xml
 
 security:
   ignore-url: /static/**, /api/test/*, /favicon.ico, /user/checkId/*, /user/checkEmail/*

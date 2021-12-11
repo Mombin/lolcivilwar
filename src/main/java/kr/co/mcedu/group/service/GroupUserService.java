@@ -3,6 +3,7 @@ package kr.co.mcedu.group.service;
 import kr.co.mcedu.common.model.PageWrapper;
 import kr.co.mcedu.config.exception.AccessDeniedException;
 import kr.co.mcedu.config.exception.ServiceException;
+import kr.co.mcedu.group.model.request.GroupAuthChangeRequest;
 import kr.co.mcedu.group.model.request.GroupExpelRequest;
 import kr.co.mcedu.group.model.request.GroupInviteRequest;
 import kr.co.mcedu.group.model.request.ReplyInviteRequest;
@@ -21,4 +22,6 @@ public interface GroupUserService {
     List<GroupAuthResponse> getAuthUserList(Long groupSeq) throws ServiceException;
 
     PageWrapper<GroupInviteHistoryResponse> getInviteUserHistory(Long groupSeq, final Integer page) throws AccessDeniedException;
+
+    void modifyUserAuth(GroupAuthChangeRequest request) throws ServiceException;
 }

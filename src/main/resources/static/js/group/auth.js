@@ -29,12 +29,12 @@ function callGroupAuthList() {
     if (authCall[currentGroup.groupSeq]) {
         return;
     }
-    common_ajax.call(`/api/group/v1/${currentGroup.groupSeq}/user`, 'GET', false, {}, function(res) {
+    common_ajax.call(`/api/group/v1/${currentGroup.groupSeq}/user`, 'GET', false, {}, function (res) {
         if (res.code !== API_RESULT.SUCCESS) {
-            toast.error(res.error);
+            toast.error(res.message);
             return;
         }
-        $.each(res.data, function(index, item) {
+        $.each(res.data, function (index, item) {
             let $select = $('<select>').addClass('form-select')
 
             $.each(GROUP_AUTH.getAuthList(), function (key, value) {
@@ -65,12 +65,12 @@ function callGroupAuthList() {
     });
 }
 
-function callGroupInviteList(page){
+function callGroupInviteList(page) {
     const param = {
         groupSeq: currentGroup.groupSeq,
         page: page
     }
-    common_ajax.call(`/api/group/v1/invite-user`, 'GET', false, param, function(res) {
+    common_ajax.call(`/api/group/v1/invite-user`, 'GET', false, param, function (res) {
         if (res.code !== API_RESULT.SUCCESS) {
             toast.error(res.message);
             return;
@@ -105,22 +105,46 @@ function callGroupInviteList(page){
 
             $inviteHistory.append(row)
         });
+        currentPage = page;
+        common_page.createPage($("#pagination"), currentPage, res.data.totalPage, getPage);
     });
 }
 
-function groupInvite(){
+function getPage() {
+    let page = $(this).data('page');
+    if (page === 'next') {
+        callGroupInviteList(currentPage + 1);
+    } else if (page === 'prev') {
+        callGroupInviteList(currentPage - 1);
+    } else if (currentPage !== page - 1) {
+        callGroupInviteList(page - 1);
+    }
+}
+
+function groupInvite() {
     const param = {
         groupSeq: currentGroup.groupSeq,
         userSeq: userSeq,
         lolcwTag: lolcwTag
     }
-    common_ajax.call(`/api/group/v1/invite-user`, 'POST', false, param, function(res) {
+    common_ajax.call(`/api/group/v1/invite-user`, 'POST', false, param, function (res) {
         if (res.code !== API_RESULT.SUCCESS) {
             toast.error(res.message);
             return;
         }
         toast.success("초대가 완료되었습니다");
+        resetInviteForm();
+        $('input[name=lolcwTag]').val();
+        $inviteHistory.empty();
+        callGroupInviteList(0);
     });
+}
+
+function resetInviteForm(){
+    $('input[name=userId]').val('');
+    $('input[name=userSeq]').val('');
+    $('input[name=inviteUser]').attr('disabled', true);
+    $('input[name=searchUser]').attr('disabled', false);
 }
 
 function getUserByLolTag() {

@@ -12,6 +12,7 @@ function bindObject() {
     $manageAuthTable = $("#manageAuthTable")
     $inviteHistory = $("#inviteHistory")
     $switchGroup = $('.switch-group');
+    $lolcwTag = $('input[name="lolcwTag"]');
 }
 
 function bindEvent() {
@@ -27,6 +28,7 @@ function bindEvent() {
         switchMenu(changeMenu)
     })
     $groupSelector.on('change', changeGroupSelect)
+    $lolcwTag.on('keyup',resetInviteForm);
 }
 
 

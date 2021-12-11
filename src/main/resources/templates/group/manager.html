@@ -44,15 +44,25 @@
         <thead>
         <tr>
             <th scope="col">아이디</th>
-            <th scope="col">수락여부</th>
-            <th scope="col">초대일자</th>
-            <th scope="col">응답일자</th>
+            <th scope="col" class="ta-c">상태</th>
+            <th scope="col" class="ta-c">초대일자</th>
+            <th scope="col" class="ta-c">응답일자</th>
             <th scope="col">초대취소</th>
         </tr>
         </thead>
         <tbody id="inviteHistory">
         </tbody>
     </table>
+    <nav>
+        <ul class="pagination justify-content-center" id="pagination">
+            <li class="page-item disabled">
+                <a class="page-link" href="#">이전</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="#">다음</a>
+            </li>
+        </ul>
+    </nav>
 
     <div id="modifyAuth" class="switch-group manage-auth" style="float:right">
         <form class="form-inline">

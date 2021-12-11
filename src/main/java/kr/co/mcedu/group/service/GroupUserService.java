@@ -23,5 +23,7 @@ public interface GroupUserService {
 
     PageWrapper<GroupInviteHistoryResponse> getInviteUserHistory(Long groupSeq, final Integer page) throws AccessDeniedException;
 
+    void cancelInvite(Long groupInviteSeq) throws ServiceException;
+
     void modifyUserAuth(GroupAuthChangeRequest request) throws ServiceException;
 }

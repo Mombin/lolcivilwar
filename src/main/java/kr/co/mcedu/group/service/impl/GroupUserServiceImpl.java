@@ -165,13 +165,17 @@ public class GroupUserServiceImpl
             return "EXPIRED";
         }
 
-        groupInviteEntity.setInviteResult("Y".equals(request.getResult()));
+        boolean inviteReplyResult = "Y".equals(request.getResult());
+        groupInviteEntity.setInviteResult(inviteReplyResult);
         groupInviteEntity.setExpireResult(true);
 
         cacheManager.invalidGroupInviteHistoryCache(groupInviteEntity.getGroup().getGroupSeq().toString());
+        cacheManager.invalidAlarmCountCache(SessionUtils.getId());
+        if (inviteReplyResult) {
+            modifyUserGroupAuth(groupInviteEntity.getGroup(), userAlarmEntity.getWebUserEntity(), USER);
+            SessionUtils.refreshAccessToken();
+        }
 
-        modifyUserGroupAuth(groupInviteEntity.getGroup(), userAlarmEntity.getWebUserEntity(), USER);
-        SessionUtils.refreshAccessToken();
         return "SUCCESS";
     }
 

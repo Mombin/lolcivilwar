@@ -23,7 +23,6 @@
         <appender-ref ref="ROLLING" />
     </logger>
     <root level="INFO">
-        <appender-ref ref="STDOUT"/>
         <appender-ref ref="ROLLING"/>
     </root>
 </configuration>

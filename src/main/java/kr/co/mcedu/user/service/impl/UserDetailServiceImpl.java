@@ -23,7 +23,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import javax.transaction.Transactional;
 import java.util.*;
 
@@ -34,25 +33,6 @@ public class UserDetailServiceImpl implements UserDetailsService {
     private final JwtTokenProvider jwtTokenProvider;
     private final LocalCacheManager localCacheManager;
     private final UserAlarmService userAlarmService;
-
-    @PostConstruct
-    @Transactional
-    @Deprecated
-    public void createLolcwTag() {
-        List<WebUserEntity> webUserEntities = webUserRepository.findAllByLolcwTagIsNull();
-        webUserEntities.forEach(webUserEntity -> {
-            String lolcwTag = StringUtils.getLolcwTag();
-            while(true) {
-                Optional<WebUserEntity> findByTag = webUserRepository.findWebUserEntityByLolcwTag(lolcwTag);
-                if (!findByTag.isPresent()) {
-                    break;
-                }
-                lolcwTag = StringUtils.getLolcwTag();
-            }
-            webUserEntity.setLolcwTag(lolcwTag);
-            webUserRepository.saveAndFlush(webUserEntity);
-        });
-    }
 
     @Transactional
     public String login(JwtRequest jwtRequest) throws ServiceException {

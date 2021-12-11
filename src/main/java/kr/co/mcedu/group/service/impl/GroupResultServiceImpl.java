@@ -108,7 +108,7 @@ public class GroupResultServiceImpl
             throw new DataNotExistException();
         }
 
-        return groupManageRepository.getMatchAttendeesByGroupSeqAndSeasonSeq(request.getSeasonSeq());
+        return groupManageRepository.getMatchAttendeesByGroupSeqAndSeasonSeq(request.getGroupSeq(), request.getSeasonSeq());
     }
 
     /**

@@ -8,24 +8,23 @@ $(document).ready(function () {
 function bindObject() {
     $groupSelector = $("#groupSelector")
     $groupAuthList = $("#groupAuthList")
-    $groupAutheListHeader = $("#groupAutheListHeader")
     $inviteHistoryTable = $("#inviteHistoryTable")
     $manageAuthTable = $("#manageAuthTable")
     $inviteHistory = $("#inviteHistory")
+    $switchGroup = $('.switch-group');
 }
 
 function bindEvent() {
-    const MENU_INVITE = 'invite';
-    const MENU_MANAGEAUTH = 'manageAuth';
-    $("#position .nav-link").on('click', function () {
-        $("#position .nav-link.active").removeClass('active');
+    $("#menuTab .nav-link").on('click', function () {
+        $("#menuTab .nav-link.active").removeClass('active');
         $(this).addClass('active');
-        let manageMenu = $(this).data('position');
-        if (manageMenu === MENU_INVITE) {
+        let changeMenu = $(this).data('menu');
+        if (changeMenu === AUTH_MENU.INVITE) {
             callGroupInviteList(0);
-        } else if (manageMenu === MENU_MANAGEAUTH) {
+        } else if (changeMenu === AUTH_MENU.MANAGE_AUTH) {
             callGroupAuthList();
         }
+        switchMenu(changeMenu)
     })
     $groupSelector.on('change', changeGroupSelect)
 }

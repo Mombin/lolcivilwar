@@ -20,6 +20,7 @@ import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
 import javax.persistence.EntityManager;
+import java.time.LocalDateTime;
 import java.util.*;
 
 import static kr.co.mcedu.group.entity.QCustomUserEntity.customUserEntity;
@@ -191,5 +192,14 @@ public class GroupManageRepository {
 
         return Optional.ofNullable(queryFactory.selectFrom(groupInviteEntity)
                 .where(groupInviteEntity.groupInviteSeq.eq(groupInviteSeq)).fetchOne());
+    }
+
+    public Optional<GroupInviteEntity> getAlreadyInviteCheck(Long groupSeq, Long userSeq) {
+        return Optional.ofNullable(queryFactory.select(groupInviteEntity)
+                                               .from(groupInviteEntity)
+                                               .where(groupInviteEntity.group.groupSeq.eq(groupSeq),
+                                                       groupInviteEntity.invitedUser.userSeq.eq(userSeq),
+                                                       groupInviteEntity.expireResult.isFalse().or(groupInviteEntity.modifiedDate.after(LocalDateTime.now().minusDays(1))))
+                                               .fetchFirst());
     }
 }

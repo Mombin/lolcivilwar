@@ -106,14 +106,16 @@ public class SessionUtils {
                        .orElse(GroupAuthEnum.NONE);
     }
 
-    public static void groupManageableAuthCheck(Long groupSeq) throws AccessDeniedException {
-        groupAuthorityCheck(groupSeq, GroupAuthEnum::isManageableAuth);
+    public static GroupAuthEnum groupManageableAuthCheck(Long groupSeq) throws AccessDeniedException {
+        return groupAuthorityCheck(groupSeq, GroupAuthEnum::isManageableAuth);
     }
 
-    public static void groupAuthorityCheck(Long groupSeq, Predicate<GroupAuthEnum> authChecker) throws AccessDeniedException {
-        if(!authChecker.test(getGroupAuth(groupSeq))) {
+    public static GroupAuthEnum groupAuthorityCheck(Long groupSeq, Predicate<GroupAuthEnum> authChecker) throws AccessDeniedException {
+        GroupAuthEnum groupAuth = getGroupAuth(groupSeq);
+        if(!authChecker.test(groupAuth)) {
             throw new AccessDeniedException("권한이 부족합니다.");
         }
+        return groupAuth;
     }
 
     private static String getAccessToken() {

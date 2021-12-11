@@ -4,14 +4,13 @@ import com.querydsl.core.QueryResults;
 import kr.co.mcedu.common.model.PageRequest;
 import kr.co.mcedu.common.model.PageWrapper;
 import kr.co.mcedu.config.exception.AccessDeniedException;
+import kr.co.mcedu.config.exception.AlreadyDataExistException;
 import kr.co.mcedu.config.exception.DataNotExistException;
 import kr.co.mcedu.config.exception.ServiceException;
 import kr.co.mcedu.group.entity.GroupAuthEntity;
 import kr.co.mcedu.group.entity.GroupAuthEnum;
 import kr.co.mcedu.group.entity.GroupEntity;
-import kr.co.mcedu.group.model.request.GroupExpelRequest;
-import kr.co.mcedu.group.model.request.GroupInviteRequest;
-import kr.co.mcedu.group.model.request.ReplyInviteRequest;
+import kr.co.mcedu.group.model.request.*;
 import kr.co.mcedu.group.model.response.GroupAuthResponse;
 import kr.co.mcedu.group.model.response.GroupInviteHistoryResponse;
 import kr.co.mcedu.group.repository.GroupManageRepository;
@@ -27,15 +26,22 @@ import kr.co.mcedu.user.service.WebUserService;
 import kr.co.mcedu.utils.LocalCacheManager;
 import kr.co.mcedu.utils.SessionUtils;
 import kr.co.mcedu.utils.StringUtils;
+import kr.co.mcedu.utils.TimeUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static kr.co.mcedu.group.entity.GroupAuthEnum.*;
 
 @Service
 @Slf4j
@@ -61,7 +67,7 @@ public class GroupUserServiceImpl
     public void expelUser(final GroupExpelRequest request) throws ServiceException {
         GroupAuthEnum groupAuth = SessionUtils.getGroupAuth(request.getGroupSeq());
 
-        if (groupAuth.getOrder() < GroupAuthEnum.MANAGER.getOrder()) {
+        if (groupAuth.getOrder() < MANAGER.getOrder()) {
             throw new AccessDeniedException("권한이 부족합니다.");
         }
 
@@ -89,7 +95,7 @@ public class GroupUserServiceImpl
         
         GroupAuthEnum groupAuth = SessionUtils.getGroupAuth(request.getGroupSeq());
 
-        if (groupAuth.getOrder() < GroupAuthEnum.MANAGER.getOrder()) {
+        if (groupAuth.getOrder() < MANAGER.getOrder()) {
             throw new AccessDeniedException("권한이 부족합니다.");
         }
 
@@ -98,6 +104,24 @@ public class GroupUserServiceImpl
         if (!inviteUser.getUserSeq().equals(request.getUserSeq())) {
             throw new ServiceException("잘못된 요청입니다.");
         }
+
+        if(groupManageRepository.getGroupAuthByGroupSeqAndUserSeq(request.getGroupSeq(), request.getUserSeq()).isPresent()) {
+            throw new AlreadyDataExistException("이미 초대되어있는 사용자입니다.");
+        }
+
+        Optional<GroupInviteEntity> alreadyInviteCheck = groupManageRepository.getAlreadyInviteCheck(request.getGroupSeq(), request.getUserSeq());
+        if (alreadyInviteCheck.isPresent()) {
+            if (Boolean.FALSE.equals(alreadyInviteCheck.get().getExpireResult())) {
+                throw new ServiceException("응답하지 않은 초대가 이미 존재합니다.");
+            }
+            LocalDateTime available = alreadyInviteCheck.get().getModifiedDate().plusDays(1);
+            Pair<String, Long> pair = TimeUtils.diffFromCurrent(available);
+            String unit = pair.getFirst();
+            Long between = pair.getSecond();
+
+            throw new ServiceException("다음 초대가능 시간까지 : " + between + unit);
+        }
+
         WebUserEntity currentUserEntity = webUserService.findWebUserEntity(SessionUtils.getUserSeq());
 
         GroupEntity groupEntity = groupManageRepository.findByIdFetch(request.getGroupSeq())
@@ -146,7 +170,7 @@ public class GroupUserServiceImpl
 
         cacheManager.invalidGroupInviteHistoryCache(groupInviteEntity.getGroup().getGroupSeq().toString());
 
-        modifyUserGroupAuth(groupInviteEntity.getGroup(), userAlarmEntity.getWebUserEntity(), GroupAuthEnum.USER);
+        modifyUserGroupAuth(groupInviteEntity.getGroup(), userAlarmEntity.getWebUserEntity(), USER);
         SessionUtils.refreshAccessToken();
         return "SUCCESS";
     }
@@ -200,6 +224,50 @@ public class GroupUserServiceImpl
         PageWrapper<GroupInviteHistoryResponse> responsePageWrapper = result.change(GroupInviteHistoryResponse::new);
         cacheManager.putGroupInviteHistoryCache(groupSeq.toString(), page, responsePageWrapper);
         return responsePageWrapper;
+    }
+
+    /**
+     * 그룹권한 변경하기 list
+     * @param request
+     * @throws ServiceException
+     */
+    @Override
+    @Transactional
+    public void modifyUserAuth(final GroupAuthChangeRequest request) throws ServiceException {
+        GroupAuthEnum myAuth = SessionUtils.groupManageableAuthCheck(request.getGroupSeq());
+        if (CollectionUtils.isEmpty(request.getTargets())) {
+            throw new DataNotExistException("변경할 대상이 존재하지 않습니다.");
+        }
+        Map<Long, GroupAuthEntity> groupAuthEntityMap =
+                groupManageRepository.getGroupAuthByGroupSeq(request.getGroupSeq())
+                                     .stream()
+                                     .collect(Collectors.toMap(it -> it.getWebUser().getUserSeq(), it -> it));
+        for (AuthChangeRequest target : request.getTargets()) {
+            Long targetUserSeq = target.getUserSeq();
+            GroupAuthEntity groupAuthEntity = groupAuthEntityMap.get(targetUserSeq);
+            if (groupAuthEntity == null) {
+                throw new DataNotExistException();
+            }
+
+            GroupAuthEnum changedAuth = target.getChangedAuth();
+            long mySeq = SessionUtils.getUserSeq();
+            if ((myAuth != OWNER && changedAuth.getOrder() > myAuth.getOrder()) || target.getUserSeq() == mySeq) {
+                throw new ServiceException("잘못된 요청입니다.");
+            }
+
+            if (groupAuthEntity.getGroupAuth().getOrder() >= myAuth.getOrder()) {
+                throw new AccessDeniedException("권한이 부족합니다.");
+            }
+
+            groupAuthEntity.setGroupAuth(changedAuth);
+            if (changedAuth == OWNER) {
+                log.info("{} group change owner  {} -> {}", request.getGroupSeq(), mySeq, targetUserSeq);
+                groupAuthEntityMap.get(mySeq).setGroupAuth(MANAGER);
+                SessionUtils.refreshAccessToken();
+            }
+
+            webUserService.pushRefreshedUser(targetUserSeq);
+        }
     }
 
     @Override

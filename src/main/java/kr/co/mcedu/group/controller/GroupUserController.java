@@ -4,6 +4,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import kr.co.mcedu.config.exception.AccessDeniedException;
 import kr.co.mcedu.config.exception.ServiceException;
+import kr.co.mcedu.group.model.request.GroupAuthChangeRequest;
 import kr.co.mcedu.group.model.request.GroupExpelRequest;
 import kr.co.mcedu.group.model.request.GroupInviteRequest;
 import kr.co.mcedu.group.model.request.ReplyInviteRequest;
@@ -64,6 +65,13 @@ public class GroupUserController {
     @DeleteMapping("/v1/invite-result/{groupInviteSeq}")
     public Object cancelInvite(@PathVariable Long groupInviteSeq) throws ServiceException{
         groupUserService.cancelInvite(groupInviteSeq);
+        return new ResponseWrapper().build();
+    }
+
+    @ApiOperation(value = "changeGroupUserAuth", tags = API_TAG, notes = "유저 권한 변경하기")
+    @PutMapping("/v1/user/auth")
+    public Object modifyUserAuth(@RequestBody GroupAuthChangeRequest request) throws ServiceException {
+        groupUserService.modifyUserAuth(request);
         return new ResponseWrapper().build();
     }
 }

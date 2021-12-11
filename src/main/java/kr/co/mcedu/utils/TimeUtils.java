@@ -1,8 +1,11 @@
 package kr.co.mcedu.utils;
 
+import org.springframework.data.util.Pair;
+
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 
 public class TimeUtils {
@@ -162,5 +165,28 @@ public class TimeUtils {
         }
 
         return result;
+    }
+
+    /**
+     * First : Unit, Second Diff
+     * @param target
+     * @return
+     */
+    public static Pair<String, Long> diffFromCurrent(LocalDateTime target) {
+        LocalDateTime current = LocalDateTime.now();
+        if (target.isBefore(current)) {
+            return Pair.of("", 0L);
+        }
+        long between = ChronoUnit.HOURS.between(current, target);
+        String unit = "시간";
+        if (between == 0) {
+            between = ChronoUnit.MINUTES.between(current, target);
+            unit = "분";
+        }
+        if (between == 0) {
+            between = ChronoUnit.SECONDS.between(current, target);
+            unit = "초";
+        }
+        return Pair.of(unit, between);
     }
 }

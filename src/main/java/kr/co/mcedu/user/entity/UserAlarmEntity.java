@@ -36,7 +36,7 @@ public class UserAlarmEntity extends BaseTimeEntity {
     private UserAlarmType alarmType;
     private Boolean isRead = false;
     private Boolean isDelete = false;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "group_invited_seq", referencedColumnName = "group_invite_seq")
     private GroupInviteEntity groupInviteEntity;
 

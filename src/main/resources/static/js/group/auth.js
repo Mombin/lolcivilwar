@@ -25,6 +25,10 @@ function groupChangeFunction(groupList) {
 
 // 그룹 권한 리스트
 function callGroupAuthList() {
+    if (!checkGroupSeq()) {
+        return;
+    }
+
     let authCall = $manageAuthTable.isAuthCall || {};
     if (authCall[currentGroup.groupSeq]) {
         return;
@@ -66,6 +70,9 @@ function callGroupAuthList() {
 }
 
 function callGroupInviteList(page) {
+    if (!checkGroupSeq()) {
+        return;
+    }
     const param = {
         groupSeq: currentGroup.groupSeq,
         page: page
@@ -122,6 +129,9 @@ function getPage() {
 }
 
 function groupInvite() {
+    if (!checkGroupSeq()) {
+        return;
+    }
     const param = {
         groupSeq: currentGroup.groupSeq,
         userSeq: userSeq,

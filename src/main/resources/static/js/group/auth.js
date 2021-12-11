@@ -1,5 +1,4 @@
 let $groupAuthList;
-let $groupAutheListHeader;
 let $inviteHistoryTable;
 let $manageAuthTable;
 let $inviteHistory;

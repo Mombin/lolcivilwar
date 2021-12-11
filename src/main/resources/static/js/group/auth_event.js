@@ -8,7 +8,6 @@ $(document).ready(function () {
 function bindObject() {
     $groupSelector = $("#groupSelector")
     $groupAuthList = $("#groupAuthList")
-    $groupAutheListHeader = $("#groupAutheListHeader")
     $inviteHistoryTable = $("#inviteHistoryTable")
     $manageAuthTable = $("#manageAuthTable")
     $inviteHistory = $("#inviteHistory")

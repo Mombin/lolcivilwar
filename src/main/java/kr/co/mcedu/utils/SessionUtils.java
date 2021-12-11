@@ -21,6 +21,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.security.Principal;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
@@ -55,7 +56,7 @@ public class SessionUtils {
      * @return id
      */
     public static String getId() {
-        return SecurityContextHolder.getContext().getAuthentication().getName();
+        return Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication()).map(Principal::getName).orElse("anonymous");
     }
 
     /**

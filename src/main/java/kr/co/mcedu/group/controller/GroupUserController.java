@@ -43,7 +43,7 @@ public class GroupUserController {
     public Object replyInviteMessage(@RequestBody ReplyInviteRequest request) throws ServiceException {
         String result = groupUserService.replyInviteMessage(request);
         if ("EXPIRED".equals(result)) {
-            throw new AccessDeniedException("이미 응답한 초대입니다.");
+            throw new AccessDeniedException("이미 만료된 초대입니다.");
         }
         return new ResponseWrapper().build();
     }

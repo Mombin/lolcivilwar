@@ -42,11 +42,6 @@ function callGroupAuthList() {
             let $select = $('<select>').addClass('form-select')
 
             $.each(GROUP_AUTH.getAuthList(), function (key, value) {
-                if (item.groupAuth === GROUP_AUTH.MANAGER) {
-                    if (key === GROUP_AUTH.OWNER) {
-                        return;
-                    }
-                }
                 $select.append($('<option>').val(key).html(value));
             });
             $groupAuthList.append(

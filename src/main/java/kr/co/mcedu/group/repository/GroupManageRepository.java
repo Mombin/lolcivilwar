@@ -185,6 +185,15 @@ public class GroupManageRepository {
                            .fetchResults();
     }
 
+    public Optional<GroupInviteEntity> getGroupInvite(Long groupInviteSeq){
+        if (groupInviteSeq == null) {
+            return Optional.empty();
+        }
+
+        return Optional.ofNullable(queryFactory.selectFrom(groupInviteEntity)
+                .where(groupInviteEntity.groupInviteSeq.eq(groupInviteSeq)).fetchOne());
+    }
+
     public Optional<GroupInviteEntity> getAlreadyInviteCheck(Long groupSeq, Long userSeq) {
         return Optional.ofNullable(queryFactory.select(groupInviteEntity)
                                                .from(groupInviteEntity)

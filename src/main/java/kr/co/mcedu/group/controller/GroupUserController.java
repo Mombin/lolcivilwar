@@ -61,6 +61,13 @@ public class GroupUserController {
         return new ResponseWrapper().setData(groupUserService.getInviteUserHistory(groupSeq, page)).build();
     }
 
+    @ApiOperation(value = "cancelInvite", tags = API_TAG, notes = "초대 취소하기")
+    @DeleteMapping("/v1/invite-result/{groupInviteSeq}")
+    public Object cancelInvite(@PathVariable Long groupInviteSeq) throws ServiceException{
+        groupUserService.cancelInvite(groupInviteSeq);
+        return new ResponseWrapper().build();
+    }
+
     @ApiOperation(value = "changeGroupUserAuth", tags = API_TAG, notes = "유저 권한 변경하기")
     @PutMapping("/v1/user/auth")
     public Object modifyUserAuth(@RequestBody GroupAuthChangeRequest request) throws ServiceException {

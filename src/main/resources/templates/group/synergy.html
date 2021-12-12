@@ -5,6 +5,11 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout/default}" >
 <body>
+<head>
+    <script type="text/javascript" th:src="@{/static/js/group/groupSelector.js}"></script>
+    <script type="text/javascript" th:src="@{/static/js/group/synergy/selector.js}"></script>
+    <script type="text/javascript" th:src="@{/static/js/group/synergy/main.js}"></script>
+</head>
 <div layout:fragment="content">
     <div style="display: flex">
         <div th:replace="~{fragments/fragments :: groupSelector}"></div>
@@ -53,9 +58,4 @@
     </div>
 </div>
 </body>
-<th:block layout:fragment="script">
-    <script type="text/javascript" th:src="@{/static/js/group/groupSelector.js}"></script>
-    <script type="text/javascript" th:src="@{/static/js/group/synergy/selector.js}"></script>
-    <script type="text/javascript" th:src="@{/static/js/group/synergy/main.js}"></script>
-</th:block>
 </html>

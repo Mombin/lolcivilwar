@@ -4,8 +4,7 @@
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout/default}" >
-<body>
-<th:block layout:fragment="css">
+<head>
     <style>
         .container {
             font-size: 14px;
@@ -32,7 +31,9 @@
             text-decoration: underline;
         }
     </style>
-</th:block>
+    <script type="text/javascript" th:src="@{/static/js/login.js}"></script>
+</head>
+<body>
 <div layout:fragment="content">
     <div class="container">
         <div class="row" id="loginForm">
@@ -85,7 +86,4 @@
     </div>
 </div>
 </body>
-<th:block layout:fragment="script">
-    <script type="text/javascript" th:src="@{/static/js/login.js}"></script>
-</th:block>
 </html>

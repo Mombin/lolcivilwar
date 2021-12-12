@@ -2,6 +2,7 @@ package kr.co.mcedu.config.security;
 
 import io.jsonwebtoken.*;
 import kr.co.mcedu.group.model.GroupAuthDto;
+import kr.co.mcedu.user.model.UserInfo;
 import kr.co.mcedu.utils.ModelUtils;
 import kr.co.mcedu.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -119,16 +120,44 @@ public class JwtTokenProvider {
      */
     public long getUserSeq(String token) {
         Claims claims = getClaim(token);
+        return getUserSeq(claims);
+    }
+
+    /**
+     * token에 있는 userSeq 가져오기
+     * @param claims 토큰을 파싱한 claims
+     * @return userSeq, 없을 경우 0
+     */
+    public long getUserSeq(Claims claims) {
         Long userSeq = claims.get("userSeq", Long.class);
         return Optional.ofNullable(userSeq).orElse(0L);
     }
 
+    /**
+     * Custom Authentication 생성
+     * @param token accessToken
+     * @return Authentication
+     */
     public Authentication getAuthentication(String token)  {
         UserDetails userDetails  = new User(this.getId(token), "", this.getAuth(token));
         LolcwAuthentication authentication = new LolcwAuthentication(userDetails, "", userDetails.getAuthorities());
-        authentication.setGroupAuth(getGroupAuth(token));
-        authentication.setUserSeq(getUserSeq(token));
+        Claims claims = getClaim(token);
+        authentication.setGroupAuth(getGroupAuth(claims));
+        authentication.setUserSeq(getUserSeq(claims));
+        authentication.setUserInfo(getUserInfo(claims));
         return authentication;
+    }
+
+    /**
+     * token에 있는 userInfo 가져오기
+     * @param claims 토큰을 파싱한 claims
+     * @return UserInfo
+     */
+    public UserInfo getUserInfo(Claims claims) {
+        String lolcwTag = claims.get("lolcwTag", String.class);
+        UserInfo userInfo = new UserInfo();
+        userInfo.setLolcwTag(lolcwTag);
+        return userInfo;
     }
 
     private String getId(String token) {
@@ -166,11 +195,10 @@ public class JwtTokenProvider {
 
     /**
      * token 으로 부터 GroupAuthDto Map 추출
-     * @param accessToken
+     * @param claim 토큰을 파싱한값
      * @return GroupAuthDto Map
      */
-    private Map<Long, GroupAuthDto> getGroupAuth(String accessToken) {
-        Claims claim = getClaim(accessToken);
+    private Map<Long, GroupAuthDto> getGroupAuth(Claims claim) {
         List list = claim.get(AccessTokenField.GROUP_AUTH, List.class);
         if (list.isEmpty()) {
             return Collections.emptyMap();

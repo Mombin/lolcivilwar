@@ -5,6 +5,11 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout/default}" >
 <body>
+<head>
+    <script type="text/javascript" th:src="@{/static/js/group/groupSelector.js}"></script>
+    <script type="text/javascript" th:src="@{/static/js/group/match.js}"></script>
+    <script type="text/javascript" th:src="@{/static/js/group/match_event.js}"></script>
+</head>
 <div layout:fragment="content">
     <div th:replace="~{fragments/fragments :: groupSelector}"></div>
     <table class="table" style="margin-top: 20px">
@@ -34,9 +39,4 @@
     </nav>
 </div>
 </body>
-<th:block layout:fragment="script">
-    <script type="text/javascript" th:src="@{/static/js/group/groupSelector.js}"></script>
-    <script type="text/javascript" th:src="@{/static/js/group/match.js}"></script>
-    <script type="text/javascript" th:src="@{/static/js/group/match_event.js}"></script>
-</th:block>
 </html>

@@ -5,6 +5,10 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout/default}" >
 <body>
+<head>
+    <script type="text/javascript" th:src="@{/static/js/user/message.js}"></script>
+    <script type="text/javascript" th:src="@{/static/js/user/message_event.js}"></script>
+</head>
 <div layout:fragment="content">
     <div style="margin-top: 20px">
         <h4>새로운 알림</h4>
@@ -13,8 +17,4 @@
     </div>
 </div>
 </body>
-<th:block layout:fragment="script">
-    <script type="text/javascript" th:src="@{/static/js/user/message.js}"></script>
-    <script type="text/javascript" th:src="@{/static/js/user/message_event.js}"></script>
-</th:block>
 </html>

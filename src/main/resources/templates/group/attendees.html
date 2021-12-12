@@ -5,6 +5,11 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout/default}" >
 <body>
+<head>
+    <script type="text/javascript" th:src="@{/static/js/group/groupSelector.js}"></script>
+    <script type="text/javascript" th:src="@{/static/js/group/attendees/mng.js?ver=2021}"></script>
+    <script type="text/javascript" th:src="@{/static/js/group/attendees/mng_event.js}"></script>
+</head>
 <div layout:fragment="content">
     <h3 id="myGroup" style="margin-top: 20px;"></h3>
     <div id="createGroup" class="input-group mb-3" style="display: none;">
@@ -32,9 +37,4 @@
     </form>
 </div>
 </body>
-<th:block layout:fragment="script">
-    <script type="text/javascript" th:src="@{/static/js/group/groupSelector.js}"></script>
-    <script type="text/javascript" th:src="@{/static/js/group/attendees/mng.js?ver=2021}"></script>
-    <script type="text/javascript" th:src="@{/static/js/group/attendees/mng_event.js}"></script>
-</th:block>
 </html>

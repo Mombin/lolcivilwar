@@ -1,6 +1,5 @@
 package kr.co.mcedu.utils;
 
-import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import kr.co.mcedu.config.exception.AccessDeniedException;
 import kr.co.mcedu.config.exception.ServiceException;
@@ -119,10 +118,6 @@ public class SessionUtils {
         return groupAuth;
     }
 
-    private static String getAccessToken() {
-        return jwtTokenProvider.parseTokenCookie(getRequest(),TokenType.ACCESS_TOKEN);
-    }
-
     public static String refreshAccessToken() {
         return refreshProcess(getRequest(), getResponse());
     }
@@ -149,24 +144,15 @@ public class SessionUtils {
     }
 
     /**
-     * 웹에서 쓸 userInfo 생성
+     * userInfo 를 authentication 에서 가져오기
      * @return userInfo
      */
     public static UserInfo getUserInfo() {
-        String accessToken = getAccessToken();
-        if (StringUtils.isEmpty(accessToken)) {
-            return null;
-        }
-        try {
-            Claims claim = jwtTokenProvider.getClaim(accessToken);
-            String lolcwTag = claim.get("lolcwTag", String.class);
-
-            UserInfo userInfo = new UserInfo();
-            userInfo.setLolcwTag(lolcwTag);
-            return userInfo;
-        } catch (ExpiredJwtException ignore) {
-            return null;
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (!(authentication instanceof LolcwAuthentication)) {
+            return new UserInfo();
         }
 
+        return ((LolcwAuthentication) authentication).getUserInfo();
     }
 }

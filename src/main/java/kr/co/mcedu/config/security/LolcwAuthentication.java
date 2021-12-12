@@ -1,6 +1,7 @@
 package kr.co.mcedu.config.security;
 
 import kr.co.mcedu.group.model.GroupAuthDto;
+import kr.co.mcedu.user.model.UserInfo;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -20,6 +21,7 @@ public class LolcwAuthentication extends UsernamePasswordAuthenticationToken {
 
     private Map<Long, GroupAuthDto> groupAuth;
     private long userSeq;
+    private UserInfo userInfo;
 
     public LolcwAuthentication(final Object principal, final Object credentials) {
         super(principal, credentials);

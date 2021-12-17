@@ -31,3 +31,14 @@ logging:
 
 security:
   ignore-url: /static/**, /api/test/*, /favicon.ico, /user/checkId/*, /user/checkEmail/*,  /v2/api-docs, /configuration/**, /swagger*/**, /webjars/**
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: heath,prometheus
+  server:
+    port: 8082
+  endpoint:
+    metrics:
+      enabled: true

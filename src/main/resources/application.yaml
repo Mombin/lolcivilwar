@@ -39,3 +39,14 @@ springfox:
   documentation:
     enabled: false
     auto-startup: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: heath,prometheus
+  server:
+    port: 8082
+  endpoint:
+    metrics:
+      enabled: true

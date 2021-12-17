@@ -36,7 +36,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: heath,prometheus
+        include: metrics,heath,prometheus
     jmx:
       exposure:
         include: "*"

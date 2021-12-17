@@ -37,6 +37,9 @@ management:
     web:
       exposure:
         include: heath,prometheus
+    jmx:
+      exposure:
+        include: "*"
   server:
     port: 8082
   endpoint:

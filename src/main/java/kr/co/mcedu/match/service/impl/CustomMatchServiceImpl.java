@@ -147,11 +147,10 @@ public class CustomMatchServiceImpl implements CustomMatchService {
             if (riotApiResponse instanceof CurrentGameInfoResponse) {
                 Long gameId = ((CurrentGameInfoResponse) riotApiResponse).getGameId();
                 resultInfo = gameInfoMap.get(gameId);
-                if (resultInfo == null) {
-                    gameInfoMap.put(gameId, ((CurrentGameInfoResponse) riotApiResponse));
-                } else {
+                if (resultInfo != null) {
                     break;
                 }
+                gameInfoMap.put(gameId, ((CurrentGameInfoResponse) riotApiResponse));
             }
         }
         if(resultInfo == null && gameInfoMap.size() == 1){

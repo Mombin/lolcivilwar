@@ -11,6 +11,7 @@ import java.util.Map;
 @Setter
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Participant {
+    private String summonerId;
     private Long teamId;
     private Long spell1Id;
     private Long spell2Id;

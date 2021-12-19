@@ -1,6 +1,9 @@
 package kr.co.mcedu.match.controller;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import kr.co.mcedu.config.exception.ServiceException;
+import kr.co.mcedu.match.model.request.CurrentGameInfoRequest;
 import kr.co.mcedu.match.model.request.CustomMatchSaveRequest;
 import kr.co.mcedu.match.model.request.DiceRequest;
 import kr.co.mcedu.match.model.response.DiceResponse;
@@ -12,12 +15,14 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
+@Api("CustomMatchController")
 @Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/custom")
 class CustomMatchController {
     private final CustomMatchService customMatchService;
+    private static final String API_TAG = "custom-match";
 
     /**
      * 매치 결과 기록
@@ -39,4 +44,11 @@ class CustomMatchController {
         Map<String, DiceResponse> response = customMatchService.randomDice(request);
         return new ResponseWrapper().setData(response).build();
     }
+
+    @ApiOperation(value = "ingame-info",tags = API_TAG, notes = "게임데이터 가져오기")
+    @GetMapping("/ingame-info")
+    public Object getGameInfo(@RequestBody CurrentGameInfoRequest request) {
+        return new ResponseWrapper().setData(customMatchService.getGameInfo(request.getEncryptIdList())).build();
+    }
+
 }

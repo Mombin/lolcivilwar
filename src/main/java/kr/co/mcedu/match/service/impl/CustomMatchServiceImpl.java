@@ -15,17 +15,22 @@ import kr.co.mcedu.match.model.response.DiceResponse;
 import kr.co.mcedu.match.repository.CustomMatchRepository;
 import kr.co.mcedu.match.repository.MatchAttendeesRepository;
 import kr.co.mcedu.match.service.CustomMatchService;
+import kr.co.mcedu.riot.ApiEngine;
+import kr.co.mcedu.riot.RiotApiRequest;
+import kr.co.mcedu.riot.RiotApiType;
+import kr.co.mcedu.riot.model.response.CurrentGameInfoResponse;
+import kr.co.mcedu.riot.model.response.DefaultApiResponse;
+import kr.co.mcedu.riot.model.response.RiotApiResponse;
 import kr.co.mcedu.utils.LocalCacheManager;
 import kr.co.mcedu.utils.SessionUtils;
+import kr.co.mcedu.utils.StringUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -35,6 +40,7 @@ public class CustomMatchServiceImpl implements CustomMatchService {
     private final MatchAttendeesRepository matchAttendeesRepository;
     private final GroupService groupService;
     private final LocalCacheManager cacheManager;
+    private final ApiEngine apiEngine;
 
     @Override
     @Transactional
@@ -121,5 +127,36 @@ public class CustomMatchServiceImpl implements CustomMatchService {
             allFlag = false;
         }
         return positionMap;
+    }
+
+    @Override
+    public RiotApiResponse getGameInfo(List<String> encryptedSummonerIdList) {
+        if (CollectionUtils.isEmpty(encryptedSummonerIdList)) {
+            return new DefaultApiResponse();
+        }
+        Map<Long, CurrentGameInfoResponse> gameInfoMap = new HashMap<>();
+        RiotApiResponse resultInfo = null;
+        for (String encryptedSummonerId : encryptedSummonerIdList) {
+            if (StringUtils.isEmpty(encryptedSummonerId)) {
+                continue;
+            }
+            RiotApiRequest request = new RiotApiRequest();
+            request.setApiType(RiotApiType.CURRENT_GAME_INFO_BY_ENCRYPTED_ACCOUNT_ID);
+            request.setData(Collections.singletonMap("encryptedSummonerId", encryptedSummonerId));
+            RiotApiResponse riotApiResponse = apiEngine.sendRequest(request);
+            if (riotApiResponse instanceof CurrentGameInfoResponse) {
+                Long gameId = ((CurrentGameInfoResponse) riotApiResponse).getGameId();
+                resultInfo = gameInfoMap.get(gameId);
+                if (resultInfo == null) {
+                    gameInfoMap.put(gameId, ((CurrentGameInfoResponse) riotApiResponse));
+                } else {
+                    break;
+                }
+            }
+        }
+        if(resultInfo == null && gameInfoMap.size() == 1){
+            resultInfo = new ArrayList<>(gameInfoMap.values()).get(0);
+        }
+        return Optional.ofNullable(resultInfo).orElse(new DefaultApiResponse());
     }
 }

@@ -69,6 +69,7 @@ function setMyGroup(data) {
       .append($span));
     matchRate[text] = item.positionWinRate;
     tierPoints[text] = item.tierPoint
+    encryptIds[text] = item.encryptId;
   });
 
   $('#seasonName').val(data.defaultSeason.seasonName).data('seasonSeq', data.defaultSeason.seasonSeq)

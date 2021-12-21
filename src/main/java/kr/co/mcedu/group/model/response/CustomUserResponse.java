@@ -31,6 +31,7 @@ public class CustomUserResponse {
    private int summonerLevel;
    private boolean isRefreshTarget;
    private Long tierPoint;
+   private String encryptId;
 
    public CustomUserResponse(CustomUserEntity customUserEntity) {
       this.seq = customUserEntity.getSeq();
@@ -50,6 +51,7 @@ public class CustomUserResponse {
                                                                               .isBefore(LocalDateTime.now()))
                                            .orElse(false);
       this.tierPoint = customUserEntity.getTierPoint();
+      this.encryptId = summonerEntity.map(SummonerEntity::getId).orElse("");
    }
 
    public void totalIncrease() {

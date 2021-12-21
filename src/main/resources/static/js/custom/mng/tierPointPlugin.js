@@ -26,3 +26,17 @@ function initTierPointPlugin() {
     return $(this).data('tierToggle') === 'on';
   }
 }
+
+function sumTierPoints(team) {
+  if (team === undefined) {
+    return;
+  }
+  let sum = 0;
+  $.each($(`#team .team-position input[name="team_${team}"]`),function (idx, obj) {
+    if ($(obj).val().trim() !== '') {
+      let tierPoint = tierPoints[$(obj).val().trim()] || 0;
+      sum += tierPoint;
+    }
+  });
+  $(`#team [name="tearPointSum"][data-team="${team}"]`).val(sum);
+}

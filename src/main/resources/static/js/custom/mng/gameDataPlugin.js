@@ -1,4 +1,4 @@
-let $toggleGameData, ingameApiWorker
+let $toggleGameData, ingameApiWorker, encryptIds = {};
 
 function initGameDataPlugin() {
   /* variable */
@@ -16,7 +16,7 @@ function initGameDataPlugin() {
       $(this).data('gameToggle', 'off')
       $(this).val('게임데이터 OFF')
       $('.gameDataGroup').hide()
-      terminateApiWorker()
+      ingameApiWorker.terminate();
     }
     $(this).toggleClass('btn-danger').toggleClass('btn-primary')
   })
@@ -28,15 +28,26 @@ function initGameDataPlugin() {
 }
 
 function runIngameApiWorker() {
+  if (ingameApiWorker) {
+    ingameApiWorker.terminate();
+  }
   ingameApiWorker = new Worker('/static/js/custom/mng/ingameApiWorker.js');
   ingameApiWorker.onmessage = function (evt) {
     const message = evt.data;
     toast.success(message);
   }
-  ingameApiWorker.postMessage({flag: true})
+  ingameApiWorker.postMessage({ids: getCurrentEncryptIds()})
 }
 
-function terminateApiWorker() {
-  ingameApiWorker.postMessage({flag: false})
-  ingameApiWorker.terminate();
+function getCurrentEncryptIds() {
+  let ids = [];
+  $.each($('#team .team-position input'),function (idx, obj) {
+    if ($(obj).val().trim() !== '') {
+      let encryptId = encryptIds[$(obj).val().trim()] || '';
+      if (encryptId) {
+        ids.push(encryptId)
+      }
+    }
+  });
+  return ids;
 }

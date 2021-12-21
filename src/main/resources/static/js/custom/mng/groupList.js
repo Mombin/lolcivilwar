@@ -80,6 +80,9 @@ function moveTeam() {
   if ($toggleTierPoint.getToggleVal()) {
     sumTierPoints(target)
   }
+  if($toggleGameData.getToggleVal()) {
+    runIngameApiWorker()
+  }
 }
 
 function summonerNames() {

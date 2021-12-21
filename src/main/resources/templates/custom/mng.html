@@ -11,54 +11,87 @@
     <script type="text/javascript" th:src="@{/static/js/custom/mng/teamTable.js}"></script>
     <script type="text/javascript" th:src="@{/static/js/custom/mng/randomModal.js}"></script>
     <script type="text/javascript" th:src="@{/static/js/custom/mng/tierPointPlugin.js}"></script>
+    <script type="text/javascript" th:src="@{/static/js/custom/mng/gameDataPlugin.js}"></script>
     <script type="text/javascript" th:src="@{/static/js/custom/mng/main.js}"></script>
+    <style>
+        #banChamps img { margin-left: 10px; margin-right: 10px; background-color: black;}
+        img.gameDataGroup { background-color: black; opacity: 0.8; }
+    </style>
 </head>
 <div layout:fragment="content">
     <div id="team" style="border: 1px; margin-top: 20px" class="row team">
         <div class="input-group" sec:authorize="hasRole('ROLE_USER')" style="margin-bottom: 20px">
             <div style="width: 100%">
                 <input type="text" class="form-control" id="seasonName" style="width: 10%; display: inline;" placeholder="시즌명" readonly>
-                <input type="button" class="btn btn-danger f-r" value="티어표 OFF" id="toggleTierPoint" data-tier-toggle="off">
+                <input type="button" class="btn btn-danger f-r" value="게임데이터 OFF" id="toggleGameData" data-game-toggle="off">
+                <input type="button" class="btn btn-danger f-r mr10" value="티어표 OFF" id="toggleTierPoint" data-tier-toggle="off">
             </div>
         </div>
-        <div class="input-group" sec:authorize="hasRole('ROLE_USER')" style="margin-bottom: 20px">
+        <div class="input-group h60px" sec:authorize="hasRole('ROLE_USER')" style="margin-bottom: 20px">
             <span class="input-group-text">승리팀</span>
             <input type="button" class="btn btn-outline-primary form-control" value="A팀 승리" data-team="a" name="winner_btn">
             <input type="button" class="btn btn-outline-success form-control" value="B팀 승리" data-team="b" name="winner_btn" >
         </div>
-        <div class="input-group">
+        <div class="gameDataGroup input-group" id="banChamps" style="display: none;">
+            <span class="input-group-text">밴</span>
+            <div style="width: calc(50% - 40px); background-color: red; opacity: 0.8">
+                <img class="h60px w60px f-r" data-team="a" data-ban-order="1"/>
+                <img class="h60px w60px f-r" data-team="a" data-ban-order="2"/>
+                <img class="h60px w60px f-r" data-team="a" data-ban-order="3"/>
+                <img class="h60px w60px f-r" data-team="a" data-ban-order="4"/>
+                <img class="h60px w60px f-r" data-team="a" data-ban-order="5"/>
+            </div>
+            <div style="width: calc(50% - 40px); background-color: blue; opacity: 0.8">
+                <img class="h60px w60px f-l" data-team="b" data-ban-order="1"/>
+                <img class="h60px w60px f-l" data-team="b" data-ban-order="2"/>
+                <img class="h60px w60px f-l" data-team="b" data-ban-order="3"/>
+                <img class="h60px w60px f-l" data-team="b" data-ban-order="4"/>
+                <img class="h60px w60px f-l" data-team="b" data-ban-order="5"/>
+            </div>
+        </div>
+        <div class="input-group h60px">
             <span class="input-group-text">팀</span>
             <input type="text" class="form-control" readonly value="A" style="justify-content: center;  width: 40%">
             <input type="text" name="tearPointSum" data-team="a" value="0" class="tierPointGroup form-control" style="width: 5%; display: none; background-color: white" readonly>
             <input type="text" name="tearPointSum" data-team="b" value="0" class="tierPointGroup form-control" style="width: 5%; display: none; background-color: white" readonly>
             <input type="text" class="form-control" readonly value="B" style="justify-content: center;  width: 40%">
         </div>
-        <div class="input-group team-position" data-position="top">
+        <div class="input-group team-position h60px" data-position="top">
             <span class="input-group-text">탑</span>
             <input type="text" class="form-control" name="team_a" data-team="a">
+            <img class="gameDataGroup h60px w60px" style="display: none" data-team="a" />
+            <img class="gameDataGroup h60px w60px" style="display: none" data-team="b" />
             <input type="text" class="form-control" name="team_b" data-team="b">
         </div>
-        <div class="input-group team-position" data-position="jg">
+        <div class="input-group team-position h60px" data-position="jg">
             <span class="input-group-text">정글</span>
             <input type="text" class="form-control" name="team_a" data-team="a">
+            <img class="gameDataGroup h60px w60px" style="display: none" data-team="a" />
+            <img class="gameDataGroup h60px w60px" style="display: none" data-team="b" />
             <input type="text" class="form-control" name="team_b" data-team="b">
         </div>
-        <div class="input-group team-position" data-position="mid">
+        <div class="input-group team-position h60px" data-position="mid">
             <span class="input-group-text">미드</span>
             <input type="text" class="form-control" name="team_a" data-team="a">
+            <img class="gameDataGroup h60px w60px" style="display: none" data-team="a" />
+            <img class="gameDataGroup h60px w60px" style="display: none" data-team="b" />
             <input type="text" class="form-control" name="team_b" data-team="b">
         </div>
-        <div class="input-group team-position" data-position="bot">
+        <div class="input-group team-position h60px" data-position="bot">
             <span class="input-group-text">봇</span>
             <input type="text" class="form-control" name="team_a" data-team="a">
+            <img class="gameDataGroup h60px w60px" style="display: none" data-team="a" />
+            <img class="gameDataGroup h60px w60px" style="display: none" data-team="b" />
             <input type="text" class="form-control" name="team_b" data-team="b">
         </div>
-        <div class="input-group team-position" data-position="sup">
+        <div class="input-group team-position h60px" data-position="sup">
             <span class="input-group-text">서폿</span>
             <input type="text" class="form-control" name="team_a" data-team="a">
+            <img class="gameDataGroup h60px w60px" style="display: none" data-team="a" />
+            <img class="gameDataGroup h60px w60px" style="display: none" data-team="b" />
             <input type="text" class="form-control" name="team_b" data-team="b">
         </div>
-        <div class="input-group">
+        <div class="input-group h60px">
             <span class="input-group-text">라인랜덤</span>
             <input type="button" class="btn btn-primary form-control" value="랜덤" data-team="a" name="random_team">
             <input type="button" class="btn btn-success form-control" value="랜덤" data-team="b" name="random_team" >

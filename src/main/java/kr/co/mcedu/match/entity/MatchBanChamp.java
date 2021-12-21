@@ -10,8 +10,8 @@ import javax.persistence.*;
 @Getter
 @Setter
 @NoArgsConstructor
-@Table(name = "match_ban_champ")
-@SequenceGenerator(sequenceName = "match_ban_seq", initialValue = 1, allocationSize = 1, name = "match_ban_seq", schema = "lol")
+@Table(name = "match_ban_champ",schema = "lol")
+@SequenceGenerator(sequenceName = "match_ban_seq", initialValue = 1, allocationSize = 1, name = "match_ban_seq_gen", schema = "lol")
 public class MatchBanChamp {
 
     @Id
@@ -19,7 +19,7 @@ public class MatchBanChamp {
     @GeneratedValue(generator = "match_ban_seq", strategy = GenerationType.SEQUENCE)
     private Long matchBanSeq;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne
     @JoinColumn(name = "match_seq" , referencedColumnName = "match_seq")
     private CustomMatchEntity customMatch;
 

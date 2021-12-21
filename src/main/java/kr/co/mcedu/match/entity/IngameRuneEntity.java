@@ -11,7 +11,7 @@ import javax.persistence.*;
 @NoArgsConstructor
 @Entity(name = "ingame_rune")
 @Table(name = "ingame_rune", schema = "lol")
-@SequenceGenerator(sequenceName = "ingame_rune_seq", initialValue = 1, allocationSize = 1, name = "ingame_rune_seq", schema = "lol")
+@SequenceGenerator(sequenceName = "ingame_rune_seq", initialValue = 1, allocationSize = 1, name = "ingame_rune_seq_gen", schema = "lol")
 public class IngameRuneEntity {
 
     @Id

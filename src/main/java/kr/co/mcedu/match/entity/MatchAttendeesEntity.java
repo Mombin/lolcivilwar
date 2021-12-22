@@ -23,6 +23,7 @@ import javax.persistence.*;
 @SequenceGenerator(sequenceName = "attendees_seq", initialValue = 1, allocationSize = 1, name = "attendees_seq_generator", schema = "lol")
 public class MatchAttendeesEntity extends BaseTimeEntity {
     @Id
+    @Column(name = "attendees_seq")
     @GeneratedValue(generator = "attendees_seq_generator", strategy = GenerationType.SEQUENCE)
     private Long attendeesSeq ;
 

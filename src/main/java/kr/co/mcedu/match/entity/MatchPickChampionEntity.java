@@ -12,11 +12,12 @@ import javax.persistence.*;
 @Table(name = "match_pick_champ", schema = "lol")
 @NoArgsConstructor
 public class MatchPickChampionEntity {
-
     @Id
-    @ManyToOne(fetch = FetchType.LAZY)
+    private Long attendeesSeq;
+
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "attendees_seq",referencedColumnName ="attendees_seq")
-    private MatchAttendeesEntity attendeesSeq;
+    private MatchAttendeesEntity matchAttendees;
 
     @Column(name = "spell1_id")
     private Long spell1Id;

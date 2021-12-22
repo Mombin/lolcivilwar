@@ -6,14 +6,14 @@ onmessage = function (evt) {
   encryptIds = data.ids;
   flag = encryptIds.length >= 2;
   while(flag) {
-    sleep(1000);
-    console.log(encryptIds)
-    if (Math.round(Math.random()*10) > 8) {
-      flag = false;
-      postMessage("apiSuccess")
-      break
-    } else {
-      console.log("apiFail")
-    }
+    let ids = encryptIds.join(",")
+    common_ajax.pure_call('/api/custom/ingame-info?encryptIdList='+ ids, 'GET', false, '', function (res) {
+      if (res.code !== API_RESULT.SUCCESS) {
+        flag = false;
+        return;
+      }
+      console.log(res);
+    })
+    sleep(20000)
   }
 }

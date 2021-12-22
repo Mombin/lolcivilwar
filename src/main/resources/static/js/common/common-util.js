@@ -33,6 +33,19 @@ common_ajax = {
         }).fail(function (xhr, status, errorThrown) {
             callbackFn(xhr.responseJSON)
         });
+    },
+    pure_call: function (url, type, isAsync, param, callbackFn) {
+        let xmlhttp;
+        if (type === 'GET') {
+            xmlhttp = new XMLHttpRequest();
+            xmlhttp.onreadystatechange = function(){
+                if (xmlhttp.readyState === 4 && xmlhttp.status === 200){
+                    callbackFn(xmlhttp.responseJSON);
+                }
+            }
+            xmlhttp.open(type, url, isAsync);
+            xmlhttp.send(param);
+        }
     }
 }
 

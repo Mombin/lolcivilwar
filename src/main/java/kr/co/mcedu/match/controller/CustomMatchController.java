@@ -47,7 +47,7 @@ class CustomMatchController {
 
     @ApiOperation(value = "ingame-info",tags = API_TAG, notes = "게임데이터 가져오기")
     @GetMapping("/ingame-info")
-    public Object getGameInfo(@RequestBody CurrentGameInfoRequest request) {
+    public Object getGameInfo(@ModelAttribute CurrentGameInfoRequest request) {
         return new ResponseWrapper().setData(customMatchService.getGameInfo(request.getEncryptIdList())).build();
     }
 

@@ -148,6 +148,9 @@ function initTeamTable() {
     if($toggleTierPoint.getToggleVal()) {
       sumTierPoints($(this).data('team'));
     }
+    if($toggleGameData.getToggleVal()) {
+      runIngameApiWorker()
+    }
   });
 
   $("[name='group_list_check']").on('click', function () {
@@ -166,20 +169,6 @@ function isValidationList() {
     }
   });
   return result;
-}
-
-function sumTierPoints(team) {
-  if (team === undefined) {
-    return;
-  }
-  let sum = 0;
-  $.each($(`#team .team-position input[name="team_${team}"]`),function (idx, obj) {
-    if ($(obj).val().trim() !== '') {
-      let tierPoint = tierPoints[$(obj).val().trim()] || 0;
-      sum += tierPoint;
-    }
-  });
-  $(`#team [name="tearPointSum"][data-team="${team}"]`).val(sum);
 }
 
 function isValidationName(team) {

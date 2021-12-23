@@ -36,12 +36,25 @@ function runIngameApiWorker() {
     const message = evt.data;
     toast.success(message);
   }
-  ingameApiWorker.postMessage({ids: getCurrentEncryptIds()})
+  let currentEncryptIds = getCurrentEncryptIds();
+  if (currentEncryptIds.length > 0) {
+    ingameApiWorker.postMessage({ids: currentEncryptIds})
+  }
 }
 
 function getCurrentEncryptIds() {
   let ids = [];
-  $.each($('#team .team-position input'),function (idx, obj) {
+  let hasUser = 0;
+  let $userNameInput = $('#team .team-position input');
+  $.each($userNameInput,function (idx, obj) {
+    if ($(obj).val().trim() !== '') {
+      hasUser++;
+    }
+  });
+  if (hasUser !== 10) {
+    return ids;
+  }
+  $.each($userNameInput,function (idx, obj) {
     if ($(obj).val().trim() !== '') {
       let encryptId = encryptIds[$(obj).val().trim()] || '';
       if (encryptId) {

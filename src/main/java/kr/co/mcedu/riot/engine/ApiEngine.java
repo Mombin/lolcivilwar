@@ -2,6 +2,7 @@ package kr.co.mcedu.riot.engine;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import kr.co.mcedu.common.property.RiotApiProperty;
 import kr.co.mcedu.riot.engine.response.TimeOutApiResponse;
 import kr.co.mcedu.riot.engine.response.DefaultApiResponse;
 import kr.co.mcedu.riot.engine.response.RiotApiResponse;

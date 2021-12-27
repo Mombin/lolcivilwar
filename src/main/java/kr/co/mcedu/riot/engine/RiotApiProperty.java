@@ -1,4 +1,4 @@
-package kr.co.mcedu.riot;
+package kr.co.mcedu.riot.engine;
 
 
 import kr.co.mcedu.common.entity.SystemEntity;

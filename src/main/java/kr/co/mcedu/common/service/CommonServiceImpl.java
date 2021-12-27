@@ -3,8 +3,8 @@ package kr.co.mcedu.common.service;
 import kr.co.mcedu.common.entity.SystemEntity;
 import kr.co.mcedu.common.entity.SystemPropertyKey;
 import kr.co.mcedu.common.repository.SystemRepository;
-import kr.co.mcedu.riot.ApiEngine;
-import kr.co.mcedu.riot.RiotApiProperty;
+import kr.co.mcedu.riot.engine.ApiEngine;
+import kr.co.mcedu.riot.engine.RiotApiProperty;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

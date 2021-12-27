@@ -1,5 +1,4 @@
-package kr.co.mcedu.riot.model.response;
-
+package kr.co.mcedu.riot.engine.response;
 
 public class DefaultApiResponse extends RiotApiResponse {
     @Override

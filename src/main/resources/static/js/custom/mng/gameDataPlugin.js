@@ -1,4 +1,4 @@
-let $toggleGameData, ingameApiWorker, encryptIds = {};
+let $toggleGameData, ingameApiWorker, encryptIds = {}, parsedIngameData = {};
 
 function initGameDataPlugin() {
   /* variable */
@@ -33,8 +33,7 @@ function runIngameApiWorker() {
   }
   ingameApiWorker = new Worker('/static/js/custom/mng/ingameApiWorker.js');
   ingameApiWorker.onmessage = function (evt) {
-    const message = evt.data;
-    toast.success(message);
+    parseGameData(evt.data)
   }
   let currentEncryptIds = getCurrentEncryptIds();
   if (currentEncryptIds.length > 0) {
@@ -63,4 +62,40 @@ function getCurrentEncryptIds() {
     }
   });
   return ids;
+}
+
+function parseGameData(ingameData) {
+  parsedIngameData = {};
+  findTeam(ingameData.participants);
+  parseParticipants(ingameData.participants);
+  parseBannedChampions(ingameData.bannedChampions);
+}
+
+function findTeam(participants) {
+  let $userInput = $('#team .team-position input');
+  for(let i = 0; i < $userInput.length; i++) {
+    let userNick = $userInput.eq(i).val();
+    let encryptId = encryptIds[userNick];
+    let team = $userInput.eq(1).data('team');
+    for(let j = 0; j < participants.length; j++) {
+      let participant = participants[j];
+      if (encryptId === participant.summonerId) {
+        parsedIngameData[String(participant.teamId)] = { team: team, summoner: [], bannedChampions: [] };
+        parsedIngameData[String(participant.teamId === 100 ? 100 : 200)] = {team :(team === 'a' ? 'b' : 'a'), summoner: [], bannedChampions: []}
+        return;
+      }
+    }
+  }
+}
+
+function parseParticipants(participants) {
+  $.each(participants, function (idx, obj) {
+    parsedIngameData[String(obj.teamId)].summoner.push(obj);
+  })
+}
+
+function parseBannedChampions(bannedChampions) {
+  $.each(bannedChampions, function (idx, obj) {
+    parsedIngameData[String(obj.teamId)].bannedChampions.push(obj);
+  })
 }

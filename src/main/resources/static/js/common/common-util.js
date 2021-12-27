@@ -40,7 +40,7 @@ common_ajax = {
             xmlhttp = new XMLHttpRequest();
             xmlhttp.onreadystatechange = function(){
                 if (xmlhttp.readyState === 4 && xmlhttp.status === 200){
-                    callbackFn(xmlhttp.responseJSON);
+                    callbackFn(xmlhttp.response);
                 }
             }
             xmlhttp.open(type, url, isAsync);

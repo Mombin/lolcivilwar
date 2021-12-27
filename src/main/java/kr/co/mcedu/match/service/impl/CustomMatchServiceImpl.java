@@ -15,12 +15,13 @@ import kr.co.mcedu.match.model.response.DiceResponse;
 import kr.co.mcedu.match.repository.CustomMatchRepository;
 import kr.co.mcedu.match.repository.MatchAttendeesRepository;
 import kr.co.mcedu.match.service.CustomMatchService;
-import kr.co.mcedu.riot.ApiEngine;
-import kr.co.mcedu.riot.RiotApiRequest;
-import kr.co.mcedu.riot.RiotApiType;
-import kr.co.mcedu.riot.model.response.CurrentGameInfoResponse;
-import kr.co.mcedu.riot.model.response.DefaultApiResponse;
-import kr.co.mcedu.riot.model.response.RiotApiResponse;
+import kr.co.mcedu.riot.engine.ApiEngine;
+import kr.co.mcedu.riot.engine.RiotApiRequest;
+import kr.co.mcedu.riot.engine.RiotApiType;
+import kr.co.mcedu.riot.engine.response.CurrentGameInfoResponse;
+import kr.co.mcedu.riot.engine.response.DefaultApiResponse;
+import kr.co.mcedu.riot.engine.response.RiotApiResponse;
+import kr.co.mcedu.riot.service.RiotDataService;
 import kr.co.mcedu.utils.LocalCacheManager;
 import kr.co.mcedu.utils.SessionUtils;
 import kr.co.mcedu.utils.StringUtils;
@@ -35,12 +36,17 @@ import java.util.*;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class CustomMatchServiceImpl implements CustomMatchService {
+public class CustomMatchServiceImpl
+        implements CustomMatchService {
+    private final GroupService groupService;
+    private final RiotDataService riotDataService;
+
     private final CustomMatchRepository customMatchRepository;
     private final MatchAttendeesRepository matchAttendeesRepository;
-    private final GroupService groupService;
-    private final LocalCacheManager cacheManager;
+
     private final ApiEngine apiEngine;
+    private final LocalCacheManager cacheManager;
+
 
     @Override
     @Transactional
@@ -155,6 +161,19 @@ public class CustomMatchServiceImpl implements CustomMatchService {
         }
         if(resultInfo == null && gameInfoMap.size() == 1){
             resultInfo = new ArrayList<>(gameInfoMap.values()).get(0);
+        }
+        if (resultInfo != null) {
+            CurrentGameInfoResponse gameInfoResponse = (CurrentGameInfoResponse) resultInfo;
+            gameInfoResponse.getParticipants().forEach(participant -> {
+                Long championId = participant.getChampionId();
+                participant.setChampionName(riotDataService.getChampionName(championId));
+                participant.setChampionImage(riotDataService.getChampionImageUrl(participant.getChampionName()));
+            });
+            gameInfoResponse.getBannedChampions().forEach(banChampion -> {
+                Long championId = banChampion.getChampionId();
+                banChampion.setChampionName(riotDataService.getChampionName(championId));
+                banChampion.setChampionImage(riotDataService.getChampionImageUrl(banChampion.getChampionName()));
+            });
         }
         return Optional.ofNullable(resultInfo).orElse(new DefaultApiResponse());
     }

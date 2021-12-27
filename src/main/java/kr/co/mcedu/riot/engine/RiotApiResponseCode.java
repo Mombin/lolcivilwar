@@ -1,4 +1,4 @@
-package kr.co.mcedu.riot;
+package kr.co.mcedu.riot.engine;
 
 import lombok.Getter;
 
@@ -21,7 +21,7 @@ public enum RiotApiResponseCode {
         this.state = state;
     }
 
-    private final static Map<String,RiotApiResponseCode> states = Arrays.stream(values()).collect(Collectors.toMap(RiotApiResponseCode::getState,Function.identity()));
+    private static final Map<String,RiotApiResponseCode> states = Arrays.stream(values()).collect(Collectors.toMap(RiotApiResponseCode::getState,Function.identity()));
     public static RiotApiResponseCode findByState(String state){
         return states.getOrDefault(state,DEFAULT);
     }

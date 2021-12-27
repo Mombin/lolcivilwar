@@ -1,6 +1,6 @@
-package kr.co.mcedu.riot;
+package kr.co.mcedu.riot.engine.response;
 
-import kr.co.mcedu.riot.model.response.RiotApiResponse;
+import kr.co.mcedu.riot.engine.RiotApiResponseCode;
 import lombok.Getter;
 import lombok.Setter;
 

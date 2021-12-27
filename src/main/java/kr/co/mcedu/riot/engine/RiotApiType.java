@@ -1,8 +1,8 @@
-package kr.co.mcedu.riot;
+package kr.co.mcedu.riot.engine;
 
-import kr.co.mcedu.riot.model.response.CurrentGameInfoResponse;
-import kr.co.mcedu.riot.model.response.DefaultApiResponse;
-import kr.co.mcedu.riot.model.response.SummonerNameSearchResponse;
+import kr.co.mcedu.riot.engine.response.CurrentGameInfoResponse;
+import kr.co.mcedu.riot.engine.response.DefaultApiResponse;
+import kr.co.mcedu.riot.engine.response.SummonerNameSearchResponse;
 import lombok.Getter;
 
 import java.lang.reflect.Type;

@@ -1,4 +1,4 @@
-package kr.co.mcedu.riot.model.response;
+package kr.co.mcedu.riot.engine.model;
 
 import lombok.Getter;
 import lombok.Setter;

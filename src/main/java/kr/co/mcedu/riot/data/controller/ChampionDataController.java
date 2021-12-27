@@ -16,7 +16,8 @@ public class ChampionDataController {
 
     @GetMapping("/data")
     public Object insertData() throws ServiceException {
-        gameDataService.insertChampionAndSpellData();
+        gameDataService.insertChampionData();
+        gameDataService.insertSpellData();
         return new ResponseWrapper().build();
     }
 }

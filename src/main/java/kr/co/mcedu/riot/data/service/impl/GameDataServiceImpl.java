@@ -7,7 +7,7 @@ import kr.co.mcedu.riot.data.entity.SummonerSpellEntity;
 import kr.co.mcedu.riot.data.model.ChampionData;
 import kr.co.mcedu.riot.data.model.RiotJsonData;
 import kr.co.mcedu.riot.data.model.RiotJsonResponse;
-import kr.co.mcedu.riot.data.model.SummoneSpellData;
+import kr.co.mcedu.riot.data.model.SummonerSpellData;
 import kr.co.mcedu.riot.data.repository.ChampionJpaRepository;
 import kr.co.mcedu.riot.data.repository.SummonerSpellJpaRepository;
 import kr.co.mcedu.riot.data.service.GameDataService;
@@ -28,11 +28,12 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class GameDataServiceImpl implements GameDataService {
 
+    private final CommonService commonService;
     private final ChampionJpaRepository championJpaRepository;
     private final SummonerSpellJpaRepository summonerSpellJpaRepository;
-    private final SystemRepository systemRepository;
-    private final WebUserRepository webUserRepository;
 
+    private final ModelMapper modelMapper = new ModelMapper();
+    private final RestTemplate restTemplate = new RestTemplate();
 
     @Override
     @Transactional
@@ -54,7 +55,7 @@ public class GameDataServiceImpl implements GameDataService {
         Map<String, Map<String, Object>> data = response.getData();
         summonerSpellJpaRepository.findAll();
         List<SummonerSpellEntity> entityList = data.values().stream()
-                .map(dataMap -> modelMapper.map(dataMap, SummoneSpellData.class))
+                .map(dataMap -> modelMapper.map(dataMap, SummonerSpellData.class))
                 .map(SummonerSpellEntity::new)
                 .collect(Collectors.toList());
         summonerSpellJpaRepository.saveAll(entityList);

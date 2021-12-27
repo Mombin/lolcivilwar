@@ -7,7 +7,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-public class SummoneSpellData {
+public class SummonerSpellData {
     private String id;
     private Long key;
 }

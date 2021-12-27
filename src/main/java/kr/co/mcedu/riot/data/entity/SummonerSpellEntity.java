@@ -1,6 +1,6 @@
 package kr.co.mcedu.riot.data.entity;
 
-import kr.co.mcedu.riot.data.model.SummoneSpellData;
+import kr.co.mcedu.riot.data.model.SummonerSpellData;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -24,8 +24,8 @@ public class SummonerSpellEntity {
     @Column(name = "summoner_spell_name")
     private String summonerSpellName;
 
-    public SummonerSpellEntity (SummoneSpellData summoneSpellData) {
-        this.summonerSpellId = summoneSpellData.getKey();
-        this.summonerSpellName = summoneSpellData.getId();
+    public SummonerSpellEntity (SummonerSpellData summonerSpellData) {
+        this.summonerSpellId = summonerSpellData.getKey();
+        this.summonerSpellName = summonerSpellData.getId();
     }
 }

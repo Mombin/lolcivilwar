@@ -1,6 +1,8 @@
 package kr.co.mcedu.riot.data.entity;
 
+import kr.co.mcedu.riot.data.model.ChampionData;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.Column;
@@ -10,6 +12,7 @@ import javax.persistence.Table;
 
 @Getter
 @Setter
+@NoArgsConstructor
 @Entity(name = "champion_data")
 @Table(name = "champion_data",schema = "lol")
 public class ChampionDataEntity {
@@ -20,4 +23,9 @@ public class ChampionDataEntity {
 
     @Column(name = "champion_name")
     private String championName;
+
+    public ChampionDataEntity(ChampionData championData) {
+        this.championId = championData.getKey();
+        this.championName = championData.getId();
+    }
 }

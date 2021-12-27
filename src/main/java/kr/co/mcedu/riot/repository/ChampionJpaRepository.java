@@ -1,6 +1,6 @@
-package kr.co.mcedu.riot.data.repository;
+package kr.co.mcedu.riot.repository;
 
-import kr.co.mcedu.riot.data.entity.ChampionDataEntity;
+import kr.co.mcedu.riot.entity.ChampionDataEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

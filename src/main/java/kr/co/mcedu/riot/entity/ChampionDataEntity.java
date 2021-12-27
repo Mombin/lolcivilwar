@@ -1,6 +1,6 @@
-package kr.co.mcedu.riot.data.entity;
+package kr.co.mcedu.riot.entity;
 
-import kr.co.mcedu.riot.data.model.ChampionData;
+import kr.co.mcedu.riot.model.ChampionData;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

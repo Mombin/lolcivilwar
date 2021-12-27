@@ -1,7 +1,7 @@
-package kr.co.mcedu.riot.data.controller;
+package kr.co.mcedu.riot.controller;
 
 import kr.co.mcedu.config.exception.ServiceException;
-import kr.co.mcedu.riot.data.service.GameDataService;
+import kr.co.mcedu.riot.service.RiotDataService;
 import kr.co.mcedu.utils.ResponseWrapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,12 +12,12 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @RequestMapping("/api/admin")
 public class ChampionDataController {
-    private final GameDataService gameDataService;
+    private final RiotDataService riotDataService;
 
     @GetMapping("/data")
     public Object insertData() throws ServiceException {
-        gameDataService.insertChampionData();
-        gameDataService.insertSpellData();
+        riotDataService.insertChampionData();
+        riotDataService.insertSpellData();
         return new ResponseWrapper().build();
     }
 }

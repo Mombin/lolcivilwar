@@ -1,6 +1,6 @@
-package kr.co.mcedu.riot.data.entity;
+package kr.co.mcedu.riot.entity;
 
-import kr.co.mcedu.riot.data.model.SummonerSpellData;
+import kr.co.mcedu.riot.model.SummonerSpellData;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

@@ -1,7 +1,7 @@
 package kr.co.mcedu.riot.repository;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import kr.co.mcedu.riot.data.entity.ChampionDataEntity;
+import kr.co.mcedu.riot.entity.ChampionDataEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -10,7 +10,7 @@ import javax.persistence.EntityManager;
 import java.util.List;
 import java.util.Optional;
 
-import static kr.co.mcedu.riot.data.entity.QChampionDataEntity.championDataEntity;
+import static kr.co.mcedu.riot.entity.QChampionDataEntity.championDataEntity;
 
 @Repository
 @RequiredArgsConstructor

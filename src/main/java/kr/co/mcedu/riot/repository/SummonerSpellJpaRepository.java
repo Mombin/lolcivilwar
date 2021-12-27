@@ -1,6 +1,6 @@
-package kr.co.mcedu.riot.data.repository;
+package kr.co.mcedu.riot.repository;
 
-import kr.co.mcedu.riot.data.entity.SummonerSpellEntity;
+import kr.co.mcedu.riot.entity.SummonerSpellEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

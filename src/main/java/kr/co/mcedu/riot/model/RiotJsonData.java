@@ -1,4 +1,4 @@
-package kr.co.mcedu.riot.data.model;
+package kr.co.mcedu.riot.model;
 
 import lombok.Getter;
 

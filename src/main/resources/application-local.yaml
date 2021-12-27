@@ -45,3 +45,6 @@ management:
   endpoint:
     metrics:
       enabled: true
+
+lol:
+  cdn-url: https://ddragon.leagueoflegends.com/cdn

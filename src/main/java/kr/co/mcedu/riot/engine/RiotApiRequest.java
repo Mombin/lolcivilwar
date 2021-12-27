@@ -1,12 +1,12 @@
-package kr.co.mcedu.riot;
+package kr.co.mcedu.riot.engine;
 
-import com.google.common.base.Charsets;
 import kr.co.mcedu.utils.StringUtils;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,7 +26,7 @@ public class RiotApiRequest {
             String key = entry.getKey();
             Object value = entry.getValue();
             try {
-                encodedValue = URLEncoder.encode(value.toString(), Charsets.UTF_8.toString());
+                encodedValue = URLEncoder.encode(value.toString(), StandardCharsets.UTF_8.toString());
             } catch (UnsupportedEncodingException ignore) {
                 encodedValue = value.toString();
             }

@@ -1,9 +1,11 @@
-package kr.co.mcedu.riot.model.response;
+package kr.co.mcedu.riot.engine.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import kr.co.mcedu.riot.RiotApiResponseCode;
+import kr.co.mcedu.riot.engine.RiotApiResponseCode;
+import kr.co.mcedu.riot.engine.model.BanChampion;
+import kr.co.mcedu.riot.engine.model.Participant;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -13,7 +15,7 @@ import java.util.List;
 @Getter
 @Setter
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class CurrentGameInfoResponse extends RiotApiResponse{
+public class CurrentGameInfoResponse extends RiotApiResponse {
 
     private RiotApiResponseCode state = RiotApiResponseCode.SUCCESS;
     private List<Participant> participants = new ArrayList<>();

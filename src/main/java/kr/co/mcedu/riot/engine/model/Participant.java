@@ -16,6 +16,7 @@ public class Participant {
     private Long spell1Id;
     private Long spell2Id;
     private Long championId;
+    private String championName;
+    private String championImage;
     private Map<String,Object> perks = new HashMap<>();
-
 }

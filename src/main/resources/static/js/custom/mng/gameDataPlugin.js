@@ -1,4 +1,5 @@
-let $toggleGameData, ingameApiWorker, encryptIds = {}, parsedIngameData = {};
+let $toggleGameData, ingameApiWorker, encryptIds = {}, parsedIngameData = {}, nicknames = {};
+const whiteImg = "data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAAADwAAAA9CAIAAAB+wp2AAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABeSURBVGhD7c4BCQAxDACxeZp/CdX0z0wcFBIFOd9CZxZ66buKdEW6Il2RrkhXpCvSFemKdEW6Il2RrkhXpCvSFemKdEW6Il2RrkhXpCvSFemKdEW6Il2RrmxOLzPzA3ZtxVt56UJ2AAAAAElFTkSuQmCC"
 
 function initGameDataPlugin() {
   /* variable */
@@ -12,6 +13,7 @@ function initGameDataPlugin() {
       $(this).val('게임데이터 ON')
       $('.gameDataGroup').show()
       runIngameApiWorker();
+      resetImages()
     } else {
       $(this).data('gameToggle', 'off')
       $(this).val('게임데이터 OFF')
@@ -39,6 +41,10 @@ function runIngameApiWorker() {
   if (currentEncryptIds.length > 0) {
     ingameApiWorker.postMessage({ids: currentEncryptIds})
   }
+}
+
+function resetImages() {
+  $("img.gameDataGroup, .gameDataGroup img").attr('src', whiteImg);
 }
 
 function getCurrentEncryptIds() {
@@ -69,6 +75,7 @@ function parseGameData(ingameData) {
   findTeam(ingameData.participants);
   parseParticipants(ingameData.participants);
   parseBannedChampions(ingameData.bannedChampions);
+  setIngameDatas()
 }
 
 function findTeam(participants) {
@@ -76,12 +83,12 @@ function findTeam(participants) {
   for(let i = 0; i < $userInput.length; i++) {
     let userNick = $userInput.eq(i).val();
     let encryptId = encryptIds[userNick];
-    let team = $userInput.eq(1).data('team');
+    let team = $userInput.eq(i).data('team');
     for(let j = 0; j < participants.length; j++) {
       let participant = participants[j];
       if (encryptId === participant.summonerId) {
-        parsedIngameData[String(participant.teamId)] = { team: team, summoner: [], bannedChampions: [] };
-        parsedIngameData[String(participant.teamId === 100 ? 100 : 200)] = {team :(team === 'a' ? 'b' : 'a'), summoner: [], bannedChampions: []}
+        parsedIngameData[String(participant.teamId)] = { team: team, summoner: {}, bannedChampions: [] };
+        parsedIngameData[String(participant.teamId === 100 ? 200 : 100)] = {team :(team === 'a' ? 'b' : 'a'), summoner: {}, bannedChampions: []}
         return;
       }
     }
@@ -90,12 +97,36 @@ function findTeam(participants) {
 
 function parseParticipants(participants) {
   $.each(participants, function (idx, obj) {
-    parsedIngameData[String(obj.teamId)].summoner.push(obj);
+    obj.nickname = nicknames[obj.summonerId] || "";
+    if (obj.nickname === "") {
+      return;
+    }
+    parsedIngameData[String(obj.teamId)].summoner[obj.nickname] = obj;
   })
 }
 
 function parseBannedChampions(bannedChampions) {
   $.each(bannedChampions, function (idx, obj) {
     parsedIngameData[String(obj.teamId)].bannedChampions.push(obj);
+  })
+}
+
+function setIngameDatas() {
+  $.each(parsedIngameData, function ($key, $team) {
+    let teamKey = $team.team;
+    let summoner = $team.summoner;
+    let bannedChampions = $team.bannedChampions;
+    $.each($("div.team-position"), function (idx, position) {
+      let nickname = $(position).find(`input[data-team='${teamKey}']`).val();
+      let summonerElement = summoner[nickname];
+      if (summonerElement === undefined) {
+        return;
+      }
+      $(position).find(`img[data-team="${teamKey}"]`).data('summoner', summonerElement).attr('src', summonerElement.championImage);
+    })
+
+    $.each(bannedChampions, function (idx, obj) {
+      $(`.gameDataGroup img[data-team="${teamKey}"][data-ban-order="${idx}"]`).data('summoner', obj).attr('src', obj.championImage);
+    });
   })
 }

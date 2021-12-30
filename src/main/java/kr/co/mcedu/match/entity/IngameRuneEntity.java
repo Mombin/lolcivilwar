@@ -16,7 +16,7 @@ public class IngameRuneEntity {
 
     @Id
     @Column(name = "rune_seq")
-    @GeneratedValue(generator = "ingame_rune_seq", strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(generator = "ingame_rune_seq_gen", strategy = GenerationType.SEQUENCE)
     private Long runeSeq;
 
     @ManyToOne(fetch = FetchType.LAZY)

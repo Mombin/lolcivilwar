@@ -16,7 +16,7 @@ public class MatchBanChamp {
 
     @Id
     @Column(name = "match_ban_seq")
-    @GeneratedValue(generator = "match_ban_seq", strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(generator = "match_ban_seq_gen", strategy = GenerationType.SEQUENCE)
     private Long matchBanSeq;
 
     @OneToOne

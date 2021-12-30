@@ -9,6 +9,7 @@ import kr.co.mcedu.common.property.RiotApiProperty;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
 import java.util.Optional;
@@ -57,6 +58,23 @@ public class CommonServiceImpl implements CommonService {
         systemEntity.setPropertyValue2(apiKey);
         systemEntity = systemRepository.save(systemEntity);
         apiEngine.updateApiProperty(new RiotApiProperty(systemEntity));
+    }
+
+    @Override
+    @Transactional
+    public void updateLolVersionProperty(String version) {
+        Optional<SystemEntity> systemEntityOption = systemRepository.findById(SystemPropertyKey.LOL_VERSION.name());
+        SystemEntity systemEntity;
+        if(!systemEntityOption.isPresent()){
+            SystemEntity entity = new SystemEntity();
+            entity.setPropertyName(SystemPropertyKey.LOL_VERSION.name());
+            entity.setPropertyValue1(version);
+            systemEntity = entity;
+        }else {
+            systemEntity = systemEntityOption.get();
+        }
+        systemEntity.setPropertyValue1(version);
+        systemRepository.save(systemEntity);
     }
 
 }

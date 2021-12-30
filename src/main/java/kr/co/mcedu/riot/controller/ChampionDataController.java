@@ -20,4 +20,10 @@ public class ChampionDataController {
         riotDataService.insertSpellData();
         return new ResponseWrapper().build();
     }
+
+    @PostMapping("/version")
+    public Object updateGameVersion(@RequestParam String version) {
+        riotDataService.updateGameVersion(version);
+        return new ResponseWrapper().build();
+    }
 }

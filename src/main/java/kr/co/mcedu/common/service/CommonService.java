@@ -9,4 +9,6 @@ public interface CommonService {
     LolCdnProperty getLolVersionProperty();
 
     void updateRiotApiProperty(String apiKey);
+
+    void updateLolVersionProperty(String version);
 }

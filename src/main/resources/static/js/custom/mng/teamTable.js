@@ -21,6 +21,9 @@ function initTeamTable() {
     $("#groupUserList .list-group").hide();
     $("[name='group_list_apply']").hide();
     $groupSelector.hide();
+    if ($toggleGameData.getToggleVal()) {
+      resetImages();
+    }
   });
 
   $('[name="winner_btn"]').on('click', function() {
@@ -171,6 +174,9 @@ function initTeamTable() {
       $summoner.append($("<input>").addClass('tierPointGroup').attr('type', 'text').attr('readonly', true).css('display', $toggleTierPoint.getToggleVal() ? 'block' : 'none').css('text-align', 'center').css('width', '5%').addClass('form-control'))
       $summoner.append(btnA).append(btnB);
       $summonerList.append($summoner);
+    }
+    if ($toggleGameData.getToggleVal()) {
+      resetImages();
     }
   });
 

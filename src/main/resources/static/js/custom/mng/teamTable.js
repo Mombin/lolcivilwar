@@ -91,6 +91,9 @@ function initTeamTable() {
         return;
       }
       alert("등록에 성공하였습니다.")
+      if ($toggleGameData.getToggleVal()) {
+        resetImages()
+      }
     });
   });
 

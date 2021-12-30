@@ -21,4 +21,4 @@ fi
 
 DEPLOY_JAR=$DEPLOY_PATH$JAR_NAME
 echo "> DEPLOY_JAR 배포"    >> /home/lolcw/logs/deploy.log
-nohup java -Xm200m -Dspring.profiles.active=prod -jar $DEPLOY_JAR >> /home/lolcw/logs/deploy.log 2>/home/lolcw/logs/deploy_err.log &
+nohup java -Dspring.profiles.active=prod -jar $DEPLOY_JAR >> /home/lolcw/logs/deploy.log 2>/home/lolcw/logs/deploy_err.log &

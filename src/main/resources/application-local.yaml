@@ -4,6 +4,8 @@ spring:
     driver-class-name: org.postgresql.Driver
     username: postgres
     password: bitbot12#$
+    hikari:
+      minimum-idle: 2
   jwt:
     secret: local_yache
   thymeleaf:
@@ -28,7 +30,6 @@ spring:
     static-path-pattern: /static/**
 logging:
   config: classpath:logback-local.xml
-
 security:
   ignore-url: /static/**, /api/test/*, /favicon.ico, /user/checkId/*, /user/checkEmail/*,  /v2/api-docs, /configuration/**, /swagger*/**, /webjars/**
 

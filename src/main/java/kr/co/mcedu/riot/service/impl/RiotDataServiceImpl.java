@@ -95,4 +95,10 @@ public class RiotDataServiceImpl
         }
         return lolCdnProperty.getCdnUrl() + "/img/champion/" + championName + ".png";
     }
+
+    @Override
+    public void updateGameVersion(String version) {
+        commonService.updateLolVersionProperty(version);
+        lolCdnProperty = commonService.getLolVersionProperty();
+    }
 }

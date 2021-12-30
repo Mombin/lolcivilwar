@@ -8,4 +8,6 @@ public interface RiotDataService {
     String getChampionName(Long championId);
 
     String getChampionImageUrl(String championName);
+
+    void updateGameVersion(String version);
 }

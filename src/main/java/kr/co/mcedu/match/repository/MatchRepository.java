@@ -2,8 +2,7 @@ package kr.co.mcedu.match.repository;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import kr.co.mcedu.group.entity.CustomUserEntity;
-import kr.co.mcedu.match.entity.MatchAttendeesEntity;
-import kr.co.mcedu.match.entity.QCustomMatchEntity;
+import kr.co.mcedu.match.entity.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -50,5 +49,17 @@ public class MatchRepository {
                            .from(matchAttendeesEntity)
                            .innerJoin(matchAttendeesEntity.customUserEntity, customUserEntity).fetchJoin()
                            .where(matchAttendeesEntity.customMatch.matchSeq.in(matchSeqs)).fetch();
+    }
+
+    public void saveBanChmpions(List<MatchBanChamp> banChampList) {
+        banChampList.forEach(entityManager::persist);
+    }
+
+    public void save(final MatchPickChampionEntity matchPickChampionEntity) {
+        entityManager.persist(matchPickChampionEntity);
+    }
+
+    public void saveIngameRunes(List<IngameRuneEntity> ingameRuneEntities) {
+        ingameRuneEntities.forEach(entityManager::persist);
     }
 }

@@ -18,5 +18,5 @@ public class Participant {
     private Long championId;
     private String championName;
     private String championImage;
-    private Map<String,Object> perks = new HashMap<>();
+    private Rune perks;
 }

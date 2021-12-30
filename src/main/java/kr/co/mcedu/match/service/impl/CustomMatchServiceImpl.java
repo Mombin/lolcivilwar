@@ -6,7 +6,7 @@ import kr.co.mcedu.group.entity.GroupAuthEnum;
 import kr.co.mcedu.group.entity.GroupEntity;
 import kr.co.mcedu.group.entity.GroupSeasonEntity;
 import kr.co.mcedu.group.service.GroupService;
-import kr.co.mcedu.match.entity.CustomMatchEntity;
+import kr.co.mcedu.match.entity.*;
 import kr.co.mcedu.match.model.CustomMatchResult;
 import kr.co.mcedu.match.model.Position;
 import kr.co.mcedu.match.model.request.CustomMatchSaveRequest;
@@ -14,10 +14,14 @@ import kr.co.mcedu.match.model.request.DiceRequest;
 import kr.co.mcedu.match.model.response.DiceResponse;
 import kr.co.mcedu.match.repository.CustomMatchRepository;
 import kr.co.mcedu.match.repository.MatchAttendeesRepository;
+import kr.co.mcedu.match.repository.MatchRepository;
 import kr.co.mcedu.match.service.CustomMatchService;
 import kr.co.mcedu.riot.engine.ApiEngine;
 import kr.co.mcedu.riot.engine.RiotApiRequest;
 import kr.co.mcedu.riot.engine.RiotApiType;
+import kr.co.mcedu.riot.engine.model.BanChampion;
+import kr.co.mcedu.riot.engine.model.Participant;
+import kr.co.mcedu.riot.engine.model.Rune;
 import kr.co.mcedu.riot.engine.response.CurrentGameInfoResponse;
 import kr.co.mcedu.riot.engine.response.DefaultApiResponse;
 import kr.co.mcedu.riot.engine.response.RiotApiResponse;
@@ -43,6 +47,7 @@ public class CustomMatchServiceImpl
 
     private final CustomMatchRepository customMatchRepository;
     private final MatchAttendeesRepository matchAttendeesRepository;
+    private final MatchRepository matchRepository;
 
     private final ApiEngine apiEngine;
     private final LocalCacheManager cacheManager;
@@ -63,6 +68,10 @@ public class CustomMatchServiceImpl
         entity.setGroupSeason(groupSeasonEntity);
         entity = customMatchRepository.save(entity);
 
+        if(!CollectionUtils.isEmpty(customMatchSaveRequest.getBannedChampions())) {
+            saveBanChampions(customMatchSaveRequest, entity);
+        }
+
         for (CustomMatchResult it : customMatchSaveRequest.getMatchResult()) {
             String searchTarget;
             if (it.getUser().contains("[")) {
@@ -82,9 +91,63 @@ public class CustomMatchServiceImpl
             cacheManager.getPersonalResultHistoryCache().invalidate(String.valueOf(customUserEntity.getSeq()));
             it.setCustomUser(customUserEntity);
             it.setCustomMatch(entity);
-            matchAttendeesRepository.save(it.toEntity());
+            MatchAttendeesEntity attendeesEntity = it.toEntity();
+            matchAttendeesRepository.save(attendeesEntity);
+            Participant championInfo = it.getChampion();
+            if (championInfo != null) {
+                savePickChampionData(attendeesEntity, championInfo);
+            }
         }
         cacheManager.invalidMatchHistoryCache(groupEntity.getGroupSeq().toString());
+    }
+
+    private void saveBanChampions(final CustomMatchSaveRequest customMatchSaveRequest, final CustomMatchEntity entity) {
+        List<MatchBanChamp> banChampList = new ArrayList<>();
+        for (Map.Entry<String, List<BanChampion>> matchBanChamp : customMatchSaveRequest.getBannedChampions().entrySet()) {
+            for (BanChampion banChampion : matchBanChamp.getValue()) {
+                MatchBanChamp banChamp = new MatchBanChamp();
+                banChamp.setCustomMatch(entity);
+                banChamp.setBanOrder(matchBanChamp.getKey().toUpperCase() + banChampion.getPickTurn());
+                banChamp.setBanChampId(banChampion.getChampionId());
+                banChampList.add(banChamp);
+            }
+        }
+        matchRepository.saveBanChmpions(banChampList);
+    }
+
+    private void savePickChampionData(final MatchAttendeesEntity attendeesEntity, final Participant championInfo) {
+        MatchPickChampionEntity matchPickChampionEntity = new MatchPickChampionEntity();
+        matchPickChampionEntity.setAttendeesSeq(attendeesEntity.getAttendeesSeq());
+        matchPickChampionEntity.setSpell1Id(championInfo.getSpell1Id());
+        matchPickChampionEntity.setSpell2Id(championInfo.getSpell2Id());
+        matchPickChampionEntity.setPickChampId(championInfo.getChampionId());
+        Rune perksInfo = championInfo.getPerks();
+        if (perksInfo != null) {
+            matchPickChampionEntity.setMainRune(perksInfo.getPerkStyle());
+            matchPickChampionEntity.setSubRune(perksInfo.getPerkSubStyle());
+
+            List<Long> perkIds = perksInfo.getPerkIds();
+            if (perkIds.size() == 9) {
+                List<IngameRuneEntity> ingameRuneEntities = new ArrayList<>();
+                for (int i = 0; i < perkIds.size(); i++) {
+                    String runType = "";
+                    if (i < 4) {
+                        runType = "MAIN";
+                    } else if (i < 6) {
+                        runType = "SUB";
+                    } else {
+                        runType = "ETC";
+                    }
+                    IngameRuneEntity ingameRune = new IngameRuneEntity();
+                    ingameRune.setAttendeesSeq(attendeesEntity);
+                    ingameRune.setRundId(perkIds.get(i));
+                    ingameRune.setRuneType(runType);
+                    ingameRuneEntities.add(ingameRune);
+                }
+                matchRepository.saveIngameRunes(ingameRuneEntities);
+            }
+        }
+        matchRepository.save(matchPickChampionEntity);
     }
 
     @Override

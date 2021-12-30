@@ -34,12 +34,22 @@ function initTeamTable() {
     const matchResult = [];
     $.each($("#team .team-position .form-control"), function(index, item) {
       const $item = $(item);
-      const targetTeam = $item.attr('name').substring(5, 6);
+      const targetTeam = $item.data('team');
+      let champion = null;
+      if ($toggleGameData.getToggleVal()) {
+        const targetImage = $item.parent().find(`img[data-team="${targetTeam}"]`)
+        let data = targetImage.data('summoner') || {};
+        if (Object.keys(data).length !== 0) {
+          champion = data;
+        }
+      }
+
       const param = {
         user: $item.val(),
         team: targetTeam.toUpperCase(),
         result: targetTeam === winnerTeam,
-        position: $item.parent().data('position').toUpperCase()
+        position: $item.parent().data('position').toUpperCase(),
+        champion: champion
       }
       matchResult.push(param);
 
@@ -47,6 +57,21 @@ function initTeamTable() {
         canCall = false;
       }
     });
+
+    let bannedChampions = null;
+    if ($toggleGameData.getToggleVal()) {
+      bannedChampions = {a: [], b: []}
+      $.each($("#banChamps img"), function (idx, obj) {
+        let $imgData = $(obj).data();
+        let $summonerData = $imgData.summoner || {};
+        if (Object.keys($summonerData).length === 0) {
+          return;
+        }
+        $summonerData.pickTurn = $imgData.banOrder;
+        let $currentTeam = $imgData.team;
+        bannedChampions[$currentTeam].push($summonerData)
+      })
+    }
 
     if (!canCall) {
       alert("빈값이 존재합니다.");
@@ -56,7 +81,8 @@ function initTeamTable() {
     const param = {
       groupSeq: currentGroupSeq,
       matchResult: matchResult,
-      seasonSeq: $("#seasonName").data('seasonSeq')
+      seasonSeq: $("#seasonName").data('seasonSeq'),
+      bannedChampions: bannedChampions
     }
 
     common_ajax.call("/api/custom/match", "PUT", true, param, function (res) {

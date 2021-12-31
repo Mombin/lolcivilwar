@@ -1,8 +1,8 @@
-package kr.co.mcedu.riot.model.response;
+package kr.co.mcedu.riot.engine.response;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import kr.co.mcedu.riot.RiotApiResponseCode;
+import kr.co.mcedu.riot.engine.RiotApiResponseCode;
 import kr.co.mcedu.summoner.entity.SummonerEntity;
 import kr.co.mcedu.utils.ModelUtils;
 import lombok.Getter;

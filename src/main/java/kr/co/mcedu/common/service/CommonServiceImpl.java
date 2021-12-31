@@ -2,11 +2,14 @@ package kr.co.mcedu.common.service;
 
 import kr.co.mcedu.common.entity.SystemEntity;
 import kr.co.mcedu.common.entity.SystemPropertyKey;
+import kr.co.mcedu.common.property.LolCdnProperty;
 import kr.co.mcedu.common.repository.SystemRepository;
-import kr.co.mcedu.riot.ApiEngine;
-import kr.co.mcedu.riot.RiotApiProperty;
+import kr.co.mcedu.riot.engine.ApiEngine;
+import kr.co.mcedu.common.property.RiotApiProperty;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
 import java.util.Optional;
@@ -18,6 +21,9 @@ public class CommonServiceImpl implements CommonService {
     private final ApiEngine apiEngine;
     private final SystemRepository systemRepository;
 
+    @Value("${lol.cdn-url}")
+    private String lolCdnUrl;
+
     @PostConstruct
     private void init() {
         apiEngine.init(getRiotApiProperty());
@@ -27,7 +33,14 @@ public class CommonServiceImpl implements CommonService {
     public RiotApiProperty getRiotApiProperty(){
         Optional<SystemEntity> systemEntity = systemRepository.findById(SystemPropertyKey.RIOT_PROPERTY.name());
         return systemEntity.map(RiotApiProperty::new).orElse(null);
+    }
 
+    @Override
+    public LolCdnProperty getLolVersionProperty() {
+        LolCdnProperty lolCdnProperty = systemRepository.findById(SystemPropertyKey.LOL_VERSION.name())
+                                                        .map(LolCdnProperty::new).orElse(new LolCdnProperty());
+        lolCdnProperty.setUrl(lolCdnUrl);
+        return lolCdnProperty;
     }
 
     @Override
@@ -45,6 +58,23 @@ public class CommonServiceImpl implements CommonService {
         systemEntity.setPropertyValue2(apiKey);
         systemEntity = systemRepository.save(systemEntity);
         apiEngine.updateApiProperty(new RiotApiProperty(systemEntity));
+    }
+
+    @Override
+    @Transactional
+    public void updateLolVersionProperty(String version) {
+        Optional<SystemEntity> systemEntityOption = systemRepository.findById(SystemPropertyKey.LOL_VERSION.name());
+        SystemEntity systemEntity;
+        if(!systemEntityOption.isPresent()){
+            SystemEntity entity = new SystemEntity();
+            entity.setPropertyName(SystemPropertyKey.LOL_VERSION.name());
+            entity.setPropertyValue1(version);
+            systemEntity = entity;
+        }else {
+            systemEntity = systemEntityOption.get();
+        }
+        systemEntity.setPropertyValue1(version);
+        systemRepository.save(systemEntity);
     }
 
 }

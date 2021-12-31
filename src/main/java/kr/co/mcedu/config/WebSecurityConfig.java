@@ -1,6 +1,7 @@
 package kr.co.mcedu.config;
 
 import kr.co.mcedu.config.security.TokenAuthenticationFilter;
+import kr.co.mcedu.user.model.UserAuthority;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -28,6 +29,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             .and()
             .authorizeRequests()
             .antMatchers(securityIgnore).permitAll()
+            .antMatchers("/api/admin/**").hasAuthority(UserAuthority.ADMIN.getSecurity())
             .and()
             .addFilterBefore(tokenAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
             .exceptionHandling().authenticationEntryPoint(new Http403ForbiddenEntryPoint());

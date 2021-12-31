@@ -9,6 +9,8 @@ spring:
     driver-class-name: org.postgresql.Driver
     username: postgres
     password: bitbot12#$
+    hikari:
+      minimum-idle: 2
   jwt:
     secret: prod_yache
   config:
@@ -53,3 +55,6 @@ management:
   endpoint:
     metrics:
       enabled: true
+
+lol:
+  cdn-url: https://ddragon.leagueoflegends.com/cdn

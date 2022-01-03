@@ -22,9 +22,10 @@ public class ChampionDataController {
     }
 
     @PostMapping("/version")
-    public Object updateGameVersion(@RequestParam String version) throws ServiceException {
+    public Object updateGameVersion(@RequestParam String version) {
         riotDataService.updateGameVersion(version);
-        this.insertData();
+        riotDataService.insertChampionData();
+        riotDataService.insertSpellData();
         return new ResponseWrapper().build();
     }
 }

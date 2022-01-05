@@ -12,4 +12,5 @@ import lombok.ToString;
 public class ChampionData {
     private String id;
     private Long key;
+    private String name;
 }

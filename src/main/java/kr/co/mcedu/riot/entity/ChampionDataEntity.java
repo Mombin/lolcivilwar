@@ -24,8 +24,12 @@ public class ChampionDataEntity {
     @Column(name = "champion_name")
     private String championName;
 
+    @Column(name = "champion_korea_name")
+    private String championKoreaName;
+
     public ChampionDataEntity(ChampionData championData) {
         this.championId = championData.getKey();
         this.championName = championData.getId();
+        this.championKoreaName = championData.getName();
     }
 }

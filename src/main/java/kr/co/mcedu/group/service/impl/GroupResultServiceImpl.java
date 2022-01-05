@@ -12,9 +12,11 @@ import kr.co.mcedu.group.model.request.MostChampionRequest;
 import kr.co.mcedu.group.model.request.PersonalResultRequest;
 import kr.co.mcedu.group.model.response.CustomUserResponse;
 import kr.co.mcedu.group.model.response.CustomUserSynergyResponse;
+import kr.co.mcedu.group.model.response.MostChampionResponse;
 import kr.co.mcedu.group.model.response.PersonalResultResponse;
 import kr.co.mcedu.group.repository.CustomUserRepository;
 import kr.co.mcedu.group.repository.GroupManageRepository;
+import kr.co.mcedu.group.repository.MatchDataRepository;
 import kr.co.mcedu.group.service.GroupResultService;
 import kr.co.mcedu.match.entity.CustomMatchEntity;
 import kr.co.mcedu.match.entity.MatchAttendeesEntity;
@@ -48,6 +50,7 @@ public class GroupResultServiceImpl
     private final CustomUserRepository customUserRepository;
     private final MatchRepository matchRepository;
     private final CustomMatchRepository customMatchRepository;
+    private final MatchDataRepository matchDataRepository;
 
     @Override
     @Transactional
@@ -276,7 +279,7 @@ public class GroupResultServiceImpl
     }
 
     @Override
-    public void getMostChampion(MostChampionRequest request) {
-
+    public List<MostChampionResponse> getMostChampion(MostChampionRequest request) {
+        return matchDataRepository.findMostChampion(request);
     }
 }

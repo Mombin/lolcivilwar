@@ -8,6 +8,7 @@ import kr.co.mcedu.group.entity.GroupAuthEnum;
 import kr.co.mcedu.group.entity.GroupEntity;
 import kr.co.mcedu.group.entity.SynergyModel;
 import kr.co.mcedu.group.model.request.GroupResultRequest;
+import kr.co.mcedu.group.model.request.MostChampionRequest;
 import kr.co.mcedu.group.model.request.PersonalResultRequest;
 import kr.co.mcedu.group.model.response.CustomUserResponse;
 import kr.co.mcedu.group.model.response.CustomUserSynergyResponse;
@@ -272,5 +273,10 @@ public class GroupResultServiceImpl
         map.put(request.getPage(), personalResultResponse);
         cacheManager.putPersonalResultHistory(request.getCustomUserSeq().toString(), map);
         return personalResultResponse;
+    }
+
+    @Override
+    public void getMostChampion(MostChampionRequest request) {
+
     }
 }

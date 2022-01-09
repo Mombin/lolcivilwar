@@ -10,10 +10,7 @@ import kr.co.mcedu.group.entity.SynergyModel;
 import kr.co.mcedu.group.model.request.GroupResultRequest;
 import kr.co.mcedu.group.model.request.MostChampionRequest;
 import kr.co.mcedu.group.model.request.PersonalResultRequest;
-import kr.co.mcedu.group.model.response.CustomUserResponse;
-import kr.co.mcedu.group.model.response.CustomUserSynergyResponse;
-import kr.co.mcedu.group.model.response.MostChampionResponse;
-import kr.co.mcedu.group.model.response.PersonalResultResponse;
+import kr.co.mcedu.group.model.response.*;
 import kr.co.mcedu.group.repository.CustomUserRepository;
 import kr.co.mcedu.group.repository.GroupManageRepository;
 import kr.co.mcedu.group.repository.MatchDataRepository;
@@ -23,6 +20,7 @@ import kr.co.mcedu.match.entity.MatchAttendeesEntity;
 import kr.co.mcedu.match.model.response.MatchHistoryResponse;
 import kr.co.mcedu.match.repository.CustomMatchRepository;
 import kr.co.mcedu.match.repository.MatchRepository;
+import kr.co.mcedu.riot.service.RiotDataService;
 import kr.co.mcedu.utils.LocalCacheManager;
 import kr.co.mcedu.utils.SessionUtils;
 import lombok.RequiredArgsConstructor;
@@ -51,6 +49,7 @@ public class GroupResultServiceImpl
     private final MatchRepository matchRepository;
     private final CustomMatchRepository customMatchRepository;
     private final MatchDataRepository matchDataRepository;
+    private final RiotDataService riotDataService;
 
     @Override
     @Transactional
@@ -279,7 +278,49 @@ public class GroupResultServiceImpl
     }
 
     @Override
-    public List<MostChampionResponse> getMostChampion(MostChampionRequest request) {
-        return matchDataRepository.findMostChampion(request);
+    @Transactional
+    public CustomUserMostResponse getMostChampion(MostChampionRequest request) {
+        List<MostChampionResponse> getList = matchDataRepository.findMostChampion(request);
+
+        //모스트 챔피언 , 횟수를 담을 map
+        Map<Long, PlayChampionCounter> playedCountMap = new HashMap<>();
+        for (MostChampionResponse mostChampionResponse : getList) {
+            Long championId = mostChampionResponse.getChampionId();
+            PlayChampionCounter counter = playedCountMap.getOrDefault(championId, new PlayChampionCounter(championId));
+            if(mostChampionResponse.getMatchResult()) {
+                counter.win();
+            } else {
+                counter.lose();
+            }
+            playedCountMap.put(championId, counter);
+        }
+        //플레이 많이한 순
+        List<PlayChampionCounter> mostList = playedCountMap.values().stream()
+                .sorted(Comparator.comparing(PlayChampionCounter::getTotal).reversed())
+                .limit(3)
+                .peek(playChampionCounter -> {
+                    playChampionCounter.setChampionName(riotDataService.getChampionName(playChampionCounter.getChampionId()));
+                    playChampionCounter.setChampionImageUrl(riotDataService.getChampionImageUrl(playChampionCounter.getChampionName()));
+                })
+                .collect(Collectors.toList());
+        //승률
+        List<PlayChampionCounter> rateList = playedCountMap.values().stream()
+                .sorted(Comparator.comparing(PlayChampionCounter::getRate).reversed())
+                .limit(3)
+                .peek(playChampionCounter -> {
+                    playChampionCounter.setChampionName(riotDataService.getChampionName(playChampionCounter.getChampionId()));
+                    playChampionCounter.setChampionImageUrl(riotDataService.getChampionImageUrl(playChampionCounter.getChampionName()));
+                })
+                .collect(Collectors.toList());
+        //최근 5경기
+        List<MostChampionResponse> collect = getList.stream()
+                .limit(5)
+                .peek(mostChampionResponse -> {
+                    mostChampionResponse.setChampionName(riotDataService.getChampionName(mostChampionResponse.getChampionId()));
+                    mostChampionResponse.setChampionImageUrl(riotDataService.getChampionImageUrl(mostChampionResponse.getChampionName()));
+                })
+                .collect(Collectors.toList());
+
+        return new CustomUserMostResponse(mostList, rateList, collect);
     }
 }

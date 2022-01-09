@@ -6,9 +6,9 @@ import kr.co.mcedu.config.exception.ServiceException;
 import kr.co.mcedu.group.model.request.GroupResultRequest;
 import kr.co.mcedu.group.model.request.MostChampionRequest;
 import kr.co.mcedu.group.model.request.PersonalResultRequest;
+import kr.co.mcedu.group.model.response.CustomUserMostResponse;
 import kr.co.mcedu.group.model.response.CustomUserResponse;
 import kr.co.mcedu.group.model.response.CustomUserSynergyResponse;
-import kr.co.mcedu.group.model.response.MostChampionResponse;
 import kr.co.mcedu.group.model.response.PersonalResultResponse;
 import kr.co.mcedu.match.model.response.MatchHistoryResponse;
 
@@ -27,5 +27,5 @@ public interface GroupResultService {
 
     PersonalResultResponse getPersonalResult(PersonalResultRequest request) throws Exception;
 
-    List<MostChampionResponse> getMostChampion(MostChampionRequest request);
+    CustomUserMostResponse getMostChampion(MostChampionRequest request);
 }

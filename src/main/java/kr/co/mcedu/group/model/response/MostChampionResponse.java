@@ -1,6 +1,7 @@
 package kr.co.mcedu.group.model.response;
 
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -13,7 +14,10 @@ import java.time.LocalDateTime;
 @ToString
 @NoArgsConstructor
 public class MostChampionResponse {
-    private boolean matchResult;
+    private Boolean matchResult;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, timezone = "Asia/Seoul", pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdDate;
     private Long championId;
+    private String championName;
+    private String championImageUrl;
 }

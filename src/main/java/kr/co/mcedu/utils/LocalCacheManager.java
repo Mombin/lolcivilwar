@@ -3,6 +3,7 @@ package kr.co.mcedu.utils;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import kr.co.mcedu.common.model.PageWrapper;
+import kr.co.mcedu.group.model.response.CustomUserMostResponse;
 import kr.co.mcedu.group.model.response.CustomUserSynergyResponse;
 import kr.co.mcedu.group.model.response.GroupInviteHistoryResponse;
 import kr.co.mcedu.group.model.response.PersonalResultResponse;
@@ -11,11 +12,10 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.util.Collections;
+import javax.annotation.PostConstruct;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import javax.annotation.PostConstruct;
 
 @Component
 @Getter
@@ -28,6 +28,7 @@ public class LocalCacheManager {
     private Cache<String, Boolean> emailCache;
     private Cache<String, Long> alarmCountCache;
     private Cache<String, Map<Integer, PageWrapper<GroupInviteHistoryResponse>>> groupInviteHistoryCache;
+    private Cache<String, CustomUserMostResponse> mostChampionCache;
 
     @PostConstruct
     public void after() {
@@ -50,6 +51,9 @@ public class LocalCacheManager {
                 .expireAfterAccess(1, TimeUnit.HOURS)
                 .build();
         groupInviteHistoryCache= CacheBuilder.newBuilder()
+                .expireAfterAccess(1, TimeUnit.HOURS)
+                .build();
+        mostChampionCache = CacheBuilder.newBuilder()
                 .expireAfterAccess(1, TimeUnit.HOURS)
                 .build();
     }
@@ -131,6 +135,20 @@ public class LocalCacheManager {
     public void invalidGroupInviteHistoryCache(String groupSeq) {
         groupInviteHistoryCache.invalidate(groupSeq);
         log.info("Invalid GroupInviteHistoryCache Cache : {}", groupSeq);
+    }
+
+    public void putMostChampionCache(String cacheKey, CustomUserMostResponse customUserMostResponse) {
+        mostChampionCache.put(cacheKey, customUserMostResponse);
+        log.info("Put MostChampionCache Cache : {}", cacheKey);
+    }
+
+    public CustomUserMostResponse getMostChampionCache(String cacheKey) {
+        return mostChampionCache.getIfPresent(cacheKey);
+    }
+
+    public void invalidMostChampionCache(String cacheKey) {
+        mostChampionCache.invalidate(cacheKey);
+        log.info("Invalid MostChampionCache Cache : {}", cacheKey);
     }
 
 }

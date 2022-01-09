@@ -280,6 +280,10 @@ public class GroupResultServiceImpl
     @Override
     @Transactional
     public CustomUserMostResponse getMostChampion(MostChampionRequest request) {
+        CustomUserMostResponse mostChampionCache = cacheManager.getMostChampionCache(request.getCacheKey());
+        if(mostChampionCache != null) {
+            return mostChampionCache;
+        }
         List<MostChampionResponse> getList = matchDataRepository.findMostChampion(request);
 
         //모스트 챔피언 , 횟수를 담을 map
@@ -321,6 +325,8 @@ public class GroupResultServiceImpl
                 })
                 .collect(Collectors.toList());
 
-        return new CustomUserMostResponse(mostList, rateList, collect);
+        CustomUserMostResponse customUserMostResponse = new CustomUserMostResponse(mostList, rateList, collect);
+        cacheManager.putMostChampionCache(request.getCacheKey(), customUserMostResponse);
+        return customUserMostResponse;
     }
 }

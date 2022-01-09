@@ -1,6 +1,5 @@
 package kr.co.mcedu.group.repository;
 
-import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import kr.co.mcedu.group.model.request.MostChampionRequest;
@@ -29,22 +28,17 @@ public class MatchDataRepository {
     }
 
     public List<MostChampionResponse> findMostChampion(MostChampionRequest request){
-        BooleanBuilder booleanBuilder = new BooleanBuilder();
-        if(request.getCustomUserSeq() != -1) {
-            booleanBuilder.and(matchAttendeesEntity.customUserEntity.seq.eq(request.getCustomUserSeq()));
-        }
+
         return queryFactory.select(Projections.bean(
                 MostChampionResponse.class,
-                        championDataEntity.championKoreaName,
                         matchAttendeesEntity.matchResult,
                         matchAttendeesEntity.createdDate,
                         championDataEntity.championId))
                 .from(matchPickChampionEntity)
                 .innerJoin(matchAttendeesEntity).on(matchAttendeesEntity.attendeesSeq.eq(matchPickChampionEntity.attendeesSeq), matchAttendeesEntity.position.eq(request.getPosition()), matchAttendeesEntity.delYn.eq(false))
-                .innerJoin(customMatchEntity).on(customMatchEntity.matchSeq.eq(matchAttendeesEntity.customMatch.matchSeq), customMatchEntity.delYn.eq(false), customMatchEntity.groupSeason.groupSeasonSeq.eq(request.getGroupSeasonSeq()))
+                .innerJoin(customMatchEntity).on(customMatchEntity.matchSeq.eq(matchAttendeesEntity.customMatch.matchSeq), customMatchEntity.groupSeason.groupSeasonSeq.eq(request.getGroupSeasonSeq()))
                 .innerJoin(championDataEntity).on(matchPickChampionEntity.pickChampId.eq(championDataEntity.championId))
-                .where(booleanBuilder)
-//                .where(matchAttendeesEntity.customUserEntity.seq.eq(request.getCustomUserSeq()))
+                .where(matchAttendeesEntity.customUserEntity.seq.eq(request.getCustomUserSeq()), matchAttendeesEntity.delYn.eq(false), customMatchEntity.delYn.eq(false))
                 .orderBy(matchAttendeesEntity.createdDate.desc())
                 .fetch();
     }

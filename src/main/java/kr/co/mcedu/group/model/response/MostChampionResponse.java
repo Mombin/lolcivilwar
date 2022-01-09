@@ -13,7 +13,6 @@ import java.time.LocalDateTime;
 @ToString
 @NoArgsConstructor
 public class MostChampionResponse {
-    private String championKoreaName;
     private boolean matchResult;
     private LocalDateTime createdDate;
     private Long championId;

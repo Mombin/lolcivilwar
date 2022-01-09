@@ -33,11 +33,10 @@ public class MatchDataRepository {
                 MostChampionResponse.class,
                         matchAttendeesEntity.matchResult,
                         matchAttendeesEntity.createdDate,
-                        championDataEntity.championId))
+                        matchPickChampionEntity.pickChampId))
                 .from(matchPickChampionEntity)
                 .innerJoin(matchAttendeesEntity).on(matchAttendeesEntity.attendeesSeq.eq(matchPickChampionEntity.attendeesSeq), matchAttendeesEntity.position.eq(request.getPosition()), matchAttendeesEntity.delYn.eq(false))
                 .innerJoin(customMatchEntity).on(customMatchEntity.matchSeq.eq(matchAttendeesEntity.customMatch.matchSeq), customMatchEntity.groupSeason.groupSeasonSeq.eq(request.getGroupSeasonSeq()))
-                .innerJoin(championDataEntity).on(matchPickChampionEntity.pickChampId.eq(championDataEntity.championId))
                 .where(matchAttendeesEntity.customUserEntity.seq.eq(request.getCustomUserSeq()), matchAttendeesEntity.delYn.eq(false), customMatchEntity.delYn.eq(false))
                 .orderBy(matchAttendeesEntity.createdDate.desc())
                 .fetch();

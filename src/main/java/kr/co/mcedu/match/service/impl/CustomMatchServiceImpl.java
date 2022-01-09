@@ -89,6 +89,7 @@ public class CustomMatchServiceImpl
             CustomUserEntity customUserEntity = customUserOpt.get();
             cacheManager.invalidSynergyCache(customUserEntity.getSeq() + "_" + customMatchSaveRequest.getSeasonSeq());
             cacheManager.getPersonalResultHistoryCache().invalidate(String.valueOf(customUserEntity.getSeq()));
+            cacheManager.invalidMostChampionCache(customMatchSaveRequest.getSeasonSeq() + "_" + customUserEntity.getSeq() + "_" + it.getPosition());
             it.setCustomUser(customUserEntity);
             it.setCustomMatch(entity);
             MatchAttendeesEntity attendeesEntity = it.toEntity();

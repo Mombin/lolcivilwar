@@ -4,11 +4,12 @@ const positionList = ['top', 'jg', 'mid', 'bot', 'sup']
 let worker
   , teamModal
   , leaderModal
+  , championModal
   , flag = false
   , newTeamFlagA = true
   , newTeamFlagB = true
   , newLeaderFlag = false
-  , currentGroupSeq = -1;
+  , customUsers = {};
 $(document).ready(function () {
   setItems();
   setEvents();
@@ -17,6 +18,7 @@ $(document).ready(function () {
   initTeamTable();
   initTeamRandomModal();
   initLeaderRandomModal();
+  initChampionModal();
   initTierPointPlugin();
   initGameDataPlugin();
 });
@@ -26,6 +28,9 @@ function setItems() {
     keyboard: false
   });
   leaderModal = new bootstrap.Modal(document.getElementById('modalRandomLeader'), {
+    keyboard: false
+  });
+  championModal = new bootstrap.Modal(document.getElementById('modalMostChampion'), {
     keyboard: false
   });
   $groupSelector = $("#groupSelector");
@@ -51,7 +56,7 @@ function setEvents() {
     $("#groupUserList .list-group").show();
     $("[name='group_list_apply']").show();
     $(".input-group.summoner-list").remove();
-    currentGroupSeq = item.groupSeq
+    currentGroup = item;
   });
 }
 
@@ -70,6 +75,7 @@ function setMyGroup(data) {
     matchRate[text] = item.positionWinRate;
     tierPoints[text] = item.tierPoint
     encryptIds[text] = item.encryptId;
+    customUsers[text] = item;
     nicknames[item.encryptId] = text;
   });
 

@@ -82,7 +82,7 @@ function initTeamTable() {
     }
 
     const param = {
-      groupSeq: currentGroupSeq,
+      groupSeq: currentGroup.groupSeq,
       matchResult: matchResult,
       seasonSeq: $("#seasonName").data('seasonSeq'),
       bannedChampions: bannedChampions

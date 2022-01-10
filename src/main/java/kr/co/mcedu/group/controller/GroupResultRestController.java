@@ -58,7 +58,7 @@ public class GroupResultRestController {
     }
 
     @GetMapping("/played-champion")
-    public Object getPlayedChampionResult(@RequestBody MostChampionRequest request){
+    public Object getPlayedChampionResult(@ModelAttribute MostChampionRequest request){
         return new ResponseWrapper().setData(groupResultService.getMostChampion(request)).build();
     }
 

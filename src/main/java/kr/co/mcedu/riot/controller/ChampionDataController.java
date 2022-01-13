@@ -24,6 +24,8 @@ public class ChampionDataController {
     @PostMapping("/version")
     public Object updateGameVersion(@RequestParam String version) {
         riotDataService.updateGameVersion(version);
+        riotDataService.insertChampionData();
+        riotDataService.insertSpellData();
         return new ResponseWrapper().build();
     }
 }

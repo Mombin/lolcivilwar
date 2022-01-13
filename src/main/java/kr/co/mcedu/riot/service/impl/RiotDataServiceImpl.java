@@ -4,10 +4,7 @@ import kr.co.mcedu.common.property.LolCdnProperty;
 import kr.co.mcedu.common.service.CommonService;
 import kr.co.mcedu.riot.entity.ChampionDataEntity;
 import kr.co.mcedu.riot.entity.SummonerSpellEntity;
-import kr.co.mcedu.riot.model.ChampionData;
-import kr.co.mcedu.riot.model.RiotJsonData;
-import kr.co.mcedu.riot.model.RiotJsonResponse;
-import kr.co.mcedu.riot.model.SummonerSpellData;
+import kr.co.mcedu.riot.model.*;
 import kr.co.mcedu.riot.repository.ChampionJpaRepository;
 import kr.co.mcedu.riot.repository.RiotDataRepository;
 import kr.co.mcedu.riot.repository.SummonerSpellJpaRepository;
@@ -34,14 +31,14 @@ public class RiotDataServiceImpl
 
     private final ModelMapper modelMapper = new ModelMapper();
     private final RestTemplate restTemplate = new RestTemplate();
-    private final Map<Long, String> championMap = new HashMap<>();
+    private final Map<Long, ChampionCacheData> championMap = new HashMap<>();
 
     private LolCdnProperty lolCdnProperty;
 
     @PostConstruct
     public void init() {
         List<ChampionDataEntity> champions = riotDataRepository.getChampions();
-        champions.forEach(entity -> championMap.put(entity.getChampionId(), entity.getChampionName()));
+        champions.forEach(entity -> championMap.put(entity.getChampionId(), new ChampionCacheData(entity)));
         lolCdnProperty = commonService.getLolVersionProperty();
     }
 
@@ -79,13 +76,13 @@ public class RiotDataServiceImpl
     @Override
     @Transactional
     public String getChampionName(Long championId) {
-        String championName = championMap.getOrDefault(championId, "");
-        if (StringUtils.isEmpty(championName)) {
+        ChampionCacheData championCacheData = championMap.get(championId);
+        if (championCacheData == null) {
             riotDataRepository.getChampion(championId)
-                              .ifPresent(championDataEntity -> championMap.put(championId, championDataEntity.getChampionName()));
-            championName = championMap.getOrDefault(championId, "");
+                              .ifPresent(championDataEntity -> championMap.put(championId, new ChampionCacheData(championDataEntity)));
+            championCacheData = championMap.get(championId);
         }
-        return championName;
+        return Optional.ofNullable(championCacheData).map(ChampionCacheData::getChampionName).orElse("");
     }
 
     @Override
@@ -94,6 +91,12 @@ public class RiotDataServiceImpl
             return "";
         }
         return lolCdnProperty.getCdnUrl() + "/img/champion/" + championName + ".png";
+    }
+
+    @Override
+    @Transactional
+    public String getChampionImageUrlById(Long championId) {
+        return this.getChampionImageUrl(this.getChampionName(championId));
     }
 
     @Override

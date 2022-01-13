@@ -82,7 +82,7 @@ function initTeamTable() {
     }
 
     const param = {
-      groupSeq: currentGroupSeq,
+      groupSeq: currentGroup.groupSeq,
       matchResult: matchResult,
       seasonSeq: $("#seasonName").data('seasonSeq'),
       bannedChampions: bannedChampions
@@ -147,7 +147,9 @@ function initTeamTable() {
         .attr('name', 'summonerName')
         .data('index', i).addClass('form-control');
       const btnA = $("<button>").addClass('btn btn-outline-primary')
-        .attr('type', 'button').attr('style', 'width: 15%')
+        .attr('type', 'button')
+        .css('width', '15%')
+        .css('margin-left', '3%')
         .on('click', moveTeam).data('target', 'a').html('A팀');
       const btnB = $("<button>").addClass('btn btn-outline-success')
         .attr('type', 'button').attr('style', 'width: 15%')
@@ -157,13 +159,18 @@ function initTeamTable() {
       $summoner.append(input);
       if (Object.keys(matchRate).length > 0) {
         input.on('change', function () {
-          let targetRate = makeRate(matchRate[$(this).val()]);
-          $(this).next().val(targetRate);
+          makeRate($(this).parent(), matchRate[$(this).val()]);
         });
-        $summoner.append($("<input>").attr('type', 'text').attr('readonly', true)
-          .css('text-align', 'center')
-          .css('width', '30%')
-          .attr('name', 'summonerRate').addClass('form-control')).val();
+        const positionListSmall = ['T', 'J', 'M', 'B', 'S']
+        $.each(positionListSmall, function (idx, position) {
+          $summoner.append($('<button>')
+            .attr('readonly', true)
+            .attr('type', 'button')
+            .attr('data-position', position)
+            .css('width', '7%')
+            .attr('name', 'summonerRate')
+            .addClass('btn'))
+        })
       }
       if (Object.keys(tierPoints).length > 0) {
         input.on('change', function () {

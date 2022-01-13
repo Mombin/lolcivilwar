@@ -138,6 +138,35 @@ riotData = {
     }
 }
 
+const positionManager = {
+    getFullName: function (position) {
+        let pos = (position || '').toUpperCase();
+        if (pos === '') {
+            return;
+        }
+        let result = "";
+        if (pos === 'T') {
+            result = 'TOP';
+        } else if (pos === 'J') {
+            result = "JG";
+        } else if (pos === 'M') {
+            result = 'MID';
+        } else if (pos === 'B') {
+            result = 'BOT';
+        } else if (pos === 'S') {
+            result = 'SUP';
+        }
+        return result;
+    },
+    getKoreanName: function (position) {
+        let arg = position;
+        if (!POSITION.hasOwnProperty(position)) {
+            arg = positionManager.getFullName(position);
+        }
+        return POSITION[arg]
+    }
+}
+
 function enterKeyPress(event, execFn) {
     if(event.keyCode === 13) {
         execFn();

@@ -11,6 +11,8 @@ import kr.co.mcedu.group.entity.GroupSeasonEntity;
 import kr.co.mcedu.group.model.response.CustomUserResponse;
 import kr.co.mcedu.match.entity.CustomMatchEntity;
 import kr.co.mcedu.match.entity.MatchAttendeesEntity;
+import kr.co.mcedu.match.entity.QMatchAttendeesEntity;
+import kr.co.mcedu.match.entity.QMatchPickChampionEntity;
 import kr.co.mcedu.user.entity.GroupInviteEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -29,6 +31,7 @@ import static kr.co.mcedu.group.entity.QGroupEntity.groupEntity;
 import static kr.co.mcedu.group.entity.QGroupSeasonEntity.groupSeasonEntity;
 import static kr.co.mcedu.match.entity.QCustomMatchEntity.customMatchEntity;
 import static kr.co.mcedu.match.entity.QMatchAttendeesEntity.matchAttendeesEntity;
+import static kr.co.mcedu.match.entity.QMatchPickChampionEntity.matchPickChampionEntity;
 import static kr.co.mcedu.summoner.entity.QSummonerEntity.summonerEntity;
 import static kr.co.mcedu.user.entity.QGroupInviteEntity.groupInviteEntity;
 import static kr.co.mcedu.user.entity.QWebUserEntity.webUserEntity;
@@ -43,10 +46,16 @@ public class GroupManageRepository {
         this.queryFactory = new JPAQueryFactory(entityManager);
     }
     public Page<MatchAttendeesEntity> findAllPersonalMatchResult(CustomUserEntity entity, Pageable pageable) {
+        QMatchAttendeesEntity t1 = new QMatchAttendeesEntity("t1");
+        QMatchPickChampionEntity t2 = new QMatchPickChampionEntity("t2");
         QueryResults<MatchAttendeesEntity> results =
                 queryFactory.select(matchAttendeesEntity).distinct()
                             .from(matchAttendeesEntity)
                             .leftJoin(matchAttendeesEntity.customMatch, customMatchEntity).fetchJoin()
+                            .leftJoin(customMatchEntity.matchAttendees, t1).fetchJoin()
+                            .leftJoin(t1.customUserEntity, customUserEntity).fetchJoin()
+                            .leftJoin(t1.matchPickChampion, t2).fetchJoin()
+                            .leftJoin(matchAttendeesEntity.matchPickChampion, matchPickChampionEntity).fetchJoin()
                             .where(matchAttendeesEntity.customUserEntity.eq(entity))
                             .orderBy(matchAttendeesEntity.createdDate.desc())
                             .offset(pageable.getOffset())

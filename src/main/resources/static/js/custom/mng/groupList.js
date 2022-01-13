@@ -38,9 +38,14 @@ function fnCheck() {
 }
 
 /* 포지션별 승률 */
-function makeRate(rateObj) {
+function makeRate($row, rateObj) {
   if (!rateObj) {
-    return "";
+    $row.find('[name="summonerRate"]')
+      .removeAttr('class')
+      .addClass('btn')
+      .addClass('btn-outline-secondary')
+      .html("")
+    return;
   }
   const positionListSmall = ['T', 'J', 'M', 'B', 'S'];
   let result = "";
@@ -49,9 +54,21 @@ function makeRate(rateObj) {
     if (!positionResult) {
       positionResult = { first:1, second: 0 };
     }
-    result += `${positionListSmall[index]}:${Math.round((positionResult.second/positionResult.first) * 100)}% / `
+    let positionIcon = positionListSmall[index];
+    let rate = Math.round((positionResult.second/positionResult.first) * 100);
+    result = `${positionIcon}:${rate}%`;
+    let targetBtn = $row.find(`[name="summonerRate"][data-position="${positionIcon}"]`)
+      .removeAttr('class')
+      .addClass('btn');
+
+    if (rate >= 60) {
+      targetBtn.addClass('btn-outline-danger')
+    } else {
+      targetBtn.addClass('btn-outline-secondary')
+    }
+
+    targetBtn.html(result)
   });
-  return result.slice(0, result.length - 2).trim();
 }
 
 // pickCount의 숫자변경

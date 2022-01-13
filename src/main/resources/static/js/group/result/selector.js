@@ -48,10 +48,12 @@ function getList(page) {
         $list.empty();
         $.each(data.list, function (index, item) {
 
-            let $tr = $('<tr>')
+            let $tr = $('<tr>').css('height', '60px').css('vertical-align', 'middle')
                 .append($('<td>').css('text-align', 'center').html(item.date))
                 .append($('<td>').css('text-align', 'center').html(item.seasonName))
                 .append($('<td>').css('text-align', 'center').html(POSITION[item.position]))
+                .append($('<td>').css('text-align', 'center').append($('<img>').css('height', '60px').attr('src', item.pickChampionUrl === '' ? blackImage : item.pickChampionUrl)))
+                .append($('<td>').css('text-align', 'center').append($('<img>').css('height', '60px').attr('src', item.matchChampionUrl === '' ? blackImage : item.matchChampionUrl)))
                 .append($('<td>').css('text-align', 'center').html(item.matchUser))
                 .append($('<td>').css('text-align', 'center').addClass(item.winYn === 'Y' ? 'table-primary' : 'table-danger').html(item.winYn === 'Y' ? '승' : '패'))
             $list.append($tr);

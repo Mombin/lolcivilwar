@@ -4,7 +4,9 @@ import kr.co.mcedu.config.exception.AccessDeniedException;
 import kr.co.mcedu.config.exception.DataNotExistException;
 import kr.co.mcedu.config.exception.ServiceException;
 import kr.co.mcedu.group.model.request.GroupResultRequest;
+import kr.co.mcedu.group.model.request.MostChampionRequest;
 import kr.co.mcedu.group.model.request.PersonalResultRequest;
+import kr.co.mcedu.group.model.response.CustomUserMostResponse;
 import kr.co.mcedu.group.model.response.CustomUserResponse;
 import kr.co.mcedu.group.model.response.CustomUserSynergyResponse;
 import kr.co.mcedu.group.model.response.PersonalResultResponse;
@@ -24,4 +26,6 @@ public interface GroupResultService {
     MatchHistoryResponse getMatches(Long groupSeq, Integer pageNum) throws AccessDeniedException;
 
     PersonalResultResponse getPersonalResult(PersonalResultRequest request) throws Exception;
+
+    CustomUserMostResponse getMostChampion(MostChampionRequest request);
 }

@@ -3,6 +3,7 @@ package kr.co.mcedu.group.controller;
 import kr.co.mcedu.config.exception.AccessDeniedException;
 import kr.co.mcedu.config.exception.ServiceException;
 import kr.co.mcedu.group.model.request.GroupResultRequest;
+import kr.co.mcedu.group.model.request.MostChampionRequest;
 import kr.co.mcedu.group.model.request.PersonalResultRequest;
 import kr.co.mcedu.group.model.response.CustomUserSynergyResponse;
 import kr.co.mcedu.group.service.GroupResultService;
@@ -54,6 +55,11 @@ public class GroupResultRestController {
     public Object personalResult(@ModelAttribute PersonalResultRequest request) throws Exception {
         requestLog(request);
         return new ResponseWrapper().setData(groupResultService.getPersonalResult(request)).build();
+    }
+
+    @GetMapping("/played-champion")
+    public Object getPlayedChampionResult(@ModelAttribute MostChampionRequest request){
+        return new ResponseWrapper().setData(groupResultService.getMostChampion(request)).build();
     }
 
     private void requestLog(Object... param) {

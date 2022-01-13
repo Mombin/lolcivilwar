@@ -10,6 +10,7 @@
     <script type="text/javascript" th:src="@{/static/js/custom/mng/groupList.js}"></script>
     <script type="text/javascript" th:src="@{/static/js/custom/mng/teamTable.js}"></script>
     <script type="text/javascript" th:src="@{/static/js/custom/mng/randomModal.js}"></script>
+    <script type="text/javascript" th:src="@{/static/js/custom/mng/championModal.js}"></script>
     <script type="text/javascript" th:src="@{/static/js/custom/mng/tierPointPlugin.js}"></script>
     <script type="text/javascript" th:src="@{/static/js/custom/mng/gameDataPlugin.js}"></script>
     <script type="text/javascript" th:src="@{/static/js/custom/mng/main.js}"></script>
@@ -176,6 +177,36 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" name="randomBtn">랜덤</button>
                     <button type="button" class="btn btn-primary" name="applyBtn">적용하기</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="modalMostChampion" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="staticBackdropLabelChampion"></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="card" id="mostChampionCard">
+                        <div class="card-header">많이한 챔피언</div>
+                        <div class="card-body">
+                            <p class="card-text">데이터가 없습니다 =_=</p>
+                        </div>
+                    </div>
+                    <div class="card" id="highRateChampionCard">
+                        <div class="card-header">승률높은 챔피언</div>
+                        <div class="card-body">
+                            <p class="card-text">데이터가 없습니다 =_=</p>
+                        </div>
+                    </div>
+                    <div class="card" id="recentChampionCard">
+                        <div class="card-header">최근 5경기 플레이한 챔피언</div>
+                        <div class="card-body">
+                            <p class="card-text">데이터가 없습니다 =_=</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

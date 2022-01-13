@@ -272,6 +272,11 @@ public class GroupResultServiceImpl
 
         Page<MatchAttendeesEntity> attendeesPage = groupManageRepository.findAllPersonalMatchResult(customUserEntity, PageRequest.of(request.getPage(), 10));
         PersonalResultResponse personalResultResponse = new PersonalResultResponse().setPage(attendeesPage);
+        for (PersonalResultResponse.PersonalResultElement personalResultElement : personalResultResponse.getList()) {
+            personalResultElement.setPickChampionUrl(riotDataService.getChampionImageUrlById(personalResultElement.getPickChampion()));
+            personalResultElement.setMatchChampionUrl(riotDataService.getChampionImageUrlById(personalResultElement.getMatchChampion()));
+        }
+
         map.put(request.getPage(), personalResultResponse);
         cacheManager.putPersonalResultHistory(request.getCustomUserSeq().toString(), map);
         return personalResultResponse;

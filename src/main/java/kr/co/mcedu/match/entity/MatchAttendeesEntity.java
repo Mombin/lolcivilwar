@@ -46,6 +46,9 @@ public class MatchAttendeesEntity extends BaseTimeEntity {
     @Column(name = "del_yn", columnDefinition = "boolean default false")
     private boolean delYn  = false;
 
+    @OneToOne(mappedBy = "matchAttendees", fetch = FetchType.LAZY)
+    private MatchPickChampionEntity matchPickChampion;
+
     public MatchAttendeesEntity(CustomMatchResult customMatchResult) {
         this.matchResult = customMatchResult.getResult();
         this.position = customMatchResult.getPosition();

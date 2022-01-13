@@ -29,17 +29,23 @@ public class PersonalResultResponse implements Serializable {
             result.setPosition(it.getPosition());
             result.setWinYn(it.isMatchResult() ? "Y" : "N");
 
-            String matchUserName = Optional.ofNullable(it.getCustomMatch())
-                                           .map(CustomMatchEntity::getMatchAttendees)
-                                           .flatMap(matchAttendeesEntities ->
-                                                   matchAttendeesEntities.stream()
-                                                                         .filter(currentMatch -> currentMatch.getPosition().equals(it.getPosition())
-                                                                                 && currentMatch.isMatchResult() != it.isMatchResult())
-                                                                         .findFirst()
-                                                                         .map(MatchAttendeesEntity::getCustomUserEntity)
-                                                                         .map(targetUser -> targetUser.getNickname() + "[" + targetUser.getSummonerName() + "]"))
+            Optional<MatchAttendeesEntity> matchUserAttendees = Optional.ofNullable(it.getCustomMatch())
+                                                                          .map(CustomMatchEntity::getMatchAttendees)
+                                                                          .flatMap(matchAttendeesEntities ->
+                                                                                  matchAttendeesEntities.stream()
+                                                                                                        .filter(currentMatch -> currentMatch.getPosition().equals(it.getPosition())
+                                                                                                                && currentMatch.isMatchResult() != it.isMatchResult()).findFirst());
+            matchUserAttendees.ifPresent(matchAttendeesEntity -> {
+                String matchUser = Optional.ofNullable(matchAttendeesEntity.getCustomUserEntity())
+                                           .map(targetUser -> targetUser.getNickname() + "[" + targetUser.getSummonerName() + "]")
                                            .orElse("삭제유저");
-            result.setMatchUser(matchUserName);
+                result.setMatchUser(matchUser);
+
+                Optional.ofNullable(matchAttendeesEntity.getMatchPickChampion()).ifPresent(matchUserChampion -> result.setMatchChampion(matchUserChampion.getPickChampId()));
+            });
+
+
+            Optional.ofNullable(it.getMatchPickChampion()).ifPresent(matchPickChampion -> result.setPickChampion(matchPickChampion.getPickChampId()));
             list.add(result);
         });
         return this;
@@ -47,11 +53,15 @@ public class PersonalResultResponse implements Serializable {
 
     @Getter
     @Setter
-    static class PersonalResultElement implements Serializable {
+    public static class PersonalResultElement implements Serializable {
         private String date;
         private String seasonName;
         private String position;
         private String winYn;
         private String matchUser;
+        private Long pickChampion;
+        private String pickChampionUrl;
+        private Long matchChampion;
+        private String matchChampionUrl;
     }
 }

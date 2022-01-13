@@ -94,6 +94,12 @@ public class RiotDataServiceImpl
     }
 
     @Override
+    @Transactional
+    public String getChampionImageUrlById(Long championId) {
+        return this.getChampionImageUrl(this.getChampionName(championId));
+    }
+
+    @Override
     public void updateGameVersion(String version) {
         commonService.updateLolVersionProperty(version);
         lolCdnProperty = commonService.getLolVersionProperty();

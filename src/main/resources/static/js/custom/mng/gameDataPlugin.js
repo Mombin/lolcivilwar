@@ -1,5 +1,5 @@
 let $toggleGameData, ingameApiWorker, encryptIds = {}, parsedIngameData = {}, nicknames = {};
-const blackImage = "data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAAADwAAAA9CAIAAAB+wp2AAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABeSURBVGhD7c4BCQAxDACxeZp/CdX0z0wcFBIFOd9CZxZ66buKdEW6Il2RrkhXpCvSFemKdEW6Il2RrkhXpCvSFemKdEW6Il2RrkhXpCvSFemKdEW6Il2RrmxOLzPzA3ZtxVt56UJ2AAAAAElFTkSuQmCC"
+
 
 function initGameDataPlugin() {
   /* variable */

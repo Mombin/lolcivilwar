@@ -143,7 +143,7 @@ function initTeamTable() {
     const $summonerList = $("#summonerList");
     for (let i = 0; i < 10; i++) {
       const input = $("<input>").attr('type', 'text').attr('placeholder', '이름')
-        .css('width', '30%')
+        .css('width', '27%')
         .attr('name', 'summonerName')
         .data('index', i).addClass('form-control');
       const btnA = $("<button>").addClass('btn btn-outline-primary')
@@ -175,10 +175,10 @@ function initTeamTable() {
       if (Object.keys(tierPoints).length > 0) {
         input.on('change', function () {
           let tierPoint = tierPoints[$(this).val()] || 0;
-          $(this).next().next().val(tierPoint);
+          $(this).parent().find('input[name="tierPointInput"]').val(tierPoint);
         });
       }
-      $summoner.append($("<input>").addClass('tierPointGroup').attr('type', 'text').attr('readonly', true).css('display', $toggleTierPoint.getToggleVal() ? 'block' : 'none').css('text-align', 'center').css('width', '5%').addClass('form-control'))
+      $summoner.append($("<input>").addClass('tierPointGroup').attr('name', 'tierPointInput').attr('type', 'text').attr('readonly', true).css('display', $toggleTierPoint.getToggleVal() ? 'block' : 'none').css('text-align', 'center').css('width', '5%').addClass('form-control'))
       $summoner.append(btnA).append(btnB);
       $summonerList.append($summoner);
     }

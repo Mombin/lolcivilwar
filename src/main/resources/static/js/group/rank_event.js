@@ -30,9 +30,10 @@ function bindEvent() {
                 date[1] = date[1] - 1;
                 lastDate = moment(date.slice(0, 6));
                 if (Number($seasonSelector.val()) === currentGroup.defaultSeason.seasonSeq) {
-                    if (moment().diff(lastDate, 'day') > 10) {
-                        return;
-                    }
+                    // 데이터를 위해서 잠시 해제
+                    // if (moment().diff(lastDate, 'day') > 10) {
+                    //     return;
+                    // }
                 }
             } else {
                 return;

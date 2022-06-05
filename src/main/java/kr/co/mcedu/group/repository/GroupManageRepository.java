@@ -8,6 +8,7 @@ import kr.co.mcedu.group.entity.CustomUserEntity;
 import kr.co.mcedu.group.entity.GroupAuthEntity;
 import kr.co.mcedu.group.entity.GroupEntity;
 import kr.co.mcedu.group.entity.GroupSeasonEntity;
+import kr.co.mcedu.group.model.CustomUserDto;
 import kr.co.mcedu.group.model.response.CustomUserResponse;
 import kr.co.mcedu.match.entity.MatchAttendeesEntity;
 import kr.co.mcedu.match.entity.QMatchAttendeesEntity;
@@ -28,6 +29,7 @@ import java.util.*;
 
 import static com.querydsl.core.group.GroupBy.groupBy;
 import static com.querydsl.core.group.GroupBy.list;
+import static com.querydsl.core.types.Projections.bean;
 import static kr.co.mcedu.group.entity.QCustomUserEntity.customUserEntity;
 import static kr.co.mcedu.group.entity.QGroupAuthEntity.groupAuthEntity;
 import static kr.co.mcedu.group.entity.QGroupEntity.groupEntity;
@@ -120,12 +122,23 @@ public class GroupManageRepository {
         entityManager.remove(groupAuthEntity);
     }
 
-    public List<MatchAttendeesEntity> getMatchAttendees(Collection<Long> matchSeqs) {
+    public List<MatchAttendeesDto> getMatchAttendees(Collection<Long> matchSeqs) {
         if (matchSeqs.isEmpty()) {
             return Collections.emptyList();
         }
 
-        return queryFactory.selectFrom(matchAttendeesEntity)
+        return queryFactory.select(bean(MatchAttendeesDto.class,
+                                   matchAttendeesEntity.team,
+                                   matchAttendeesEntity.matchResult,
+                                   bean(CustomMatchDto.class,
+                                           matchAttendeesEntity.customMatch.matchSeq)
+                                           .as("customMatch"),
+                                   bean(CustomUserDto.class,
+                                           customUserEntity.nickname)
+                                           .as("customUser")))
+                           .from(matchAttendeesEntity)
+                           .leftJoin(customUserEntity)
+                           .on(matchAttendeesEntity.customUserEntity.eq(customUserEntity), customUserEntity.delYn.eq(false))
                            .where(matchAttendeesEntity.customMatch.matchSeq.in(matchSeqs)).fetch();
     }
 
@@ -157,11 +170,11 @@ public class GroupManageRepository {
                            .where(customMatchEntity.group.groupSeq.eq(groupSeq),
                                    customMatchEntity.groupSeason.groupSeasonSeq.eq(seasonSeq),
                                    customMatchEntity.delYn.eq(false))
-                           .transform(groupBy(customMatchEntity.matchSeq).list(Projections.bean(CustomMatchDto.class,
+                           .transform(groupBy(customMatchEntity.matchSeq).list(bean(CustomMatchDto.class,
                                    customMatchEntity.matchSeq,
-                                   list(Projections.bean(MatchAttendeesDto.class,
+                                   list(bean(MatchAttendeesDto.class,
                                            matchAttendeesEntity.attendeesSeq,
-                                           matchAttendeesEntity.customUserEntity.seq.as("customUserSeq"),
+                                           Projections.bean(CustomUserDto.class, matchAttendeesEntity.customUserEntity.seq).as("customUser"),
                                            matchAttendeesEntity.position,
                                            matchAttendeesEntity.matchResult,
                                            matchAttendeesEntity.createdDate)
@@ -176,7 +189,7 @@ public class GroupManageRepository {
             booleanBuilder.and(customMatchEntity.groupSeason.group.groupSeq.eq(groupSeq));
         }
 
-        return queryFactory.select(Projections.bean(CustomUserResponse.class, customUserEntity.nickname, customUserEntity.summonerName, customUserEntity.seq))
+        return queryFactory.select(bean(CustomUserResponse.class, customUserEntity.nickname, customUserEntity.summonerName, customUserEntity.seq))
                            .distinct()
                            .from(customMatchEntity)
                            .innerJoin(matchAttendeesEntity).on(matchAttendeesEntity.customMatch.matchSeq.eq(customMatchEntity.matchSeq))

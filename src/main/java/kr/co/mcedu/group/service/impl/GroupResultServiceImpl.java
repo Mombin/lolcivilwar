@@ -7,6 +7,7 @@ import kr.co.mcedu.group.entity.CustomUserEntity;
 import kr.co.mcedu.group.entity.GroupAuthEnum;
 import kr.co.mcedu.group.entity.GroupEntity;
 import kr.co.mcedu.group.entity.SynergyModel;
+import kr.co.mcedu.group.model.CustomUserDto;
 import kr.co.mcedu.group.model.request.GroupResultRequest;
 import kr.co.mcedu.group.model.request.MostChampionRequest;
 import kr.co.mcedu.group.model.request.PersonalResultRequest;
@@ -18,8 +19,8 @@ import kr.co.mcedu.group.service.GroupResultService;
 import kr.co.mcedu.match.entity.CustomMatchEntity;
 import kr.co.mcedu.match.entity.MatchAttendeesEntity;
 import kr.co.mcedu.match.model.CustomMatchDto;
+import kr.co.mcedu.match.model.MatchAttendeesDto;
 import kr.co.mcedu.match.model.response.MatchHistoryResponse;
-import kr.co.mcedu.match.repository.CustomMatchRepository;
 import kr.co.mcedu.match.repository.MatchRepository;
 import kr.co.mcedu.riot.service.RiotDataService;
 import kr.co.mcedu.utils.LocalCacheManager;
@@ -48,7 +49,6 @@ public class GroupResultServiceImpl
     private final GroupManageRepository groupManageRepository;
     private final CustomUserRepository customUserRepository;
     private final MatchRepository matchRepository;
-    private final CustomMatchRepository customMatchRepository;
     private final MatchDataRepository matchDataRepository;
     private final RiotDataService riotDataService;
 
@@ -74,7 +74,7 @@ public class GroupResultServiceImpl
         List<CustomMatchDto> customMatchDtos = groupManageRepository.getCustomMatchByGroupSeqAndSeasonSeq(
                 request.getGroupSeq(), request.getSeasonSeq());
         customMatchDtos.forEach(customMatchDto -> customMatchDto.getMatchAttendees().forEach(
-                matchAttendeesDto -> Optional.ofNullable(matchAttendeesDto.getCustomUserSeq()).map(map::get).ifPresent(target -> {
+                matchAttendeesDto -> Optional.ofNullable(matchAttendeesDto.getCustomUser()).map(CustomUserDto::getSeq).map(map::get).ifPresent(target -> {
 
                     Pair<Integer, Integer> pair = target.getPositionWinRate()
                                                         .getOrDefault(matchAttendeesDto.getPosition(), Pair.of(0, 0));
@@ -188,7 +188,7 @@ public class GroupResultServiceImpl
             return result.get();
         }
 
-        Page<CustomMatchEntity> page = customMatchRepository.findByGroup_GroupSeqOrderByMatchSeqDesc(groupSeq,  PageRequest.of(pageNum, 10));
+        Page<CustomMatchDto> page = matchRepository.findByGroup_GroupSeqOrderByMatchSeqDesc(groupSeq, PageRequest.of(pageNum, 10));
 
         MatchHistoryResponse matchHistoryResponse = this.setMatchHistoryResponse(page);
 
@@ -198,12 +198,12 @@ public class GroupResultServiceImpl
         return matchHistoryResponse;
     }
 
-    private MatchHistoryResponse setMatchHistoryResponse(Page<CustomMatchEntity> page) {
+    private MatchHistoryResponse setMatchHistoryResponse(Page<CustomMatchDto> page) {
         MatchHistoryResponse matchHistoryResponse = new MatchHistoryResponse();
         matchHistoryResponse.setTotalPage(page.getTotalPages());
         final AtomicLong matchNumber = new AtomicLong(page.getTotalElements() - ((long) page.getNumber() * page.getSize()));
-        List<Long> matchSeqs = page.get().map(CustomMatchEntity::getMatchSeq).collect(Collectors.toList());
-        Map<Long, List<MatchAttendeesEntity>> matchAttendeesMap =
+        List<Long> matchSeqs = page.get().map(CustomMatchDto::getMatchSeq).collect(Collectors.toList());
+        Map<Long, List<MatchAttendeesDto>> matchAttendeesMap =
                 groupManageRepository.getMatchAttendees(matchSeqs)
                                      .stream()
                                      .collect(Collectors.groupingBy(it -> it.getCustomMatch().getMatchSeq()));
@@ -212,16 +212,16 @@ public class GroupResultServiceImpl
             List<String> aList = new ArrayList<>();
             List<String> bList = new ArrayList<>();
 
-            List<MatchAttendeesEntity> matchAttendees = matchAttendeesMap.getOrDefault(it.getMatchSeq(), Collections.emptyList());
-            matchAttendees.forEach(matchAttendeesEntity -> {
+            List<MatchAttendeesDto> matchAttendees = matchAttendeesMap.getOrDefault(it.getMatchSeq(), Collections.emptyList());
+            matchAttendees.forEach(attendeesDto -> {
                 List<String> currentTeamList;
-                if ("A".equals(matchAttendeesEntity.getTeam())) {
+                if ("A".equals(attendeesDto.getTeam())) {
                     currentTeamList = aList;
                 } else {
                     currentTeamList = bList;
                 }
-                String nickname = Optional.ofNullable(matchAttendeesEntity.getCustomUserEntity())
-                                          .map(CustomUserEntity::getNickname).orElse("");
+                String nickname = Optional.ofNullable(attendeesDto.getCustomUser())
+                                          .map(CustomUserDto::getNickname).orElse("");
                 currentTeamList.add(nickname);
             });
 
@@ -234,9 +234,9 @@ public class GroupResultServiceImpl
             matchHistoryElement.setSeasonName(it.getGroupSeason().getSeasonName());
             matchHistoryElement.setAList(aList);
             matchHistoryElement.setBList(bList);
-            MatchAttendeesEntity matchAttendeesEntity = it.getMatchAttendees().get(0);
-            String winner = matchAttendeesEntity.getTeam();
-            if(!matchAttendeesEntity.isMatchResult()) {
+            MatchAttendeesDto matchAttendee = matchAttendees.get(0);
+            String winner = matchAttendee.getTeam();
+            if(!matchAttendee.isMatchResult()) {
                 winner = MatchHistoryResponse.teamFlip(winner);
             }
             matchHistoryElement.setWinner(winner);

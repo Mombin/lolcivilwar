@@ -3,6 +3,10 @@ package kr.co.mcedu.summoner.service.impl;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import kr.co.mcedu.broker.EventBroker;
+import kr.co.mcedu.broker.enums.EventType;
+import kr.co.mcedu.broker.model.EventPayload;
+import kr.co.mcedu.broker.model.RefreshSummonerEvent;
 import kr.co.mcedu.config.exception.DataNotExistException;
 import kr.co.mcedu.group.entity.CustomUserEntity;
 import kr.co.mcedu.group.repository.CustomUserRepository;
@@ -15,6 +19,7 @@ import kr.co.mcedu.summoner.entity.SummonerEntity;
 import kr.co.mcedu.summoner.model.response.SummonerResponse;
 import kr.co.mcedu.summoner.repository.SummonerRepository;
 import kr.co.mcedu.summoner.service.SummonerService;
+import kr.co.mcedu.utils.BeanUtils;
 import kr.co.mcedu.utils.StringUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Queue;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -31,6 +37,10 @@ public class SummonerServiceImpl implements SummonerService {
     private final ApiEngine apiEngine;
     private final SummonerRepository summonerRepository;
     private final CustomUserRepository customUserRepository;
+
+    private final EventBroker eventBroker;
+
+    private Runnable eventRunner = null;
 
     private final LoadingCache<String, SummonerResponse> summonerCache = CacheBuilder.newBuilder().expireAfterWrite(10,
             TimeUnit.MINUTES).build(CacheLoader.from(summonerName -> {
@@ -42,7 +52,26 @@ public class SummonerServiceImpl implements SummonerService {
         }
         return null;
     }));
+    public static void executeRefreshEvent() {
+        SummonerService summonerService = BeanUtils.getBean(SummonerService.class);
+        summonerService.executeRefreshEventPolling();
 
+    }
+
+    @Override
+    public void executeRefreshEventPolling() {
+        if (eventRunner == null) {
+            eventRunner = () -> {
+                Queue<EventPayload> eventQueue = eventBroker.getEventQueue(EventType.REFRESH_SUMMONER);
+                while(!eventQueue.isEmpty()) {
+                    RefreshSummonerEvent event = (RefreshSummonerEvent) eventQueue.poll();
+                    refreshSummonerByAccountId(event.getAccountId());
+                }
+                eventRunner = null;
+            };
+            eventRunner.run();
+        }
+    }
 
     @Override
     public SummonerResponse getSummonerInCache(final String summonerName) {
@@ -61,9 +90,9 @@ public class SummonerServiceImpl implements SummonerService {
     }
 
     @Override
-    public SummonerEntity getSummonerByAccountId(String accountId) {
+    public void refreshSummonerByAccountId(String accountId) {
         if (StringUtils.isEmpty(accountId)) {
-            return null;
+            return;
         }
         Optional<SummonerEntity> result = summonerRepository.findById(accountId);
         if (result.isPresent()) {
@@ -71,15 +100,14 @@ public class SummonerServiceImpl implements SummonerService {
 
             LocalDateTime modifiedDate = summonerEntity.getModifiedDate();
             if (modifiedDate == null) {
-                return this.refresh(summonerEntity);
+                this.refresh(summonerEntity);
+                return;
             }
 
             if (modifiedDate.plusHours(1).isBefore(LocalDateTime.now())) {
-                return this.refresh(summonerEntity);
+                this.refresh(summonerEntity);
             }
-            return summonerEntity;
         }
-        return null;
     }
 
     @Override

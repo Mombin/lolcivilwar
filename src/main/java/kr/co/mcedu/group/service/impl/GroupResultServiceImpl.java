@@ -17,6 +17,7 @@ import kr.co.mcedu.group.repository.MatchDataRepository;
 import kr.co.mcedu.group.service.GroupResultService;
 import kr.co.mcedu.match.entity.CustomMatchEntity;
 import kr.co.mcedu.match.entity.MatchAttendeesEntity;
+import kr.co.mcedu.match.model.CustomMatchDto;
 import kr.co.mcedu.match.model.response.MatchHistoryResponse;
 import kr.co.mcedu.match.repository.CustomMatchRepository;
 import kr.co.mcedu.match.repository.MatchRepository;
@@ -70,32 +71,30 @@ public class GroupResultServiceImpl
         GroupEntity groupEntity = groupEntityOpt.orElseThrow(DataNotExistException::new);
         Map<Long, CustomUserResponse> map = groupEntity.getCustomUser().stream().collect(Collectors.toMap(CustomUserEntity::getSeq, CustomUserEntity::toCustomUserResponse));
 
-        List<CustomMatchEntity> customMatchEntities = groupManageRepository.getCustomMatchByGroupSeqAndSeasonSeq(
+        List<CustomMatchDto> customMatchDtos = groupManageRepository.getCustomMatchByGroupSeqAndSeasonSeq(
                 request.getGroupSeq(), request.getSeasonSeq());
-        customMatchEntities.forEach(it -> it.getMatchAttendees().forEach(matchAttendees -> {
-            Optional.ofNullable(matchAttendees.getCustomUserEntity()).map(CustomUserEntity::getSeq).map(map::get)
-                    .ifPresent(target -> {
+        customMatchDtos.forEach(customMatchDto -> customMatchDto.getMatchAttendees().forEach(
+                matchAttendeesDto -> Optional.ofNullable(matchAttendeesDto.getCustomUserSeq()).map(map::get).ifPresent(target -> {
 
-                        Pair<Integer, Integer> pair = target.getPositionWinRate()
-                                                            .getOrDefault(matchAttendees.getPosition(), Pair.of(0, 0));
-                        Pair<Integer, Integer> newPair = Pair.of(pair.getFirst() + 1,
-                                matchAttendees.isMatchResult() ? pair.getSecond() + 1 : pair.getSecond());
-                        target.getPositionWinRate().put(matchAttendees.getPosition(), newPair);
+                    Pair<Integer, Integer> pair = target.getPositionWinRate()
+                                                        .getOrDefault(matchAttendeesDto.getPosition(), Pair.of(0, 0));
+                    Pair<Integer, Integer> newPair = Pair.of(pair.getFirst() + 1,
+                            matchAttendeesDto.isMatchResult() ? pair.getSecond() + 1 : pair.getSecond());
+                    target.getPositionWinRate().put(matchAttendeesDto.getPosition(), newPair);
 
-                        target.totalIncrease();
-                        if (matchAttendees.isMatchResult()) {
-                            target.winIncrease();
-                        }
-                        LocalDateTime createDateOrNow = Optional.ofNullable(matchAttendees.getCreatedDate())
-                                                                .orElseGet(LocalDateTime::now);
-                        boolean isBeforeCreateDateOrNow = Optional.ofNullable(target.getLastDate())
-                                                                  .map(localDateTime -> localDateTime.isBefore(
-                                                                          createDateOrNow)).orElse(true);
-                        if (isBeforeCreateDateOrNow) {
-                            target.setLastDate(createDateOrNow);
-                        }
-                    });
-        }));
+                    target.totalIncrease();
+                    if (matchAttendeesDto.isMatchResult()) {
+                        target.winIncrease();
+                    }
+                    LocalDateTime createDateOrNow = Optional.ofNullable(matchAttendeesDto.getCreatedDate())
+                                                            .orElseGet(LocalDateTime::now);
+                    boolean isBeforeCreateDateOrNow = Optional.ofNullable(target.getLastDate())
+                                                              .map(localDateTime -> localDateTime.isBefore(
+                                                                      createDateOrNow)).orElse(true);
+                    if (isBeforeCreateDateOrNow) {
+                        target.setLastDate(createDateOrNow);
+                    }
+                })));
         return new ArrayList<>(map.values());
     }
 

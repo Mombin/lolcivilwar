@@ -9,10 +9,11 @@ import kr.co.mcedu.group.entity.GroupAuthEntity;
 import kr.co.mcedu.group.entity.GroupEntity;
 import kr.co.mcedu.group.entity.GroupSeasonEntity;
 import kr.co.mcedu.group.model.response.CustomUserResponse;
-import kr.co.mcedu.match.entity.CustomMatchEntity;
 import kr.co.mcedu.match.entity.MatchAttendeesEntity;
 import kr.co.mcedu.match.entity.QMatchAttendeesEntity;
 import kr.co.mcedu.match.entity.QMatchPickChampionEntity;
+import kr.co.mcedu.match.model.CustomMatchDto;
+import kr.co.mcedu.match.model.MatchAttendeesDto;
 import kr.co.mcedu.user.entity.GroupInviteEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -25,6 +26,8 @@ import javax.persistence.EntityManager;
 import java.time.LocalDateTime;
 import java.util.*;
 
+import static com.querydsl.core.group.GroupBy.groupBy;
+import static com.querydsl.core.group.GroupBy.list;
 import static kr.co.mcedu.group.entity.QCustomUserEntity.customUserEntity;
 import static kr.co.mcedu.group.entity.QGroupAuthEntity.groupAuthEntity;
 import static kr.co.mcedu.group.entity.QGroupEntity.groupEntity;
@@ -147,9 +150,22 @@ public class GroupManageRepository {
         return queryFactory.selectFrom(groupSeasonEntity).where(groupSeasonEntity.groupSeasonSeq.in(seasonSeqs)).fetch();
     }
 
-    public List<CustomMatchEntity> getCustomMatchByGroupSeqAndSeasonSeq(long groupSeq, Long seasonSeq) {
-        return queryFactory.selectFrom(customMatchEntity).where(customMatchEntity.group.groupSeq.eq(groupSeq),
-                customMatchEntity.groupSeason.groupSeasonSeq.eq(seasonSeq)).fetch();
+    public List<CustomMatchDto> getCustomMatchByGroupSeqAndSeasonSeq(long groupSeq, Long seasonSeq) {
+        return queryFactory.from(customMatchEntity)
+                           .leftJoin(matchAttendeesEntity)
+                           .on(matchAttendeesEntity.customMatch.eq(customMatchEntity), customMatchEntity.delYn.eq(false))
+                           .where(customMatchEntity.group.groupSeq.eq(groupSeq),
+                                   customMatchEntity.groupSeason.groupSeasonSeq.eq(seasonSeq),
+                                   customMatchEntity.delYn.eq(false))
+                           .transform(groupBy(customMatchEntity.matchSeq).list(Projections.bean(CustomMatchDto.class,
+                                   customMatchEntity.matchSeq,
+                                   list(Projections.bean(MatchAttendeesDto.class,
+                                           matchAttendeesEntity.attendeesSeq,
+                                           matchAttendeesEntity.customUserEntity.seq.as("customUserSeq"),
+                                           matchAttendeesEntity.position,
+                                           matchAttendeesEntity.matchResult,
+                                           matchAttendeesEntity.createdDate)
+                                   ).as("matchAttendees"))));
     }
 
     public List<CustomUserResponse> getMatchAttendeesByGroupSeqAndSeasonSeq(Long groupSeq, Long seasonSeq) {

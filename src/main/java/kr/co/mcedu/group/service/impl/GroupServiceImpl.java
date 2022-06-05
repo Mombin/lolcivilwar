@@ -1,5 +1,7 @@
 package kr.co.mcedu.group.service.impl;
 
+import kr.co.mcedu.broker.EventBroker;
+import kr.co.mcedu.broker.model.RefreshSummonerEvent;
 import kr.co.mcedu.config.exception.AccessDeniedException;
 import kr.co.mcedu.config.exception.AlreadyDataExistException;
 import kr.co.mcedu.config.exception.DataNotExistException;
@@ -49,6 +51,7 @@ public class GroupServiceImpl implements GroupService {
     private final SummonerService summonerService;
     private final GroupManageRepository groupManageRepository;
     private final GroupResultService groupResultService;
+    private final EventBroker broker;
 
     /**
      * groupSeq를 이용하여 해당 GroupEntity 가져옴
@@ -127,12 +130,7 @@ public class GroupServiceImpl implements GroupService {
             if (!customUserResponse.isRefreshTarget()) {
                 return;
             }
-            Optional.ofNullable(summonerService.getSummonerByAccountId(customUserResponse.getAccountId()))
-                    .ifPresent(it -> {
-                        customUserResponse.setProfileIconId(it.getProfileIconId());
-                        customUserResponse.setSummonerLevel(it.getSummonerLevel());
-                        customUserResponse.setSummonerName(it.getName());
-                    });
+            broker.pushEvent(new RefreshSummonerEvent(customUserResponse.getAccountId()));
         }));
         return list;
     }

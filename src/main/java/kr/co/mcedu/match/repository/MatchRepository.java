@@ -1,16 +1,28 @@
 package kr.co.mcedu.match.repository;
 
+import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import kr.co.mcedu.group.entity.CustomUserEntity;
-import kr.co.mcedu.match.entity.*;
+import kr.co.mcedu.group.model.GroupSeasonDto;
+import kr.co.mcedu.match.entity.IngameRuneEntity;
+import kr.co.mcedu.match.entity.MatchAttendeesEntity;
+import kr.co.mcedu.match.entity.MatchBanChamp;
+import kr.co.mcedu.match.entity.MatchPickChampionEntity;
+import kr.co.mcedu.match.model.CustomMatchDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
 import javax.persistence.EntityManager;
 import java.util.List;
 
+import static com.querydsl.core.group.GroupBy.groupBy;
+import static com.querydsl.core.types.Projections.bean;
 import static kr.co.mcedu.group.entity.QCustomUserEntity.customUserEntity;
+import static kr.co.mcedu.group.entity.QGroupSeasonEntity.groupSeasonEntity;
 import static kr.co.mcedu.match.entity.QCustomMatchEntity.customMatchEntity;
 import static kr.co.mcedu.match.entity.QMatchAttendeesEntity.matchAttendeesEntity;
 
@@ -61,5 +73,34 @@ public class MatchRepository {
 
     public void saveIngameRunes(List<IngameRuneEntity> ingameRuneEntities) {
         ingameRuneEntities.forEach(entityManager::persist);
+    }
+
+    public Page<CustomMatchDto> findByGroup_GroupSeqOrderByMatchSeqDesc(Long groupSeq, Pageable pageable) {
+        BooleanBuilder condition = new BooleanBuilder().andAnyOf(customMatchEntity.delYn.eq(false),
+                customMatchEntity.group.groupSeq.eq(groupSeq));
+
+
+        long count = queryFactory.select(customMatchEntity.matchSeq)
+                                 .from(customMatchEntity)
+                                 .where(condition)
+                                 .fetchCount();
+
+        List<CustomMatchDto> results = queryFactory.from(customMatchEntity)
+                                                   .leftJoin(groupSeasonEntity).on(customMatchEntity.groupSeason.eq(groupSeasonEntity))
+                                                   .where(condition)
+                                                   .orderBy(customMatchEntity.matchSeq.desc())
+                                                   .limit(pageable.getPageSize())
+                                                   .offset(pageable.getOffset())
+                                                   .transform(groupBy(customMatchEntity.matchSeq)
+                                                           .list(bean(CustomMatchDto.class,
+                                                                   customMatchEntity.matchSeq,
+                                                                   customMatchEntity.createdDate,
+                                                                   bean(GroupSeasonDto.class,
+                                                                           groupSeasonEntity.seasonName)
+                                                                           .as("groupSeason"))
+                                                           )
+                                                   );
+
+        return new PageImpl<>(results, pageable, count);
     }
 }

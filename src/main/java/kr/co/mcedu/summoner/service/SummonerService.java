@@ -7,6 +7,7 @@ import kr.co.mcedu.summoner.model.response.SummonerResponse;
 public interface SummonerService {
     SummonerResponse getSummonerInCache(String summonerName);
     SummonerEntity findByAccountId(String accountId) throws DataNotExistException;
-    SummonerEntity getSummonerByAccountId(String accountId);
+    void refreshSummonerByAccountId(String accountId);
     SummonerEntity getSummonerBySummonerName(String summonerName);
+    void executeRefreshEventPolling();
 }
